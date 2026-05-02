@@ -41,7 +41,7 @@ export function GoalsPage(props: ScreenProps) {
       busyStep={props.busyStep}
     >
       <section className="goals-screen screen-enter">
-        <AppPageHeader title="Goals" subtitle="Your life goals, supported by intelligent agents and real progress." />
+        <AppPageHeader title="Goals" subtitle="Your life goals, supported by North's specialist tools and real progress." />
         <div className="goals-hero-panel">
           <div className="goals-hero-copy">
             <span className="goals-eyebrow"><Sparkle size={14} weight="fill" /> Private goal studio</span>

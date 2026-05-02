@@ -84,13 +84,13 @@ export function MemoryPage(props: ScreenProps) {
             </div>
           </article>
           <aside className="agent-usage-panel">
-            <h3>Recent agent usage <LiveDot /></h3>
+            <h3>Recent North tool usage <LiveDot /></h3>
             {agentCards.map((card) => (
               <AgentUsageCard card={card} key={card.agent} />
             ))}
             <div className="memory-controls">
               <h3>Memory controls</h3>
-              {['Approve updates', 'Hide from agents', 'Memory history', 'Export memory', 'Delete memory'].map((item, index) => (
+              {['Approve updates', 'Hide from North', 'Memory history', 'Export memory', 'Delete memory'].map((item, index) => (
                 <button className={index === 4 ? 'danger' : ''} type="button" key={item}>{item}<ArrowRight size={15} /></button>
               ))}
             </div>

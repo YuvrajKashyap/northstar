@@ -52,6 +52,104 @@ interface StructuredMemoryProfile {
   tool_calls: MemoryToolCall[];
 }
 
+interface OnboardingDraft {
+  user: StructuredMemoryProfile['user'];
+  goals: StructuredMemoryProfile['goals'];
+  risk_profile: StructuredMemoryProfile['risk_profile'];
+  tax_profile: StructuredMemoryProfile['tax_profile'];
+  values: string[];
+  preferences: StructuredMemoryProfile['preferences'];
+  life_context: StructuredMemoryProfile['life_context'];
+  memory_markdown: string;
+}
+
+const onboardingToolDefinitions = [
+  {
+    type: 'function',
+    function: {
+      name: 'create_goal',
+      description: 'Create one durable financial goal from onboarding intake. Call once per distinct goal.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          type: { type: 'string' },
+          target_amount: { type: 'number' },
+          target_date: { type: 'string' },
+          priority: { type: 'string', enum: ['high', 'medium', 'low'] },
+          notes: { type: 'string' },
+        },
+        required: ['type', 'target_amount', 'target_date', 'priority', 'notes'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'set_communication_style',
+      description: 'Set how North should explain decisions to this user.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          communication_style: { type: 'string' },
+          explanation_style: { type: 'string' },
+          decision_style: { type: 'string' },
+        },
+        required: ['communication_style', 'explanation_style', 'decision_style'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'set_risk_comfort',
+      description: 'Set the user risk comfort, panic response, liquidity need, and time horizon.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          risk_comfort: { type: 'string' },
+          panic_response: { type: 'string' },
+          liquidity_need: { type: 'string' },
+          time_horizon: { type: 'string' },
+        },
+        required: ['risk_comfort', 'panic_response', 'liquidity_need', 'time_horizon'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'create_value',
+      description: 'Create one durable user value or preference from onboarding. Call once per distinct value.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          value: { type: 'string' },
+        },
+        required: ['value'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'write_memory_markdown',
+      description: 'Write the final durable memory.md body for North to load on every run.',
+      parameters: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          markdown: { type: 'string' },
+        },
+        required: ['markdown'],
+      },
+    },
+  },
+] as const;
+
 export function buildMemoryFromOnboarding(
   answers: OnboardingAnswers,
   baseContext: ContextPacket,
@@ -157,87 +255,59 @@ async function createStructuredMemoryProfile(
     return deterministicProfile(answers, seed);
   }
 
-  const prompt = `You are Northstar's onboarding memory compiler.
-
-Convert the user's full natural-language onboarding intake into an official durable financial memory.
-
-Respond with ONLY valid JSON in this exact shape:
-{
-  "user": {
-    "name": "string",
-    "age": 0,
-    "investor_level": "string",
-    "communication_style": "string",
-    "household": "string",
-    "occupation": "string",
-    "income_stability": "string"
-  },
-  "goals": [
-    {
-      "type": "string",
-      "target_amount": 0,
-      "target_date": "YYYY-MM or unknown",
-      "priority": "high|medium|low",
-      "notes": "string"
-    }
-  ],
-  "risk_profile": {
-    "risk_comfort": "string",
-    "panic_response": "string",
-    "liquidity_need": "string",
-    "time_horizon": "string"
-  },
-  "tax_profile": {
-    "taxable_account": true,
-    "tax_sensitivity": "string",
-    "notes": "string"
-  },
-  "values": ["string"],
-  "preferences": {
-    "explanation_style": "string",
-    "decision_style": "string",
-    "constraints": ["string"]
-  },
-  "life_context": {
-    "near_term_events": ["string"],
-    "cash_flow_notes": "string",
-    "open_questions": ["string"]
-  },
-  "memory_markdown": "A complete memory.md document with sections: Identity, Household and Work, Goals, Accounts, Risk and Behavior, Liquidity, Tax, Values, Communication, Constraints, Agent Usage, Open Questions.",
-  "tool_calls": [
-    {
-      "tool": "create_user_profile|create_goal|create_life_event|create_user_value|create_risk_profile|create_tax_profile|set_communication_preferences|commit_onboarding_profile",
-      "args": {},
-      "result": "string"
-    }
-  ]
-}
-
-Rules:
-- Use the existing user as the base person: ${JSON.stringify(seed.user)}.
-- Use account facts as known facts: ${JSON.stringify(seed.contextPacket.accounts_summary)}.
-- Include multiple goals if the user mentions them.
-- Do not invent precise facts where the user was vague; write "unknown" or add an open question.
-- Include tool calls that represent the profile setup work.
-- memory_markdown must be comprehensive, plain-English, and suitable to save as the official memory.md.
-
-User intake:
-${answers.profileText}`;
-
-  const completion = await client.chat.completions.create({
-    ...getOpenRouterRequestDefaults(),
-    messages: [
-      { role: 'system', content: 'You return strict JSON only. No markdown fences.' },
-      { role: 'user', content: prompt },
-    ],
-    response_format: { type: 'json_object' },
-  });
-
-  const content = completion.choices[0]?.message?.content;
-  if (!content) return deterministicProfile(answers, seed);
+  const normalized = normalizeAnswers(answers);
+  const draft = createOnboardingDraft(answers, seed);
+  const prompt = [
+    'Compile this onboarding intake by calling tools. Do not return JSON.',
+    '',
+    'Required behavior:',
+    '- Call create_goal once for every distinct goal you infer.',
+    '- Call create_value once for every durable value or preference you infer.',
+    '- Call set_communication_style exactly once.',
+    '- Call set_risk_comfort exactly once.',
+    '- Call write_memory_markdown exactly once with a complete memory.md.',
+    '- You may call multiple tools in parallel.',
+    '- Do not invent precise facts. Use "unknown" or include open questions when needed.',
+    '- The memory.md must describe one agent named North using specialist tools, not multiple agents.',
+    '',
+    `Base user: ${JSON.stringify(seed.user)}`,
+    `Known accounts summary: ${JSON.stringify(seed.contextPacket.accounts_summary)}`,
+    `Fallback goal: ${normalized.goal}, ${normalized.targetAmount}, ${normalized.targetDate}`,
+    '',
+    `User intake:\n${answers.profileText}`,
+  ].join('\n');
 
   try {
-    return normalizeProfile(JSON.parse(content) as Partial<StructuredMemoryProfile>, seed, answers);
+    const completion = await client.chat.completions.create({
+      ...getOpenRouterRequestDefaults(),
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You are Northstar onboarding. Use the supplied tools to write the durable user memory for North. Tool calls are the output.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      tools: onboardingToolDefinitions as never,
+      tool_choice: 'auto',
+      parallel_tool_calls: true,
+    } as never);
+
+    const toolCalls = completion.choices[0]?.message?.tool_calls ?? [];
+    if (toolCalls.length === 0) return deterministicProfile(answers, seed);
+
+    const executed: MemoryToolCall[] = [];
+    for (const call of toolCalls) {
+      const functionCall = 'function' in call ? call.function : undefined;
+      const name = functionCall?.name ?? '';
+      const args = parseToolArgs(functionCall?.arguments);
+      const result = applyOnboardingTool(draft, name, args);
+      if (result) executed.push(result);
+    }
+
+    const profile = draftToProfile(draft, seed, answers);
+    profile.tool_calls = completeRequiredToolCalls(profile, executed);
+    return normalizeProfile(profile, seed, answers);
   } catch {
     return deterministicProfile(answers, seed);
   }
@@ -294,7 +364,7 @@ function deterministicProfile(answers: OnboardingAnswers, seed: DemoSeed): Struc
   };
 
   profile.memory_markdown = renderMemoryMarkdown(profile, seed);
-  profile.tool_calls = createMemoryToolCalls(profile, seed.user.id);
+  profile.tool_calls = createMemoryToolCalls(profile);
   return profile;
 }
 
@@ -320,6 +390,150 @@ function normalizeProfile(
     ? profile.memory_markdown
     : renderMemoryMarkdown(normalized, seed);
   return normalized;
+}
+
+function createOnboardingDraft(answers: OnboardingAnswers, seed: DemoSeed): OnboardingDraft {
+  const normalized = normalizeAnswers(answers);
+  return {
+    user: {
+      ...seed.user,
+      communication_style: normalized.communicationStyle,
+      household: 'unknown',
+      occupation: 'unknown',
+      income_stability: 'unknown',
+    },
+    goals: [],
+    risk_profile: {
+      risk_comfort: normalized.drawdownFeeling.toLowerCase().includes('worried')
+        ? 'moderate_cautious'
+        : 'moderate',
+      panic_response: normalized.drawdownFeeling,
+      liquidity_need: normalized.withdrawalNeed,
+      time_horizon: normalized.targetDate,
+    },
+    tax_profile: {
+      taxable_account: normalized.taxableAccount,
+      tax_sensitivity: normalized.taxableAccount ? 'tax-aware' : 'unknown',
+      notes: normalized.taxableAccount
+        ? 'Taxable account should be considered before sales or withdrawals.'
+        : 'Taxable account not confirmed.',
+    },
+    values: [],
+    preferences: {
+      explanation_style: normalized.communicationStyle,
+      decision_style: 'Show clear options and require approval before action.',
+      constraints: ['No automatic trading', 'Explain costs', 'Explain tax impact', 'Show confidence'],
+    },
+    life_context: {
+      near_term_events: [normalized.withdrawalNeed],
+      cash_flow_notes: 'Monthly cash-flow details not fully captured yet.',
+      open_questions: ['Confirm income stability', 'Confirm household obligations', 'Confirm emergency fund target'],
+    },
+    memory_markdown: '',
+  };
+}
+
+function applyOnboardingTool(
+  draft: OnboardingDraft,
+  name: string,
+  args: Record<string, unknown>,
+): MemoryToolCall | null {
+  if (name === 'create_goal') {
+    const goal = {
+      type: stringArg(args.type, 'Build long-term financial security'),
+      target_amount: numberArg(args.target_amount, 0),
+      target_date: stringArg(args.target_date, 'unknown'),
+      priority: priorityArg(args.priority),
+      notes: stringArg(args.notes, 'Captured from onboarding intake.'),
+    };
+    draft.goals.push(goal);
+    return { tool: 'create_goal', args: goal, result: `Goal created: ${goal.type}` };
+  }
+
+  if (name === 'set_communication_style') {
+    const communicationStyle = stringArg(args.communication_style, draft.user.communication_style);
+    draft.user.communication_style = communicationStyle;
+    draft.preferences.explanation_style = stringArg(args.explanation_style, communicationStyle);
+    draft.preferences.decision_style = stringArg(args.decision_style, draft.preferences.decision_style);
+    return {
+      tool: 'set_communication_style',
+      args: {
+        communication_style: draft.user.communication_style,
+        explanation_style: draft.preferences.explanation_style,
+        decision_style: draft.preferences.decision_style,
+      },
+      result: 'Communication style set',
+    };
+  }
+
+  if (name === 'set_risk_comfort') {
+    draft.risk_profile = {
+      risk_comfort: stringArg(args.risk_comfort, draft.risk_profile.risk_comfort),
+      panic_response: stringArg(args.panic_response, draft.risk_profile.panic_response),
+      liquidity_need: stringArg(args.liquidity_need, draft.risk_profile.liquidity_need),
+      time_horizon: stringArg(args.time_horizon, draft.risk_profile.time_horizon ?? 'unknown'),
+    };
+    return {
+      tool: 'set_risk_comfort',
+      args: draft.risk_profile,
+      result: 'Risk comfort set',
+    };
+  }
+
+  if (name === 'create_value') {
+    const value = stringArg(args.value, '').trim();
+    if (!value) return null;
+    if (!draft.values.includes(value)) draft.values.push(value);
+    return { tool: 'create_value', args: { value }, result: `Value created: ${value}` };
+  }
+
+  if (name === 'write_memory_markdown') {
+    draft.memory_markdown = stringArg(args.markdown, '').trim();
+    return {
+      tool: 'write_memory_markdown',
+      args: { bytes: draft.memory_markdown.length },
+      result: 'memory.md written',
+    };
+  }
+
+  return null;
+}
+
+function draftToProfile(draft: OnboardingDraft, seed: DemoSeed, answers: OnboardingAnswers): StructuredMemoryProfile {
+  const fallback = deterministicProfile(answers, seed);
+  const profile: StructuredMemoryProfile = {
+    ...fallback,
+    ...draft,
+    goals: draft.goals.length ? draft.goals : fallback.goals,
+    values: draft.values.length ? draft.values : fallback.values,
+    memory_markdown: draft.memory_markdown,
+    tool_calls: [],
+  };
+  if (!profile.memory_markdown) profile.memory_markdown = renderMemoryMarkdown(profile, seed);
+  return profile;
+}
+
+function parseToolArgs(value: unknown): Record<string, unknown> {
+  if (typeof value !== 'string' || !value.trim()) return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function stringArg(value: unknown, fallback: string): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
+}
+
+function numberArg(value: unknown, fallback: number): number {
+  const numeric = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function priorityArg(value: unknown): 'high' | 'medium' | 'low' {
+  return value === 'high' || value === 'medium' || value === 'low' ? value : 'medium';
 }
 
 function profileToContextPacket(profile: StructuredMemoryProfile, baseContext: ContextPacket): ContextPacket {
@@ -426,40 +640,83 @@ ${profile.values.map((value) => `- ${value}`).join('\n')}
 ## Constraints
 ${profile.preferences.constraints.map((constraint) => `- ${constraint}`).join('\n')}
 
-## Agent Usage
-- Goal Agent uses Goals, Cash Flow, and Liquidity.
-- Scenario Agent uses Goals, Risk, Accounts, and Life Context.
-- Tax Agent uses Tax Profile, Accounts, Holdings, and Cost Basis.
-- Rebalance Agent uses Goals, Liquidity, Risk, Tax, and Portfolio Features.
-- Communication Agent uses Values, Communication, and Decision Style.
+## North Usage
+- North always loads this memory.md and the current context_packet.json before answering.
+- North uses specialist tools for goals, portfolio data, tax context, market data, filings, search, and receipts.
+- North must explain assumptions, costs, tax considerations, confidence, and approval status before any recommendation.
+- North never trades, moves money, changes accounts, files taxes, or contacts institutions without explicit approval.
 
 ## Open Questions
 ${profile.life_context.open_questions.map((question) => `- ${question}`).join('\n')}
 `;
 }
 
-function createMemoryToolCalls(profile: StructuredMemoryProfile, userId: string): MemoryToolCall[] {
+function createMemoryToolCalls(profile: StructuredMemoryProfile): MemoryToolCall[] {
   const calls: MemoryToolCall[] = [
-    { tool: 'create_user_profile', args: { user: profile.user }, result: 'User profile created' },
-    { tool: 'create_risk_profile', args: profile.risk_profile, result: 'Risk profile created' },
-    { tool: 'create_tax_profile', args: profile.tax_profile, result: 'Tax profile created' },
     {
-      tool: 'set_communication_preferences',
-      args: profile.preferences,
-      result: 'Communication preferences set',
+      tool: 'set_communication_style',
+      args: {
+        communication_style: profile.user.communication_style,
+        explanation_style: profile.preferences.explanation_style,
+        decision_style: profile.preferences.decision_style,
+      },
+      result: 'Communication style set',
     },
+    { tool: 'set_risk_comfort', args: profile.risk_profile, result: 'Risk comfort set' },
   ];
   for (const goal of profile.goals) {
     calls.push({ tool: 'create_goal', args: goal, result: `Goal created: ${goal.type}` });
   }
   for (const value of profile.values) {
-    calls.push({ tool: 'create_user_value', args: { value }, result: `Value created: ${value}` });
+    calls.push({ tool: 'create_value', args: { value }, result: `Value created: ${value}` });
   }
   calls.push({
-    tool: 'commit_onboarding_profile',
-    args: { userId },
-    result: 'Official memory.md and context_packet.json committed',
+    tool: 'write_memory_markdown',
+    args: { bytes: profile.memory_markdown.length },
+    result: 'memory.md written',
   });
+  return calls;
+}
+
+function completeRequiredToolCalls(
+  profile: StructuredMemoryProfile,
+  executed: MemoryToolCall[],
+): MemoryToolCall[] {
+  const calls = executed.length ? [...executed] : createMemoryToolCalls(profile);
+  const hasTool = (tool: MemoryToolCall['tool']) => calls.some((call) => call.tool === tool);
+
+  if (!hasTool('create_goal')) {
+    for (const goal of profile.goals) {
+      calls.push({ tool: 'create_goal', args: goal, result: `Goal created: ${goal.type}` });
+    }
+  }
+  if (!hasTool('create_value')) {
+    for (const value of profile.values) {
+      calls.push({ tool: 'create_value', args: { value }, result: `Value created: ${value}` });
+    }
+  }
+  if (!hasTool('set_communication_style')) {
+    calls.push({
+      tool: 'set_communication_style',
+      args: {
+        communication_style: profile.user.communication_style,
+        explanation_style: profile.preferences.explanation_style,
+        decision_style: profile.preferences.decision_style,
+      },
+      result: 'Communication style set',
+    });
+  }
+  if (!hasTool('set_risk_comfort')) {
+    calls.push({ tool: 'set_risk_comfort', args: profile.risk_profile, result: 'Risk comfort set' });
+  }
+  if (!hasTool('write_memory_markdown')) {
+    calls.push({
+      tool: 'write_memory_markdown',
+      args: { bytes: profile.memory_markdown.length },
+      result: 'memory.md written',
+    });
+  }
+
   return calls;
 }
 
@@ -482,7 +739,7 @@ export function buildMemoryGraph(
     kind: 'person',
     value: formatPersonValue(contextPacket),
     source: 'User profile',
-    usedBy: ['Orchestrator', 'Communication Agent'],
+    usedBy: ['North', 'Memory tools'],
   };
 
   const nodes: MemoryGraphNode[] = [
@@ -493,7 +750,7 @@ export function buildMemoryGraph(
       kind: 'goal',
       value: formatGoalsValue(contextPacket.goals),
       source: 'Onboarding',
-      usedBy: ['Goal Agent', 'Scenario Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Goal tools', 'Scenario tools'],
     },
     {
       id: 'risk',
@@ -501,7 +758,7 @@ export function buildMemoryGraph(
       kind: 'risk',
       value: formatRiskValue(contextPacket),
       source: 'Onboarding',
-      usedBy: ['Scenario Agent', 'Communication Agent'],
+      usedBy: ['North', 'Risk tools'],
     },
     {
       id: 'accounts',
@@ -509,7 +766,7 @@ export function buildMemoryGraph(
       kind: 'account',
       value: formatAccountsValue(contextPacket),
       source: 'Account link',
-      usedBy: ['Portfolio Agent', 'Tax Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Portfolio tools', 'Tax tools'],
     },
     {
       id: 'tax',
@@ -517,7 +774,7 @@ export function buildMemoryGraph(
       kind: 'tax',
       value: contextPacket.accounts_summary.taxable ? 'Taxable brokerage detected' : 'Taxable account not confirmed yet',
       source: 'Account link + onboarding',
-      usedBy: ['Tax Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Tax tools'],
     },
     {
       id: 'values',
@@ -525,7 +782,7 @@ export function buildMemoryGraph(
       kind: 'values',
       value: contextPacket.constraints.explain_costs ? 'Explain costs and tradeoffs' : 'No values captured',
       source: 'Onboarding',
-      usedBy: ['Communication Agent'],
+      usedBy: ['North', 'Communication tools'],
     },
     {
       id: 'cash-flow',
@@ -533,7 +790,7 @@ export function buildMemoryGraph(
       kind: 'cash_flow',
       value: formatCashFlowValue(contextPacket),
       source: 'Account link',
-      usedBy: ['Goal Agent', 'Scenario Agent'],
+      usedBy: ['North', 'Scenario tools'],
     },
     {
       id: 'communication',
@@ -541,7 +798,7 @@ export function buildMemoryGraph(
       kind: 'communication',
       value: contextPacket.user.communication_style,
       source: 'Onboarding',
-      usedBy: ['Communication Agent'],
+      usedBy: ['North', 'Communication tools'],
     },
   ];
 

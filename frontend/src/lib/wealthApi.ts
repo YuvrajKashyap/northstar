@@ -57,8 +57,12 @@ export function getMemoryStatus(userId: string) {
   return requestJson<MemoryStatusResponse>(`/api/memory/status?userId=${encodeURIComponent(userId)}`)
 }
 
-export async function streamScenarioTrace(onEvent: (event: AgentTraceEvent) => void) {
-  const response = await fetch(apiUrl('/api/agent/scenario/stream'), { method: 'POST' })
+export async function streamScenarioTrace(userId: string, onEvent: (event: AgentTraceEvent) => void) {
+  const response = await fetch(apiUrl('/api/agent/scenario/stream'), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  })
   if (!response.ok) {
     throw new Error(await response.text())
   }

@@ -25,8 +25,8 @@ export const defaultAnswers: OnboardingAnswers = {
 }
 
 export const navItems: Array<{ screen: Screen; label: string; icon: typeof CirclesThreePlus }> = [
-  { screen: 'dashboard', label: 'Memory Graph', icon: CirclesThreePlus },
-  { screen: 'agent-runs', label: 'Agents', icon: Graph },
+  { screen: 'dashboard', label: 'North', icon: CirclesThreePlus },
+  { screen: 'agent-runs', label: 'Context', icon: Graph },
   { screen: 'goals', label: 'Goals', icon: Target },
   { screen: 'plans', label: 'Plans', icon: CalendarCheck },
   { screen: 'scenarios', label: 'Scenarios', icon: Briefcase },
@@ -36,33 +36,33 @@ export const navItems: Array<{ screen: Screen; label: string; icon: typeof Circl
 
 export const agentCards = [
   {
-    agent: 'Goal Agent',
-    title: 'Updated retirement plan',
-    detail: 'Used Goals, Accounts, Cash Flow Pattern',
+    agent: 'North',
+    title: 'Updated goal plan',
+    detail: 'Used memory.md, goals, accounts, and cash flow tools',
     tag: 'Plan updated',
     tone: 'green',
     time: '2m ago',
   },
   {
-    agent: 'Scenario Agent',
+    agent: 'North',
     title: 'Stress tested portfolio',
-    detail: 'Used Risk Comfort, Market Data, Goals',
+    detail: 'Used risk comfort, market data, and scenario tools',
     tag: '3 scenarios run',
     tone: 'violet',
     time: '8m ago',
   },
   {
-    agent: 'Tax Agent',
+    agent: 'North',
     title: 'Found tax-smart move',
-    detail: 'Used Tax Profile, Accounts, Cash Flow',
+    detail: 'Used tax profile, account data, and cost-basis tools',
     tag: '$2,430 est. saved',
     tone: 'gold',
     time: '15m ago',
   },
   {
-    agent: 'Communication Agent',
+    agent: 'North',
     title: 'Drafted portfolio update',
-    detail: 'Used Communication Style, Recent Activity',
+    detail: 'Used communication style and recent activity',
     tag: 'Ready to review',
     tone: 'blue',
     time: '1h ago',

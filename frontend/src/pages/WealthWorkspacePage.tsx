@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   Bank,
@@ -80,7 +80,7 @@ const questionnaireSampleAnswers: QuestionnaireAnswers = {
   monthly_savings:
     'I want to save and invest consistently, but the exact amount may change month to month. Northstar should look at average monthly surplus, recurring transfers, and one-off expenses, then recommend a realistic baseline contribution that I can maintain without constantly stopping and restarting.',
   cash_buffer_current:
-    'I want Northstar to treat cash buffer as a first-class planning object. If my current buffer is below target, the agents should prioritize building it before suggesting investments that would make me feel locked in or exposed during an emergency.',
+    'I want Northstar to treat cash buffer as a first-class planning object. If my current buffer is below target, North should prioritize building it before suggesting investments that would make me feel locked in or exposed during an emergency.',
   cash_buffer_target:
     'A target of at least six months of core expenses feels right for now. If my income becomes less stable, I relocate, or I take on more responsibility, Northstar should consider increasing that target before recommending more aggressive long-term investments.',
   bank_accounts:
@@ -144,7 +144,7 @@ const questionnaireSampleAnswers: QuestionnaireAnswers = {
   advisor_boundaries:
     'Northstar should never place trades, move money, sell assets, change beneficiaries, modify account settings, submit tax actions, or contact institutions without explicit approval. It can prepare recommendations and drafts, but execution must stay user-approved.',
   worries:
-    'Agents should monitor insufficient cash, overexposure to market risk, tax mistakes, goal delays, overspending, loss of flexibility, hidden fees, concentrated positions, and recommendations that are too complex for the benefit they provide.',
+    'North should monitor insufficient cash, overexposure to market risk, tax mistakes, goal delays, overspending, loss of flexibility, hidden fees, concentrated positions, and recommendations that are too complex for the benefit they provide.',
   open_questions:
     'Northstar should ask later about exact income, account balances, cost basis, employer benefits, future location, home-buying timeline, insurance needs, family support expectations, values-based investing preferences, and whether my risk comfort changes after seeing real account data.',
 }
@@ -166,7 +166,7 @@ const routeMeta: Record<WorkspaceRoute, { label: string; eyebrow: string; title:
     label: 'Home',
     eyebrow: 'Dashboard home',
     title: 'Memory graph is the app home.',
-    copy: 'The core app opens on reusable context: who the user is, what they want, what they fear, and what every agent can use.',
+    copy: 'The core app opens on reusable context: who the user is, what they want, what they fear, and what North can load.',
   },
 }
 
@@ -203,9 +203,17 @@ export function WealthWorkspacePage() {
     }
   }, [])
 
+  const refreshGraph = useCallback(async () => {
+    const nextGraph = await getMemoryGraph(activeUserId)
+    setGraph(nextGraph)
+    setSelectedNodeId((current) =>
+      nextGraph.nodes.some((node) => node.id === current) ? current : nextGraph.nodes[0]?.id ?? 'maya',
+    )
+  }, [activeUserId])
+
   useEffect(() => {
     void refreshGraph()
-  }, [])
+  }, [refreshGraph])
 
   useEffect(() => {
     if (activeUserId === fallbackUserId) return
@@ -231,14 +239,6 @@ export function WealthWorkspacePage() {
   useEffect(() => {
     localStorage.setItem(questionnaireStorageKey(activeUserId), JSON.stringify(questionnaire))
   }, [activeUserId, questionnaire])
-
-  async function refreshGraph() {
-    const nextGraph = await getMemoryGraph(activeUserId)
-    setGraph(nextGraph)
-    setSelectedNodeId((current) =>
-      nextGraph.nodes.some((node) => node.id === current) ? current : nextGraph.nodes[0]?.id ?? 'maya',
-    )
-  }
 
   function go(nextRoute: WorkspaceRoute) {
     window.history.pushState({}, '', `/workspace/${nextRoute}`)
@@ -302,7 +302,7 @@ export function WealthWorkspacePage() {
     setScenarioTrace([])
     setBusy('trace')
     try {
-      await streamScenarioTrace((event) => setScenarioTrace((current) => [...current, event]))
+      await streamScenarioTrace(activeUserId, (event) => setScenarioTrace((current) => [...current, event]))
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not stream scenario trace.')
     } finally {
@@ -761,7 +761,7 @@ function HomeGraphPage({
       <aside className="workspace-side">
         <DiffPanel diff={diff} />
         <TracePanel title="Memory trace" events={onboardingTrace} empty="Memory setup trace will appear after commit." />
-        <TracePanel title="Scenario trace" events={scenarioTrace} empty="Run trace to stream agent handoffs." />
+        <TracePanel title="Scenario trace" events={scenarioTrace} empty="Run trace to stream tool events." />
       </aside>
     </section>
   )
@@ -1165,7 +1165,7 @@ const questionnaireSections: Array<{ id: QuestionnaireSectionId; label: string; 
     id: 'preferences',
     label: 'Values, approvals, and communication',
     shortLabel: 'Preferences',
-    copy: 'How Northstar should explain itself, what needs explicit approval, and what constraints agents must respect.',
+    copy: 'How North should explain itself, what needs explicit approval, and what constraints the agent must respect.',
   },
 ]
 
@@ -1174,7 +1174,7 @@ const questionnaireFields: QuestionnaireField[] = [
   { key: 'age', section: 'identity', label: 'Share your age or life stage in your own words.', defaultValue: '', placeholder: 'Example: I am 24 and early in my career.' },
   { key: 'location', section: 'identity', label: 'Where do you live, and could that change?', defaultValue: '', placeholder: 'Example: I live in Chicago now, but I might move for work or a home purchase.' },
   { key: 'household', section: 'identity', label: 'Describe your household and anyone who depends on you.', defaultValue: '', placeholder: 'Example: No dependents right now, but I may help my parents occasionally.' },
-  { key: 'life_events', section: 'identity', label: 'What major life events should agents remember?', defaultValue: '', placeholder: 'Example: I may buy a home, change jobs, and start supporting family in the next few years.', kind: 'long' },
+  { key: 'life_events', section: 'identity', label: 'What major life events should North remember?', defaultValue: '', placeholder: 'Example: I may buy a home, change jobs, and start supporting family in the next few years.', kind: 'long' },
   { key: 'work', section: 'cashflow', label: 'Describe your work and how you earn money.', defaultValue: '', placeholder: 'Example: I work as a product designer with W-2 income and a possible annual bonus.' },
   { key: 'income_stability', section: 'cashflow', label: 'How stable does your income feel?', defaultValue: '', placeholder: 'Example: Mostly stable, but I want a larger buffer because my company has had layoffs.' },
   { key: 'monthly_income', section: 'cashflow', label: 'Describe your usual take-home income.', defaultValue: '', placeholder: 'Example: I take home about $5,200 per month after taxes, insurance, and 401(k) contributions.' },
@@ -1191,7 +1191,7 @@ const questionnaireFields: QuestionnaireField[] = [
   { key: 'primary_goal', section: 'goals', label: 'Describe your most important financial goal naturally.', defaultValue: '', placeholder: 'Example: I want to buy a home and need about $80,000 for the down payment and closing costs by May 2029.', kind: 'long' },
   { key: 'primary_goal_amount', section: 'goals', label: 'If there is a clear target amount, say it here.', defaultValue: '', placeholder: 'Example: Around $80,000 total, but I want the agent to infer if fees or a buffer should be added.' },
   { key: 'primary_goal_date', section: 'goals', label: 'If there is a target date or timeline, say it here.', defaultValue: '', placeholder: 'Example: Ideally May 2029, but I may move sooner if the right home appears.' },
-  { key: 'secondary_goals', section: 'goals', label: 'Describe all other goals agents should structure.', defaultValue: '', placeholder: 'Example: I also want an emergency fund, retirement progress, travel money, and flexibility to help family.', kind: 'long' },
+  { key: 'secondary_goals', section: 'goals', label: 'Describe all other goals North should structure.', defaultValue: '', placeholder: 'Example: I also want an emergency fund, retirement progress, travel money, and flexibility to help family.', kind: 'long' },
   { key: 'goal_priority', section: 'goals', label: 'Explain how those goals should be prioritized.', defaultValue: '', placeholder: 'Example: Home first, emergency fund second, retirement third; travel only if it does not slow the home plan.', kind: 'long' },
   { key: 'near_term_liquidity', section: 'goals', label: 'Could you need cash soon? Describe the situation.', defaultValue: '', placeholder: 'Example: I may need to pull 20% of investable assets within 12 months if my home timeline moves up.', kind: 'long' },
   { key: 'non_negotiables', section: 'goals', label: 'What tradeoffs are not acceptable?', defaultValue: '', placeholder: 'Example: Do not risk rent money, emergency savings, mortgage readiness, or tax actions I have not approved.', kind: 'long' },
@@ -1199,7 +1199,7 @@ const questionnaireFields: QuestionnaireField[] = [
   { key: 'risk_preference', section: 'risk', label: 'Describe your risk preference in plain language.', defaultValue: '', placeholder: 'Example: Balanced overall: lower risk for home money, more growth for retirement.' },
   { key: 'risk_capacity', section: 'risk', label: 'What risk can your actual timeline support?', defaultValue: '', placeholder: 'Example: I can take moderate risk for retirement, but not for money needed in the next few years.', kind: 'long' },
   { key: 'investment_experience', section: 'risk', label: 'How experienced are you with investing?', defaultValue: '', placeholder: 'Example: Beginner. I know the basics but want help understanding taxes, risk, and account tradeoffs.' },
-  { key: 'decision_behavior', section: 'risk', label: 'What behavior should agents watch for under stress?', defaultValue: '', placeholder: 'Example: I over-check balances, worry about headlines, and may delay decisions when tradeoffs feel complex.', kind: 'long' },
+  { key: 'decision_behavior', section: 'risk', label: 'What behavior should North watch for under stress?', defaultValue: '', placeholder: 'Example: I over-check balances, worry about headlines, and may delay decisions when tradeoffs feel complex.', kind: 'long' },
   { key: 'taxable_accounts', section: 'tax', label: 'Describe any taxable investment accounts.', defaultValue: '', placeholder: 'Example: Yes, I have a taxable brokerage with some ETFs and mutual funds.' },
   { key: 'tax_sensitivity', section: 'tax', label: 'How should tax impact affect recommendations?', defaultValue: '', placeholder: 'Example: Tax impact matters. Explain gains, losses, and alternatives before suggesting any sale.', kind: 'long' },
   { key: 'filing_context', section: 'tax', label: 'Describe your tax filing context.', defaultValue: '', placeholder: 'Example: Single filer with W-2 income and no business income right now.' },
@@ -1212,7 +1212,7 @@ const questionnaireFields: QuestionnaireField[] = [
   { key: 'communication_style', section: 'preferences', label: 'How should Northstar explain decisions?', defaultValue: '', placeholder: 'Example: Plain English, clear next steps, no jargon, and always show what data was used.' },
   { key: 'approval_style', section: 'preferences', label: 'What should require explicit approval?', defaultValue: '', placeholder: 'Example: Any financial action, trade plan, withdrawal, tax-sensitive decision, or account change.', kind: 'long' },
   { key: 'advisor_boundaries', section: 'preferences', label: 'What should Northstar never do automatically?', defaultValue: '', placeholder: 'Example: Never place trades, move money, change beneficiaries, or submit tax actions without my approval.', kind: 'long' },
-  { key: 'worries', section: 'preferences', label: 'What worries should agents monitor?', defaultValue: '', placeholder: 'Example: Market drops, not enough cash, delaying my home goal, and accidentally creating tax problems.', kind: 'long' },
+  { key: 'worries', section: 'preferences', label: 'What worries should North monitor?', defaultValue: '', placeholder: 'Example: Market drops, not enough cash, delaying my home goal, and accidentally creating tax problems.', kind: 'long' },
   { key: 'open_questions', section: 'preferences', label: 'What is uncertain or worth asking later?', defaultValue: '', placeholder: 'Example: Exact home timing, income changes, sustainability preferences, and whether my risk comfort changes after linking accounts.', kind: 'long' },
 ]
 

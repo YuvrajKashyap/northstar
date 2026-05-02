@@ -1,4 +1,4 @@
-import type { AgentRunRequest, AgentTraceEvent } from '@calmvest/shared'
+import type { AgentRunRequest, AgentTraceEvent, RawMemoryDocument } from '@calmvest/shared'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
 
@@ -47,7 +47,12 @@ export async function streamScenarioTrace(userId: string, onEvent: (event: Agent
   await readSseTrace(response, onEvent)
 }
 
+export function getRawMemory(userId: string) {
+  return apiJson<RawMemoryDocument>(`/api/memory/raw?userId=${encodeURIComponent(userId)}`)
+}
+
 async function readSseTrace(response: Response, onEvent: (event: AgentTraceEvent) => void) {
+  if (!response.ok) throw new Error(await response.text())
   const reader = response.body?.getReader()
   if (!reader) return
 

@@ -45,7 +45,7 @@ export type ScreenProps = {
   agentAnswer: string
   busyStep: string | null
   simulatePlaidLink: () => void
-  runAgent: (message: string) => void
+  runAgent: (message: string, mode?: 'general' | 'fresh_check' | 'demo_scenario') => void
   runScenario: () => void
   setScreen: (screen: Screen) => void
 }

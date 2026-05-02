@@ -1,6 +1,8 @@
 export type ModelId = 'openai/gpt-5.4-mini' | 'openai/gpt-5.4' | 'openai/gpt-5.5';
 
 export type AgentEventType =
+  | 'run_started'
+  | 'memory_loaded'
   | 'agent_started'
   | 'message_delta'
   | 'model_stream'
@@ -9,6 +11,8 @@ export type AgentEventType =
   | 'tool_warning'
   | 'handoff'
   | 'receipt_created'
+  | 'run_completed'
+  | 'run_failed'
   | 'agent_completed'
   | 'error';
 
@@ -25,7 +29,7 @@ export interface AgentTraceEvent {
 export interface AgentRunRequest {
   userId: string;
   message: string;
-  mode?: 'general' | 'fresh_check';
+  mode?: 'general' | 'fresh_check' | 'demo_scenario';
 }
 
 export interface ContextPacket {
@@ -138,14 +142,11 @@ export interface OnboardingAnswers {
 
 export interface MemoryToolCall {
   tool:
-    | 'create_user_profile'
     | 'create_goal'
-    | 'create_life_event'
-    | 'create_user_value'
-    | 'create_risk_profile'
-    | 'create_tax_profile'
-    | 'set_communication_preferences'
-    | 'commit_onboarding_profile';
+    | 'set_communication_style'
+    | 'set_risk_comfort'
+    | 'create_value'
+    | 'write_memory_markdown';
   args: Record<string, unknown>;
   result: string;
 }
@@ -193,6 +194,13 @@ export interface MemoryStatusResponse {
   userId: string;
   hasMemory: boolean;
   hasContext: boolean;
+}
+
+export interface RawMemoryDocument {
+  userId: string;
+  memoryMarkdown: string;
+  contextPacket: ContextPacket;
+  updatedAt: string | null;
 }
 
 export interface AuthUserSession {

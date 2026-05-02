@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { readDemoSeed } from './demo.js';
 import { supabase } from '../lib/supabase.js';
 import { buildMemoryGraph } from '../lib/memory-builder.js';
-import type { ContextPacket, MemoryStatusResponse } from '@calmvest/shared';
+import type { ContextPacket, MemoryStatusResponse, RawMemoryDocument } from '@calmvest/shared';
 
 export const memoryRouter = Router();
 
@@ -57,6 +57,42 @@ memoryRouter.get('/graph', async (req, res, next) => {
     const memoryMarkdown = memoryRow?.content ?? `# Northstar Memory\n\nNo memory has been committed for this user yet.`;
 
     res.json(buildMemoryGraph(userId, memoryMarkdown, contextPacket));
+  } catch (error) {
+    next(error);
+  }
+});
+
+memoryRouter.get('/raw', async (req, res, next) => {
+  try {
+    const seed = await readDemoSeed();
+    const userId = typeof req.query.userId === 'string' ? req.query.userId : seed.user.id;
+
+    const [{ data: contextRow }, { data: memoryRow }] = await Promise.all([
+      supabase
+        .from('context_packets')
+        .select('packet, updated_at')
+        .eq('user_id', userId)
+        .maybeSingle(),
+      supabase
+        .from('memory_documents')
+        .select('content, updated_at')
+        .eq('user_id', userId)
+        .maybeSingle(),
+    ]);
+
+    const contextPacket = await resolveContextIdentity(
+      userId,
+      (contextRow?.packet as ContextPacket | undefined) ?? emptyContextPacket(userId),
+      seed.user.id,
+    );
+    const result: RawMemoryDocument = {
+      userId,
+      memoryMarkdown: memoryRow?.content ?? `# Northstar Memory\n\nNo memory has been committed for this user yet.`,
+      contextPacket,
+      updatedAt: (memoryRow?.updated_at as string | undefined) ?? (contextRow?.updated_at as string | undefined) ?? null,
+    };
+
+    res.json(result);
   } catch (error) {
     next(error);
   }

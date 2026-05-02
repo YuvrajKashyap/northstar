@@ -78,7 +78,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'person',
       value: 'unknown',
       source: 'User profile',
-      usedBy: ['Orchestrator', 'Communication Agent'],
+      usedBy: ['North', 'Memory tools'],
     },
     {
       id: 'goals',
@@ -86,7 +86,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'goal',
       value: 'No committed goals yet',
       source: 'Onboarding',
-      usedBy: ['Goal Agent', 'Scenario Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Goal tools', 'Scenario tools'],
     },
     {
       id: 'risk',
@@ -94,7 +94,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'risk',
       value: 'No committed risk profile yet',
       source: 'Onboarding',
-      usedBy: ['Scenario Agent', 'Communication Agent'],
+      usedBy: ['North', 'Risk tools'],
     },
     {
       id: 'accounts',
@@ -102,7 +102,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'account',
       value: 'No account context loaded yet',
       source: 'Account link',
-      usedBy: ['Portfolio Agent', 'Tax Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Portfolio tools', 'Tax tools'],
     },
     {
       id: 'tax',
@@ -110,7 +110,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'tax',
       value: 'Taxable account not confirmed',
       source: 'Account link + onboarding',
-      usedBy: ['Tax Agent', 'Rebalance Agent'],
+      usedBy: ['North', 'Tax tools'],
     },
     {
       id: 'values',
@@ -118,7 +118,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'values',
       value: 'Explain costs and tradeoffs',
       source: 'Onboarding',
-      usedBy: ['Communication Agent'],
+      usedBy: ['North', 'Communication tools'],
     },
     {
       id: 'cash-flow',
@@ -126,7 +126,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'cash_flow',
       value: 'Cash flow not committed yet',
       source: 'Account link',
-      usedBy: ['Goal Agent', 'Scenario Agent'],
+      usedBy: ['North', 'Scenario tools'],
     },
     {
       id: 'communication',
@@ -134,7 +134,7 @@ function buildFallbackGraph(fallbackUserId: string, fallbackUserName = readActiv
       kind: 'communication',
       value: 'Plain English with clear next steps',
       source: 'Onboarding',
-      usedBy: ['Communication Agent'],
+      usedBy: ['North', 'Communication tools'],
     },
   ],
   edges: [
@@ -248,7 +248,7 @@ export function useCalmVestWorkspace() {
     }
   }
 
-  async function runAgent(message: string, mode: 'general' | 'fresh_check' = 'general') {
+  async function runAgent(message: string, mode: 'general' | 'fresh_check' | 'demo_scenario' = 'general') {
     setScenarioTrace([])
     setAgentAnswer('')
     setBusyStep('scenario')
@@ -276,7 +276,7 @@ export function useCalmVestWorkspace() {
       return
     }
     setScenarioTrace((previous) => [...previous, event])
-    if (event.type === 'agent_completed' && typeof event.payload.finalAnswer === 'string') {
+    if ((event.type === 'agent_completed' || event.type === 'run_completed') && typeof event.payload.finalAnswer === 'string') {
       setAgentAnswer((previous) => previous || String(event.payload.finalAnswer))
     }
   }

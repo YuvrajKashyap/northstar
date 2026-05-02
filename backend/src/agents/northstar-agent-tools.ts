@@ -119,7 +119,7 @@ export const northstarTools: NorthstarToolDefinition[] = [
     jsonSchema: queryJsonSchema,
     execute: async (args) => {
       if (!config.EXASEARCH_API_KEY) {
-        return unavailable('web_search', 'EXASEARCH_API_KEY is not configured.');
+        return deterministicResearchFallback('web_search', args, 'EXASEARCH_API_KEY is not configured.');
       }
       const query = String(args.query ?? '');
       const response = await fetch('https://api.exa.ai/search', {
@@ -145,7 +145,7 @@ export const northstarTools: NorthstarToolDefinition[] = [
     jsonSchema: queryJsonSchema,
     execute: async (args) => {
       if (!config.FINANCIAL_DATASETS_API_KEY) {
-        return unavailable('get_market_data', 'FINANCIAL_DATASETS_API_KEY is not configured.');
+        return deterministicResearchFallback('get_market_data', args, 'FINANCIAL_DATASETS_API_KEY is not configured.');
       }
       const ticker = optionalTicker(args.ticker);
       if (!ticker) {
@@ -170,7 +170,7 @@ export const northstarTools: NorthstarToolDefinition[] = [
     jsonSchema: queryJsonSchema,
     execute: async (args) => {
       if (!config.FINANCIAL_DATASETS_API_KEY) {
-        return unavailable('get_financials', 'FINANCIAL_DATASETS_API_KEY is not configured.');
+        return deterministicResearchFallback('get_financials', args, 'FINANCIAL_DATASETS_API_KEY is not configured.');
       }
       const ticker = optionalTicker(args.ticker);
       if (!ticker) {
@@ -191,7 +191,7 @@ export const northstarTools: NorthstarToolDefinition[] = [
     jsonSchema: filingJsonSchema,
     execute: async (args) => {
       if (!config.FINANCIAL_DATASETS_API_KEY) {
-        return unavailable('read_filings', 'FINANCIAL_DATASETS_API_KEY is not configured.');
+        return deterministicResearchFallback('read_filings', args, 'FINANCIAL_DATASETS_API_KEY is not configured.');
       }
       const ticker = optionalTicker(args.ticker);
       if (!ticker) {
@@ -220,6 +220,15 @@ export async function executeNorthstarTool(
 
   const toolCount = (context.toolCounts.get(name) ?? 0) + 1;
   context.toolCounts.set(name, toolCount);
+
+  if (['web_search', 'get_market_data', 'get_financials', 'read_filings'].includes(name) && toolCount > 3) {
+    return {
+      status: 'fallback',
+      tool: name,
+      reason: 'Demo live-data cap reached. North limits external research tools to 3 calls per run.',
+      data: demoMarketFixture(name, args),
+    };
+  }
 
   const fingerprint = `${name}:${JSON.stringify(args)}`;
   const queryCount = (context.queryCounts.get(fingerprint) ?? 0) + 1;
@@ -275,8 +284,44 @@ function optionalTicker(value: unknown): string | undefined {
   return cleaned.length > 0 ? cleaned : undefined;
 }
 
-function unavailable(tool: string, reason: string): Record<string, unknown> {
-  return { status: 'unavailable', tool, reason };
+function deterministicResearchFallback(
+  tool: string,
+  args: Record<string, unknown>,
+  reason: string,
+): Record<string, unknown> {
+  return {
+    status: 'fallback',
+    tool,
+    reason,
+    data: demoMarketFixture(tool, args),
+  };
+}
+
+function demoMarketFixture(tool: string, args: Record<string, unknown>): Record<string, unknown> {
+  const ticker = optionalTicker(args.ticker) ?? 'SPY';
+  return {
+    query: args.query,
+    ticker,
+    asOf: 'demo-fixture',
+    summary:
+      tool === 'web_search'
+        ? 'Current-news API unavailable in this environment. Use this deterministic fixture to discuss broad market risk, liquidity, rates, and concentration.'
+        : `Financial Datasets unavailable in this environment. Use deterministic ${ticker} context for demo reasoning.`,
+    items: [
+      {
+        title: 'Market risk remains relevant for near-term cash goals',
+        detail: 'A sharp equity drawdown would mainly matter for money needed within 12-36 months.',
+      },
+      {
+        title: 'Liquidity and concentration drive the user-specific answer',
+        detail: 'North should combine market context with memory.md, portfolio concentration, cash, and tax sensitivity.',
+      },
+      {
+        title: 'Approval remains required',
+        detail: 'No trade, sale, withdrawal, or tax-sensitive move should be treated as executed.',
+      },
+    ],
+  };
 }
 
 async function financialDatasetsGet(endpoint: string, params: Record<string, string | number | undefined>) {

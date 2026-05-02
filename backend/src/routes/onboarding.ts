@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type NextFunction, type Request, type Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import type { AgentTraceEvent, ContextPacket, DemoSeed, OnboardingAnswers, OnboardingCommitResult } from '@calmvest/shared';
@@ -23,7 +23,10 @@ const onboardingSchema = z.object({
   values: z.string().optional(),
 });
 
-onboardingRouter.post('/commit', async (req, res, next) => {
+onboardingRouter.post('/commit', commitOnboardingHandler);
+onboardingRouter.post('/run/stream', commitOnboardingHandler);
+
+async function commitOnboardingHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const answers = onboardingSchema.parse(req.body) as OnboardingAnswers;
     const seed = await readOnboardingSeed(answers.userId);
@@ -32,7 +35,7 @@ onboardingRouter.post('/commit', async (req, res, next) => {
 
     const runId = randomUUID();
     const trace: AgentTraceEvent[] = [];
-    const started = createTraceEvent(runId, 'model_stream', 'Memory Compiler', 'Compiled onboarding intake into structured memory', {
+    const started = createTraceEvent(runId, 'run_started', 'North', 'Compiled onboarding intake into structured memory', {
       userId: answers.userId,
       source,
       visibleToUser: 'summary_only',
@@ -41,7 +44,7 @@ onboardingRouter.post('/commit', async (req, res, next) => {
     await appendTraceEvent(started);
 
     for (const call of toolCalls) {
-      const callEvent = createTraceEvent(runId, 'tool_call', 'Onboarding Agent', call.tool, {
+      const callEvent = createTraceEvent(runId, 'tool_call', 'North', call.tool, {
         userId: answers.userId,
         visibleToUser: true,
         args: call.args,
@@ -49,7 +52,7 @@ onboardingRouter.post('/commit', async (req, res, next) => {
       trace.push(callEvent);
       await appendTraceEvent(callEvent);
 
-      const resultEvent = createTraceEvent(runId, 'tool_result', 'Onboarding Agent', call.result, {
+      const resultEvent = createTraceEvent(runId, 'tool_result', 'North', call.result, {
         userId: answers.userId,
         visibleToUser: true,
       });
@@ -73,6 +76,14 @@ onboardingRouter.post('/commit', async (req, res, next) => {
 
     await mirrorMemory(answers.userId, memoryMarkdown, contextPacket);
 
+    const completed = createTraceEvent(runId, 'run_completed', 'North', 'Onboarding memory committed', {
+      userId: answers.userId,
+      memoryBytes: memoryMarkdown.length,
+      goals: contextPacket.goals.length,
+    });
+    trace.push(completed);
+    await appendTraceEvent(completed);
+
     const result: OnboardingCommitResult = {
       ok: true,
       userId: answers.userId,
@@ -85,7 +96,7 @@ onboardingRouter.post('/commit', async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-});
+}
 
 async function readOnboardingSeed(userId: string): Promise<DemoSeed> {
   const demoSeed = await readDemoSeed();

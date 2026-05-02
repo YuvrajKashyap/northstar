@@ -1,10 +1,12 @@
 import { Agent, OpenAIProvider, Runner, tool, type RunStreamEvent } from '@openai/agents';
-import type { AgentTraceEvent, AgentRunRequest } from '@calmvest/shared';
+import type { AgentTraceEvent, AgentRunRequest, ContextPacket, Holding } from '@calmvest/shared';
 import { randomUUID } from 'node:crypto';
 import type OpenAI from 'openai';
 import { config } from '../config.js';
 import { appConfig } from '../lib/app-config.js';
 import { createOpenRouterClient } from '../lib/openrouter.js';
+import { supabase } from '../lib/supabase.js';
+import { readDemoSeed } from '../routes/demo.js';
 import { appendTraceEvent, createTraceEvent } from './trace-store.js';
 import {
   executeNorthstarTool,
@@ -12,8 +14,20 @@ import {
   type NorthstarToolContext,
 } from './northstar-agent-tools.js';
 
-const DEFAULT_AGENT = 'Northstar Agent';
+const DEFAULT_AGENT = 'North';
 const DEFAULT_MODEL = appConfig.openRouter.models.default;
+
+type NorthRunContext = {
+  memoryMarkdown: string;
+  contextPacket: ContextPacket;
+  portfolio: {
+    accounts: unknown[];
+    holdings: Holding[];
+    taxLots: unknown[];
+    recentTransactions: unknown[];
+  };
+  source: 'database' | 'seed' | 'mixed';
+};
 
 export const freshCheckPrompt = [
   'Run a fresh check for this user.',
@@ -24,6 +38,7 @@ export const freshCheckPrompt = [
 
 export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncGenerator<AgentTraceEvent> {
   const runId = randomUUID();
+  const runContext = await loadNorthRunContext(request.userId);
   const toolContext: NorthstarToolContext = {
     userId: request.userId,
     runId,
@@ -31,29 +46,44 @@ export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncG
     queryCounts: new Map(),
   };
 
-  if (!config.OPENROUTER_API_KEY) {
-    yield emit(runId, 'error', DEFAULT_AGENT, 'OpenRouter key missing', {
-      userId: request.userId,
-      error: 'OPENROUTER_API_KEY is not configured.',
-    });
-    return;
-  }
-
-  yield emit(runId, 'agent_started', DEFAULT_AGENT, 'Started local agent run', {
+  yield emit(runId, 'run_started', DEFAULT_AGENT, 'North run started', {
     userId: request.userId,
     mode: request.mode ?? 'general',
     model: DEFAULT_MODEL,
     reasoning: appConfig.openRouter.reasoning.effort,
   });
 
+  yield emit(runId, 'memory_loaded', DEFAULT_AGENT, 'Loaded memory.md and context_packet.json', {
+    userId: request.userId,
+    memoryBytes: runContext.memoryMarkdown.length,
+    goals: runContext.contextPacket.goals.length,
+    holdings: runContext.portfolio.holdings.length,
+    source: runContext.source,
+  });
+
+  if (!config.OPENROUTER_API_KEY) {
+    const fallbackAnswer = deterministicNorthAnswer(request, runContext);
+    yield emit(runId, 'message_delta', DEFAULT_AGENT, 'Assistant response delta', {
+      userId: request.userId,
+      delta: fallbackAnswer,
+      fallback: 'missing_openrouter_key',
+    });
+    yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
+      userId: request.userId,
+      finalAnswer: fallbackAnswer,
+      runner: 'deterministic-fallback',
+    });
+    return;
+  }
+
   const sdkState = { finalAnswer: '' };
   let sdkEmitted = false;
   try {
-    for await (const event of runWithAgentsSdk(request, toolContext, sdkState)) {
+    for await (const event of runWithAgentsSdk(request, toolContext, runContext, sdkState)) {
       sdkEmitted = true;
       yield event;
     }
-    yield emit(runId, 'agent_completed', DEFAULT_AGENT, 'Agent run complete', {
+    yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
       userId: request.userId,
       finalAnswer: sdkState.finalAnswer,
       runner: 'openai-agents-sdk',
@@ -76,11 +106,11 @@ export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncG
   }
 
   const fallbackState = { finalAnswer: '' };
-  for await (const event of streamWithChatCompletions(request, toolContext, fallbackState)) {
+  for await (const event of streamWithChatCompletions(request, toolContext, runContext, fallbackState)) {
     yield event;
   }
 
-  yield emit(runId, 'agent_completed', DEFAULT_AGENT, 'Agent run complete', {
+  yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
     userId: request.userId,
     finalAnswer: fallbackState.finalAnswer,
     runner: 'openai-chat-completions',
@@ -90,6 +120,7 @@ export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncG
 async function* runWithAgentsSdk(
   request: AgentRunRequest,
   toolContext: NorthstarToolContext,
+  runContext: NorthRunContext,
   state: { finalAnswer: string },
 ): AsyncGenerator<AgentTraceEvent> {
   const openAIClient = createOpenRouterClient();
@@ -97,7 +128,6 @@ async function* runWithAgentsSdk(
     throw new Error('OPENROUTER_API_KEY is not configured.');
   }
   const modelProvider = new OpenAIProvider({
-    apiKey: config.OPENROUTER_API_KEY,
     baseURL: appConfig.openRouter.baseURL,
     useResponses: false,
     openAIClient: openAIClient as never,
@@ -119,7 +149,7 @@ async function* runWithAgentsSdk(
 
   const agent = new Agent<NorthstarToolContext>({
     name: DEFAULT_AGENT,
-    instructions: buildAgentInstructions(request.userId),
+    instructions: buildAgentInstructions(request.userId, runContext),
     tools: northstarTools.map((definition) =>
       tool({
         name: definition.name,
@@ -157,6 +187,7 @@ async function* runWithAgentsSdk(
 async function* streamWithChatCompletions(
   request: AgentRunRequest,
   toolContext: NorthstarToolContext,
+  runContext: NorthRunContext,
   state: { finalAnswer: string },
 ): AsyncGenerator<AgentTraceEvent> {
   const client = createOpenRouterClient();
@@ -164,7 +195,7 @@ async function* streamWithChatCompletions(
     throw new Error('OPENROUTER_API_KEY is not configured.');
   }
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-    { role: 'system', content: buildAgentInstructions(request.userId) },
+    { role: 'system', content: buildAgentInstructions(request.userId, runContext) },
     { role: 'user', content: request.message },
   ];
 
@@ -344,16 +375,120 @@ function parseToolArguments(value: unknown): Record<string, unknown> {
   }
 }
 
-function buildAgentInstructions(userId: string): string {
+async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
+  const seed = await readDemoSeed();
+  const [
+    { data: memory, error: memoryError },
+    { data: packet, error: packetError },
+    { data: accounts, error: accountsError },
+    { data: holdings, error: holdingsError },
+    { data: taxLots, error: taxLotsError },
+    { data: transactions, error: transactionsError },
+  ] = await Promise.all([
+    supabase.from('memory_documents').select('content, updated_at').eq('user_id', userId).maybeSingle(),
+    supabase.from('context_packets').select('packet, updated_at').eq('user_id', userId).maybeSingle(),
+    supabase.from('accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+    supabase.from('holdings').select('*').eq('user_id', userId).order('value', { ascending: false }),
+    supabase.from('tax_lots').select('*').eq('user_id', userId).order('acquired_at', { ascending: true }),
+    supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', userId)
+      .order('posted_at', { ascending: false })
+      .limit(20),
+  ]);
+
+  const hasDatabaseMemory = !memoryError && !packetError && (memory?.content || packet?.packet);
+  const hasDatabasePortfolio =
+    !accountsError &&
+    !holdingsError &&
+    !taxLotsError &&
+    !transactionsError &&
+    Boolean((accounts?.length ?? 0) + (holdings?.length ?? 0) + (taxLots?.length ?? 0) + (transactions?.length ?? 0));
+
+  return {
+    memoryMarkdown: typeof memory?.content === 'string' ? memory.content : seed.memoryTemplate,
+    contextPacket: (packet?.packet as ContextPacket | undefined) ?? seed.contextPacket,
+    portfolio: hasDatabasePortfolio
+      ? {
+          accounts: accounts ?? [],
+          holdings: mapHoldings(holdings ?? []),
+          taxLots: taxLots ?? [],
+          recentTransactions: transactions ?? [],
+        }
+      : {
+          accounts: seed.accounts,
+          holdings: seed.holdings,
+          taxLots: seed.taxLots,
+          recentTransactions: seed.transactions.slice(0, 20),
+        },
+    source: hasDatabaseMemory && hasDatabasePortfolio ? 'database' : hasDatabaseMemory || hasDatabasePortfolio ? 'mixed' : 'seed',
+  };
+}
+
+function mapHoldings(rows: Array<Record<string, unknown>>): Holding[] {
+  return rows.map((holding) => ({
+    symbol: String(holding.symbol ?? ''),
+    name: String(holding.name ?? holding.symbol ?? ''),
+    assetClass: String(holding.asset_class ?? holding.assetClass ?? 'stock') as Holding['assetClass'],
+    quantity: Number(holding.quantity ?? 0),
+    price: Number(holding.price ?? 0),
+    value: Number(holding.value ?? 0),
+    costBasis: Number(holding.cost_basis ?? holding.costBasis ?? 0),
+    sector: typeof holding.sector === 'string' ? holding.sector : undefined,
+  }));
+}
+
+function deterministicNorthAnswer(request: AgentRunRequest, context: NorthRunContext): string {
+  const goals = context.contextPacket.goals
+    .map((goal) => `${goal.type.replace(/_/g, ' ')} (${money(goal.target_amount)} by ${goal.target_date})`)
+    .join(', ');
+  const topHolding = context.portfolio.holdings[0];
+  const modeLine =
+    request.mode === 'fresh_check'
+      ? 'Fresh check fallback: live model access is unavailable, so I used the loaded memory, context packet, and deterministic portfolio snapshot.'
+      : 'Local fallback: live model access is unavailable, so I used the loaded memory, context packet, and deterministic portfolio snapshot.';
   return [
-    'You are Northstar, a local financial guidance agent running inside the Northstar backend.',
+    modeLine,
+    '',
+    `Memory loaded for ${context.contextPacket.user.name}. Primary goals: ${goals || 'not captured yet'}.`,
+    `Portfolio snapshot: ${money(context.contextPacket.accounts_summary.portfolio_value)} total, ${money(context.contextPacket.accounts_summary.cash_available)} cash, top holding ${topHolding?.symbol ?? 'unknown'}.`,
+    'What matters: keep near-term goal money liquid, avoid tax-sensitive moves without approval, and review concentration before reacting to market news.',
+  ].join('\n');
+}
+
+function money(value: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
+}
+
+function buildAgentInstructions(userId: string, context: NorthRunContext): string {
+  const contextJson = JSON.stringify(
+    {
+      contextPacket: context.contextPacket,
+      portfolio: {
+        accounts: context.portfolio.accounts,
+        holdings: context.portfolio.holdings.slice(0, 12),
+        taxLots: context.portfolio.taxLots,
+        recentTransactions: context.portfolio.recentTransactions,
+      },
+    },
+    null,
+    2,
+  );
+  return [
+    'You are North, the single local financial guidance agent running inside the Northstar backend.',
     `Active userId: ${userId}. Do not use fallback personas when this userId is present.`,
     '',
+    'Always-loaded memory.md:',
+    context.memoryMarkdown,
+    '',
+    'Always-loaded context_packet.json and portfolio snapshot:',
+    contextJson,
+    '',
     'Operating rules:',
-    '- Use get_memory_context first when the question depends on user preferences, goals, risk, values, or prior context.',
-    '- Use get_portfolio_context when the answer depends on accounts, holdings, tax lots, or transactions.',
-    '- Use get_market_data, get_financials, and read_filings for market/company/filing facts.',
-    '- Use web_search for current web research that Financial Datasets does not cover.',
+    '- Memory, context_packet.json, and portfolio context are already loaded. Use get_memory_context or get_portfolio_context only when you need to verify persisted data.',
+    '- Use get_market_data, get_financials, and read_filings for market/company/filing facts when needed.',
+    '- Use web_search for current web research that Financial Datasets does not cover. Keep live search/news calls to at most 3 per run.',
     '- If a tool reports unavailable, missing, stale, or partial data, say that plainly and continue with what is known.',
     '- Separate education or recommendations from execution.',
     '- Never claim you placed trades, moved money, filed taxes, changed accounts, or contacted institutions.',
