@@ -1,38 +1,91 @@
-import { useMemo } from 'react'
-import { Clock, Eye, FileArrowDown, LockKey } from '@phosphor-icons/react'
-import type { ScreenProps } from '../types/screens'
-import { DashboardMemoryGraph } from '../components/dashboard/DashboardMemoryGraph'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  ArrowClockwise,
+  Brain,
+  ChartLineUp,
+  Database,
+  FileText,
+  PaperPlaneTilt,
+  Pulse,
+  Sparkle,
+} from '@phosphor-icons/react'
+import type { AgentTraceEvent, RawMemoryDocument } from '@calmvest/shared'
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer'
 import { AppChrome } from '../components/layout/AppChrome'
+import { getRawMemory } from '../lib/api'
+import type { ScreenProps } from '../types/screens'
+
+const freshCheckMessage =
+  'Get the latest market news, use my memory and portfolio context, and tell me what matters for my specific goals and risk comfort. Limit yourself to the most important checks.'
+
+const suggestedPrompts = [
+  'What should I do if markets fall 20% and I may need cash next year?',
+  'Use my memory.md and explain the biggest risk in my portfolio.',
+  'What should I review before making any tax-sensitive move?',
+]
 
 export function DashboardPage(props: ScreenProps) {
-  const orbitCount = useMemo(
-    () => props.graph?.nodes?.filter((node) => node.kind !== 'person').length ?? 0,
-    [props.graph?.nodes],
+  const [prompt, setPrompt] = useState('')
+  const [rawMemory, setRawMemory] = useState<RawMemoryDocument | null>(null)
+  const [memoryOpen, setMemoryOpen] = useState(false)
+  const [memoryTab, setMemoryTab] = useState<'memory' | 'context'>('memory')
+
+  const userId = props.graph?.userId ?? props.answers.userId
+  const isBusy = props.busyStep === 'scenario'
+
+  useEffect(() => {
+    let cancelled = false
+    void getRawMemory(userId)
+      .then((memory) => {
+        if (!cancelled) setRawMemory(memory)
+      })
+      .catch(() => {
+        if (!cancelled && props.graph) {
+          setRawMemory({
+            userId,
+            memoryMarkdown: props.graph.memoryMarkdown,
+            contextPacket: props.graph.contextPacket,
+            updatedAt: null,
+          })
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [props.graph, userId])
+
+  const messages = useMemo(
+    () => [
+      {
+        role: 'assistant' as const,
+        body:
+          'I am North. I load memory.md, context_packet.json, and portfolio context before I answer. Ask me for a scenario, a daily market check, or a plain-English review.',
+      },
+      ...(props.agentAnswer
+        ? [
+            {
+              role: 'assistant' as const,
+              body: props.agentAnswer,
+            },
+          ]
+        : []),
+    ],
+    [props.agentAnswer],
   )
 
-  const personLine = useMemo(() => {
-    const person = props.graph?.nodes.find((node) => node.kind === 'person')
-    return formatProfileLine(person?.value ?? '', props.graph?.contextPacket.user.investor_level ?? '')
-  }, [props.graph?.contextPacket.user.investor_level, props.graph?.nodes])
+  function submit(message = prompt, mode: 'general' | 'fresh_check' | 'demo_scenario' = 'general') {
+    const trimmed = message.trim()
+    if (!trimmed || isBusy) return
+    props.runAgent(trimmed, mode)
+    setPrompt('')
+  }
 
-  const toolbarExcerpt = useMemo(() => {
-    const defaultExcerpt =
-      'Flexible planning, tax-aware tradeoffs, and approval before meaningful moves.'
-    const node = props.selectedNode
-    if (!node || node.kind === 'person') return defaultExcerpt
-    return formatToolbarSummary(node, props.graph) || defaultExcerpt
-  }, [props.graph, props.selectedNode])
+  function rerunOnboarding() {
+    window.history.pushState({}, '', '/workspace/memory')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
 
-  const privacyActions = useMemo(
-    () =>
-      [
-        { label: 'Memory access', icon: LockKey },
-        { label: 'Data visibility', icon: Eye },
-        { label: 'Retention', icon: Clock },
-        { label: 'Export / delete', icon: FileArrowDown },
-      ] as const,
-    [],
-  )
+  const visibleTrace = props.scenarioTrace.filter((event) => event.type !== 'message_delta')
 
   return (
     <AppChrome
@@ -46,160 +99,147 @@ export function DashboardPage(props: ScreenProps) {
       busyStep={props.busyStep}
       onSelectMemoryNode={props.setSelectedNodeId}
     >
-      <section className="dashboard-screen screen-enter">
-        <div className="dashboard-studio">
-          <header className="dashboard-hero">
-            <h1 className="dashboard-hero__title">Memory Graph Studio</h1>
-            <p className="dashboard-hero__lead">
-              Your context, visualized.
-              <br />
-              Tap a thread to see exactly what agents hold in memory.
-            </p>
-            <p className="dashboard-hero__meta">
-              {orbitCount > 0 ? (
-                <>
-                  <span className="dashboard-hero__meta-strong">{orbitCount} threads</span>
-                  <span className="dashboard-hero__meta-sep" aria-hidden>
-                    -
-                  </span>
-                  <span>Orbit updates as you connect accounts and refine preferences.</span>
-                </>
-              ) : (
-                <span>Link accounts after onboarding. The map will populate from your profile.</span>
-              )}
-            </p>
+      <section className="north-chat-screen screen-enter">
+        <main className="north-chat-main" aria-label="North chat">
+          <header className="north-chat-header">
+            <div className="north-chat-mark">
+              <Sparkle size={22} weight="duotone" />
+            </div>
+            <div>
+              <span>North</span>
+              <h1>One local agent. Full memory loaded.</h1>
+            </div>
           </header>
 
-          <div className="dashboard-studio__workspace">
-            <div className="dashboard-studio__graph-stack">
-              <div className="dashboard-studio__graph">
-                <DashboardMemoryGraph
-                  graph={props.graph}
-                  selectedNodeId={props.selectedNodeId}
-                  onSelect={props.setSelectedNodeId}
-                />
-              </div>
+          <div className="north-quick-actions" aria-label="Demo actions">
+            <button type="button" onClick={rerunOnboarding}>
+              <ArrowClockwise size={18} /> Run onboarding again
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMemoryOpen(true)
+                setMemoryTab('memory')
+              }}
+            >
+              <FileText size={18} /> View memory.md
+            </button>
+            <button type="button" onClick={props.runScenario} disabled={isBusy}>
+              <Pulse size={18} /> Run demo scenario
+            </button>
+            <button type="button" onClick={() => submit(freshCheckMessage, 'fresh_check')} disabled={isBusy}>
+              <ChartLineUp size={18} /> Daily market check
+            </button>
+          </div>
 
-              <footer className="dashboard-studio-toolbar" aria-label="Context and privacy">
-                <div className="dashboard-studio-toolbar__left">
-                  {personLine ? <p className="dashboard-studio-toolbar__person">{personLine}</p> : null}
-                  <p className="dashboard-studio-toolbar__excerpt">{toolbarExcerpt}</p>
-                  <div className="dashboard-studio-toolbar__tags">
-                    {['Flexible planning', 'Tax-aware', 'Approval-first'].map((tag) => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="dashboard-studio-toolbar__right" role="group" aria-label="Privacy controls">
-                  {privacyActions.map(({ label, icon: Icon }) => (
-                    <button
-                      type="button"
-                      key={label}
-                      className="dashboard-studio-toolbar__action"
-                      title={label}
-                    >
-                      <Icon size={20} weight="regular" aria-hidden />
-                      <span>{label}</span>
-                    </button>
-                  ))}
-                </div>
-              </footer>
+          <section className="north-message-list" aria-live="polite">
+            {messages.map((message, index) => (
+              <article className={`north-message north-message--${message.role}`} key={`${message.role}-${index}`}>
+                <div className="north-message__avatar">{message.role === 'assistant' ? 'N' : 'You'}</div>
+                <MarkdownRenderer className="north-message__content">{message.body}</MarkdownRenderer>
+              </article>
+            ))}
+            {!props.agentAnswer && (
+              <div className="north-suggestions">
+                {suggestedPrompts.map((item) => (
+                  <button type="button" key={item} onClick={() => submit(item)}>
+                    {item}
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <form
+            className="north-composer"
+            onSubmit={(event) => {
+              event.preventDefault()
+              submit()
+            }}
+          >
+            <textarea
+              value={prompt}
+              onChange={(event) => setPrompt(event.target.value)}
+              placeholder="Ask North about your portfolio, goals, taxes, memory, or market context..."
+              disabled={isBusy}
+              rows={2}
+            />
+            <button type="submit" disabled={isBusy || !prompt.trim()} aria-label="Send message">
+              <PaperPlaneTilt size={20} weight="fill" />
+            </button>
+          </form>
+        </main>
+
+        <aside className="north-trace-panel" aria-label="Tool trace">
+          <header>
+            <span>Trace</span>
+            <strong>{visibleTrace.length} events</strong>
+          </header>
+          <div className="north-context-card">
+            <Brain size={20} weight="duotone" />
+            <div>
+              <strong>{rawMemory?.contextPacket.user.name ?? props.graph?.contextPacket.user.name ?? 'User'}</strong>
+              <span>{rawMemory ? `${rawMemory.memoryMarkdown.length.toLocaleString()} memory chars` : 'Loading memory...'}</span>
             </div>
           </div>
-        </div>
+          <div className="north-trace-list">
+            {visibleTrace.length ? (
+              visibleTrace.map((event) => <TraceEventRow event={event} key={event.id} />)
+            ) : (
+              <p>Run onboarding, a demo scenario, or a market check to stream JSONL-style tool events here.</p>
+            )}
+          </div>
+        </aside>
+
+        {memoryOpen ? (
+          <div className="north-memory-modal" role="dialog" aria-modal="true" aria-label="Memory document">
+            <div className="north-memory-modal__panel">
+              <header>
+                <div>
+                  <span>Transparency</span>
+                  <h2>{memoryTab === 'memory' ? 'memory.md' : 'context_packet.json'}</h2>
+                </div>
+                <button type="button" onClick={() => setMemoryOpen(false)}>
+                  Close
+                </button>
+              </header>
+              <div className="north-memory-tabs">
+                <button
+                  className={memoryTab === 'memory' ? 'active' : ''}
+                  type="button"
+                  onClick={() => setMemoryTab('memory')}
+                >
+                  <FileText size={16} /> memory.md
+                </button>
+                <button
+                  className={memoryTab === 'context' ? 'active' : ''}
+                  type="button"
+                  onClick={() => setMemoryTab('context')}
+                >
+                  <Database size={16} /> context packet
+                </button>
+              </div>
+              {memoryTab === 'memory' ? (
+                <MarkdownRenderer className="north-memory-markdown">
+                  {rawMemory?.memoryMarkdown ?? props.graph?.memoryMarkdown ?? 'No memory loaded yet.'}
+                </MarkdownRenderer>
+              ) : (
+                <pre>{JSON.stringify(rawMemory?.contextPacket ?? props.graph?.contextPacket ?? {}, null, 2)}</pre>
+              )}
+            </div>
+          </div>
+        ) : null}
       </section>
     </AppChrome>
   )
 }
 
-function formatProfileLine(value: string, investorLevel: string) {
-  const clean = formatDashboardText(value)
-  const age = clean.match(/\b\d{1,3}\b/)?.[0]
-  const level = cleanInvestorLevel(investorLevel || clean)
-  if (age && level) return `${age}-year-old ${level} profile`
-  if (level) return `${level.charAt(0).toUpperCase()}${level.slice(1)} profile`
-  return 'Active memory profile'
-}
-
-function formatToolbarSummary(
-  node: NonNullable<ScreenProps['selectedNode']>,
-  graph: ScreenProps['graph'],
-) {
-  if (node.kind === 'goal') return summarizeGoals(graph?.contextPacket.goals ?? [])
-  if (node.kind === 'risk') return summarizePlainText(node.value, 'Risk preferences are being shaped from the questionnaire and agent context.')
-  if (node.kind === 'account') return summarizePlainText(node.value, 'Account context is connected to help Northstar compare options responsibly.')
-  if (node.kind === 'cash_flow') return summarizePlainText(node.value, 'Cash-flow context helps separate near-term safety from long-term investing.')
-  if (node.kind === 'tax') return summarizePlainText(node.value, 'Tax context is available for recommendations that involve selling, rebalancing, or withdrawals.')
-  if (node.kind === 'communication') return summarizePlainText(node.value, 'Northstar will keep explanations clear, direct, and approval-first.')
-  if (node.kind === 'values') return summarizePlainText(node.value, 'Values guide how Northstar weighs flexibility, clarity, and control.')
-  return summarizePlainText(node.value, '')
-}
-
-function summarizeGoals(goals: NonNullable<ScreenProps['graph']>['contextPacket']['goals']) {
-  if (!goals.length) return 'No goals have been committed yet. Finish the memory flow to build a cleaner planning map.'
-
-  const fundedGoals = goals.filter((goal) => Number(goal.target_amount) > 0)
-  const leadGoal = fundedGoals[0] ?? goals[0]
-  const leadName = titleCase(leadGoal.type)
-  const target = Number(leadGoal.target_amount) > 0
-    ? ` with a ${formatMoney(Number(leadGoal.target_amount))} target`
-    : ''
-  const timelineCount = goals.filter((goal) => isKnown(goal.target_date)).length
-  const missingTimelineCount = goals.length - timelineCount
-  const otherCount = Math.max(goals.length - 1, 0)
-
-  const parts = [`Tracking ${goals.length} goal${goals.length === 1 ? '' : 's'}, led by ${leadName}${target}.`]
-  if (otherCount > 0) {
-    parts.push(`${otherCount} more goal${otherCount === 1 ? '' : 's'} are mapped for comparison.`)
-  }
-  if (missingTimelineCount > 0) {
-    parts.push('Timelines still need confirmation before projections should be treated as final.')
-  }
-  return parts.join(' ')
-}
-
-function summarizePlainText(value: string, fallback: string) {
-  const clean = formatDashboardText(value)
-  if (!clean || /not filled in yet/i.test(clean)) return fallback
-  return clean
-}
-
-function formatDashboardText(value: string) {
-  return value
-    .trim()
-    .replace(/_/g, ' ')
-    .replace(/\$0(?:\.00)?\s+by\s+unknown/gi, 'target amount and timeline to confirm')
-    .replace(/\$0(?:\.00)?/gi, 'target amount to confirm')
-    .replace(/\bby\s+unknown\b/gi, 'timeline to confirm')
-    .replace(/\b0,\s*unknown\b/i, 'active memory profile')
-    .replace(/\bunknown\b/gi, 'to confirm')
-    .replace(/\bplain english\b/gi, 'Plain English')
-    .replace(/\bmoderate cautious\b/gi, 'moderate and cautious')
-}
-
-function cleanInvestorLevel(value: string) {
-  const clean = value.toLowerCase().replace(/_/g, ' ')
-  if (clean.includes('beginner')) return 'beginner investor'
-  if (clean.includes('intermediate')) return 'intermediate investor'
-  if (clean.includes('advanced')) return 'advanced investor'
-  return ''
-}
-
-function titleCase(value: string) {
-  return value
-    .replace(/_/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
-
-function isKnown(value: string) {
-  return Boolean(value.trim()) && !/^unknown$/i.test(value.trim())
-}
-
-function formatMoney(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(value)
+function TraceEventRow({ event }: { event: AgentTraceEvent }) {
+  return (
+    <article className="north-trace-row">
+      <span>{event.type.replace(/_/g, ' ')}</span>
+      <strong>{event.label}</strong>
+      <p>{event.agent}</p>
+    </article>
+  )
 }
