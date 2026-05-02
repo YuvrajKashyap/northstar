@@ -1,20 +1,24 @@
 import {
   ArrowRight,
   ArrowUp,
-  CaretDown,
+  CheckCircle,
   Clock,
+  Flag,
   Heart,
   Leaf,
   Mountains,
   PlayCircle,
   Pulse,
   ShieldCheck,
-  Star,
   StarFour,
   Target,
+  TrendUp,
 } from '@phosphor-icons/react'
+import type { MemoryGraph } from '@calmvest/shared'
+import { MarketingNav } from '../components/marketing/MarketingNav'
 import landingBackground from '../assets/northstar-landing-bg.png'
 import northstarLogo from '../assets/northstar-logo.svg'
+import type { Screen } from '../types/screens'
 
 const memoryItems = [
   {
@@ -58,7 +62,14 @@ const agents = [
   },
 ]
 
-export function LandingPage() {
+export function LandingPage({
+  setScreen,
+  openAuth,
+}: {
+  setScreen?: (screen: Screen) => void
+  openAuth?: (mode: 'register' | 'login') => void
+  graph?: MemoryGraph | null
+}) {
   return (
     <div className="landing-page screen-enter">
       <section className="landing-hero" aria-label="Northstar landing page">
@@ -70,28 +81,7 @@ export function LandingPage() {
         />
         <div className="landing-hero__wash" aria-hidden="true" />
 
-        <nav className="north-nav" aria-label="Primary navigation">
-          <button className="north-brand" type="button">
-            <img className="north-logo-mark north-logo-mark--brand" src={northstarLogo} alt="" aria-hidden="true" />
-            <span>Northstar</span>
-          </button>
-
-          <div className="north-nav__links">
-            {['How it works', 'For beginners', 'Our agents', 'Safety', 'Pricing'].map((item) => (
-              <button type="button" key={item}>{item}</button>
-            ))}
-            <button type="button">
-              Learn <CaretDown size={14} />
-            </button>
-          </div>
-
-          <div className="north-nav__actions">
-            <button type="button">Log in</button>
-            <button className="north-nav__cta" type="button">
-              Get started
-            </button>
-          </div>
-        </nav>
+        <MarketingNav setScreen={setScreen} openAuth={openAuth} />
 
         <div className="north-hero-grid">
           <div className="north-copy">
@@ -111,26 +101,44 @@ export function LandingPage() {
             </p>
 
             <div className="north-actions">
-              <button className="north-primary" type="button">
+              <button className="north-primary" type="button" onClick={() => openAuth?.('register') ?? setScreen?.('signin')}>
                 Build my plan <ArrowRight size={22} />
               </button>
-              <button className="north-secondary" type="button">
+              <button className="north-secondary" type="button" onClick={() => setScreen?.('dashboard')}>
                 See how it works <PlayCircle size={22} />
               </button>
             </div>
 
-            <div className="north-proof" aria-label="Investor rating">
-              <div className="north-avatars" aria-hidden="true">
-                <span />
-                <span />
-                <span />
+            <div className="north-proof" aria-label="Northstar planning flow">
+              <div className="north-proof__step">
+                <span className="north-proof__icon" aria-hidden="true">
+                  <Flag size={25} weight="regular" />
+                </span>
+                <span>
+                  <strong>Goal captured</strong>
+                  <small>House in 3 years</small>
+                </span>
               </div>
-              <div className="north-stars" aria-hidden="true">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star size={15} weight="fill" key={index} />
-                ))}
+              <span className="north-proof__connector" aria-hidden="true" />
+              <div className="north-proof__step">
+                <span className="north-proof__icon" aria-hidden="true">
+                  <TrendUp size={25} weight="regular" />
+                </span>
+                <span>
+                  <strong>Scenario tested</strong>
+                  <small>Market drop + cash need</small>
+                </span>
               </div>
-              <span>4.9 from 1,200+ new investors</span>
+              <span className="north-proof__connector" aria-hidden="true" />
+              <div className="north-proof__step">
+                <span className="north-proof__icon" aria-hidden="true">
+                  <CheckCircle size={25} weight="regular" />
+                </span>
+                <span>
+                  <strong>You approve</strong>
+                  <small>No auto-trades</small>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -192,13 +200,12 @@ export function LandingPage() {
               </div>
             </article>
 
-            <form className="goal-input" onSubmit={(event) => event.preventDefault()}>
-              <label htmlFor="goal">Ask anything or tell me your goal...</label>
-              <input id="goal" aria-label="Ask anything or tell me your goal" />
-              <button type="submit" aria-label="Submit goal">
+            <div className="goal-input" aria-label="Example goal prompt">
+              <span>Ask anything or tell me your goal...</span>
+              <button type="button" aria-label="Decorative prompt arrow" tabIndex={-1}>
                 <ArrowUp size={22} />
               </button>
-            </form>
+            </div>
           </div>
         </div>
       </section>
