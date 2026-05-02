@@ -3,7 +3,6 @@ import {
   ArrowUp,
   CaretDown,
   Clock,
-  Compass,
   Heart,
   Leaf,
   Mountains,
@@ -15,6 +14,7 @@ import {
   Target,
 } from '@phosphor-icons/react'
 import landingBackground from '../assets/northstar-landing-bg.png'
+import northstarLogo from '../assets/northstar-logo.svg'
 
 const memoryItems = [
   {
@@ -72,7 +72,7 @@ export function LandingPage() {
 
         <nav className="north-nav" aria-label="Primary navigation">
           <button className="north-brand" type="button">
-            <Compass size={38} weight="thin" />
+            <img className="north-logo-mark north-logo-mark--brand" src={northstarLogo} alt="" aria-hidden="true" />
             <span>Northstar</span>
           </button>
 
@@ -97,7 +97,7 @@ export function LandingPage() {
           <div className="north-copy">
             <div className="north-eyebrow">
               <StarFour size={14} weight="fill" />
-              AI-powered. Human-forward.
+              Goal-aware. Transparent. In your control.
             </div>
 
             <h1>
@@ -106,8 +106,8 @@ export function LandingPage() {
             </h1>
 
             <p>
-              Northstar is your AI investing partner that remembers what matters
-              to you—and acts on it with discipline, clarity, and care.
+              Northstar helps everyday investors make clear, goal-aware decisions,
+              showing what could happen, what it means for you, and what to do next.
             </p>
 
             <div className="north-actions">
@@ -138,7 +138,7 @@ export function LandingPage() {
             <div className="north-product__top">
               <article className="memory-panel">
                 <header>
-                  <Compass size={30} weight="thin" />
+                  <img className="north-logo-mark north-logo-mark--panel" src={northstarLogo} alt="" aria-hidden="true" />
                   <div>
                     <strong>Your Memory Profile</strong>
                     <span>Built from our conversation</span>
@@ -166,8 +166,8 @@ export function LandingPage() {
                 </article>
 
                 <article className="chat-bubble chat-bubble--northstar">
-                  <span><Compass size={22} weight="thin" /> Northstar</span>
-                  <p>Understood. I&apos;ll focus on steady growth with managed risk and keep you informed—without the noise.</p>
+                  <span><img className="north-logo-mark north-logo-mark--inline" src={northstarLogo} alt="" aria-hidden="true" /> Northstar</span>
+                  <p>Understood. I&apos;ll focus on steady growth with managed risk and keep you informed without the noise.</p>
                   <time>11:24 AM</time>
                   <span className="north-sparkle" aria-hidden="true">
                     <StarFour size={28} weight="fill" />
