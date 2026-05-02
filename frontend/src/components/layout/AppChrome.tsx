@@ -127,6 +127,7 @@ export function AppChrome({
   const profileEmail = sessionProfile.email || 'No email on file'
   const memoryResults = useMemo(() => searchMemoryGraph(graph ?? null, memoryQuery), [graph, memoryQuery])
   const shouldShowSearchResults = searchOpen && memoryQuery.trim().length > 0
+  const shellScreenClass = active === 'north' ? 'dashboard' : active
 
   function openAccountScreen(screen: Screen) {
     setAccountMenuOpen(false)
@@ -156,7 +157,7 @@ export function AppChrome({
   }
 
   return (
-    <div className={`os-shell os-shell--workspace os-shell--${active}${agentPanelOpen ? ' os-shell--agent-open' : ''}`}>
+    <div className={`os-shell os-shell--workspace os-shell--${shellScreenClass}${agentPanelOpen ? ' os-shell--agent-open' : ''}`}>
       <header className="workspace-shell-header">
         <div className="workspace-shell-header__brand">
           <Logo />
@@ -164,7 +165,7 @@ export function AppChrome({
         <nav className="workspace-nav" aria-label="Workspace">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = active === item.screen
+            const isActive = active === item.screen || (active === 'dashboard' && item.screen === 'north')
             return (
               <button
                 className={isActive ? 'active' : ''}

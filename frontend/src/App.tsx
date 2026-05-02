@@ -12,6 +12,7 @@ import { ScenarioCanvasPage } from './pages/ScenarioCanvasPage'
 import { SignInPage } from './pages/SignInPage'
 import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
 import { WorkspaceFeaturePage } from './pages/WorkspaceFeaturePage'
+import { getMemoryStatus } from './lib/wealthApi'
 import type { Screen } from './types/screens'
 import './styles/index.css'
 
@@ -38,6 +39,18 @@ const screenRoutes = {
 const pathScreens = Object.fromEntries(
   Object.entries(screenRoutes).map(([screen, route]) => [route, screen]),
 ) as Record<string, keyof typeof screenRoutes>
+
+const memoryGatedScreens = new Set<Screen>([
+  'profile',
+  'memory',
+  'goals',
+  'agent-runs',
+  'plans',
+  'scenarios',
+  'insights',
+  'dashboard',
+  'north',
+])
 
 function App() {
   const { screen, setScreen, error, screenProps } = useCalmVestWorkspace()
@@ -80,6 +93,27 @@ function App() {
     }
   }, [path, screen, setScreen])
 
+  useEffect(() => {
+    if (!memoryGatedScreens.has(screen)) return
+
+    const userId = localStorage.getItem('northstar.activeUserId')
+    if (!userId) return
+
+    let cancelled = false
+    void getMemoryStatus(userId)
+      .then((status) => {
+        if (cancelled || (status.hasMemory && status.hasContext)) return
+        navigateTo('workspace')
+      })
+      .catch(() => {
+        if (!cancelled) navigateTo('workspace')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [navigateTo, screen])
+
   function openAuth(mode: 'register' | 'login') {
     setAuthMode(mode)
     navigateTo('signin')
@@ -116,7 +150,7 @@ function App() {
       {screen === 'plans' ? <PlansPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'insights' ? <InsightsPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'dashboard' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'dashboard' || screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )
 }

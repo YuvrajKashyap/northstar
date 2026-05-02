@@ -24,7 +24,7 @@ export const defaultAnswers: OnboardingAnswers = {
 }
 
 export const navItems: Array<{ screen: Screen; label: string; icon: typeof CirclesThreePlus }> = [
-  { screen: 'dashboard', label: 'North', icon: CirclesThreePlus },
+  { screen: 'north', label: 'North', icon: CirclesThreePlus },
   { screen: 'agent-runs', label: 'Agent', icon: Graph },
   { screen: 'goals', label: 'Goals', icon: Target },
   { screen: 'plans', label: 'Plans', icon: CalendarCheck },

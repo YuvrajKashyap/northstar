@@ -13,6 +13,7 @@ import appleLogo from '../assets/apple-logo.svg'
 import googleLogo from '../assets/google-g-logo.svg'
 import northstarLogo from '../assets/northstar-logo.svg'
 import { postJson } from '../lib/api'
+import { getMemoryStatus } from '../lib/wealthApi'
 import type { Screen } from '../types/screens'
 import type { AuthRecoverResponse, AuthUserSession } from '@calmvest/shared'
 
@@ -87,13 +88,24 @@ export function SignInPage({
     setShowRecover(false)
   }
 
-  async function activateSession(session: AuthUserSession) {
+  async function activateSession(session: AuthUserSession, nextMode: AuthMode) {
     localStorage.setItem('northstar.activeUserId', session.userId)
     localStorage.setItem('northstar.activeUserEmail', session.email)
     localStorage.setItem('northstar.activeUserName', session.name)
     if (session.accessToken) localStorage.setItem('northstar.accessToken', session.accessToken)
     window.dispatchEvent(new Event('northstar-auth'))
-    setScreen('dashboard')
+
+    if (nextMode === 'register') {
+      setScreen('workspace')
+      return
+    }
+
+    try {
+      const status = await getMemoryStatus(session.userId)
+      setScreen(status.hasMemory && status.hasContext ? 'dashboard' : 'workspace')
+    } catch {
+      setScreen('workspace')
+    }
   }
 
   function readableError(caught: unknown) {
@@ -115,10 +127,11 @@ export function SignInPage({
     }
     setBusy(true)
     try {
-      const session = isRegister
+      const submittedMode = mode
+      const session = submittedMode === 'register'
         ? await postJson<AuthUserSession>('/api/auth/register', { name, email, password })
         : await postJson<AuthUserSession>('/api/auth/login', { email, password })
-      await activateSession(session)
+      await activateSession(session, submittedMode)
     } catch (caught) {
       const text = readableError(caught)
       setMessage({ kind: 'error', text })
