@@ -1,0 +1,255 @@
+
+.memory-section-list button {
+  background: transparent;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--muted);
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: 30px 1fr auto;
+  justify-content: start;
+  min-height: 74px;
+  padding: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.memory-section-list button.active {
+  background: rgba(85, 196, 111, 0.14);
+  color: var(--text);
+}
+
+.count-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  padding: 0.18rem 0.46rem;
+}
+
+.add-section {
+  margin-top: 0.85rem;
+  width: 100%;
+}
+
+.memory-detail-stack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.memory-detail-card,
+.markdown-card {
+  padding: 1.2rem 1.35rem;
+}
+
+.memory-detail-card header,
+.markdown-card header {
+  align-items: start;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.memory-detail-card h3,
+.markdown-card h3 {
+  font-size: 1.18rem;
+  font-weight: 560;
+}
+
+.memory-detail-card p,
+.markdown-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.tag-row span,
+.agent-card .tag-row span,
+.profile-tags span {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: #d8e8cf;
+  font-size: 0.74rem;
+  padding: 0.28rem 0.5rem;
+}
+
+.markdown-card pre {
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: #cde4cc;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.6;
+  margin: 1rem 0 0;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+}
+
+.agent-usage-panel,
+.memory-controls {
+  align-content: start;
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.2rem;
+}
+
+.usage-card,
+.control-row,
+.agent-card,
+.impact-row,
+.privacy-tile {
+  background: rgba(7, 38, 31, 0.64);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.usage-card,
+.control-row {
+  padding: 1rem;
+}
+
+.usage-card header,
+.control-row,
+.impact-row {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 42px 1fr auto;
+}
+
+.usage-card h4,
+.impact-row h4,
+.agent-card h4 {
+  font-weight: 560;
+  margin: 0;
+}
+
+.usage-card p,
+.control-row p,
+.impact-row p,
+.agent-card p {
+  color: var(--muted);
+}
+
+.memory-controls {
+  margin-top: 0.8rem;
+}
+
+.toggle {
+  background: #f4f4e9;
+  border-radius: 999px;
+  height: 26px;
+  position: relative;
+  width: 48px;
+}
+
+.toggle::after {
+  background: var(--green-2);
+  border-radius: 50%;
+  content: "";
+  height: 20px;
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  width: 20px;
+}
+
+.danger-control {
+  border-color: rgba(230, 111, 80, 0.34);
+  color: #ff9b82;
+}
+
+.goals-layout {
+  grid-template-columns: minmax(0, 1fr) 360px;
+}
+
+.goals-main {
+  display: grid;
+  gap: 1rem;
+}
+
+.goal-list {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.goal-card {
+  align-items: center;
+  background: rgba(8, 43, 34, 0.74);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: 94px minmax(220px, 1.1fr) minmax(210px, 0.9fr) minmax(190px, 0.75fr) 28px;
+  padding: 1.2rem;
+}
+
+.goal-main-copy h3 {
+  font-size: 1.22rem;
+  font-weight: 560;
+}
+
+.goal-main-copy p,
+.goal-meta p,
+.confidence p {
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+.goal-meta {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.goal-meta span,
+.goal-progress span {
+  color: var(--quiet);
+  display: block;
+  font-size: 0.78rem;
+}
+
+.goal-meta strong,
+.goal-progress strong {
+  display: block;
+  font-size: 1.18rem;
+  font-weight: 550;
+  margin-top: 0.25rem;
+}
+
+.progress-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  height: 6px;
+  margin: 0.8rem 0 0.5rem;
+  overflow: hidden;
+}
+
+.progress-track i {
+  background: linear-gradient(90deg, var(--green), #d8f68b);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+}
+
+.progress-axis {
+  color: var(--quiet);
+  display: flex;
+  font-size: 0.72rem;
+  justify-content: space-between;
+}
+
+.confidence {
+  background: rgba(72, 176, 88, 0.13);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+}

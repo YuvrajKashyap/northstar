@@ -1,2 +1,9 @@
 @import './01-foundation.css';
 @import './02-landing.css';
+@import './03-auth.css';
+@import './04-shell.css';
+@import './05-onboarding-profile.css';
+@import './06-memory.css';
+@import './07-goals.css';
+@import './08-dashboard-agent.css';
+@import './09-responsive.css';

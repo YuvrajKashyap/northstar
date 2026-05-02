@@ -1,207 +1,173 @@
+import { useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
   ArrowRight,
-  ArrowUp,
-  CaretDown,
-  Clock,
-  Heart,
-  Leaf,
-  Mountains,
+  CirclesThreePlus,
+  Graph,
   PlayCircle,
-  Pulse,
   ShieldCheck,
-  Star,
-  StarFour,
-  Target,
+  Wallet,
 } from '@phosphor-icons/react'
-import landingBackground from '../assets/northstar-landing-bg.png'
-import northstarLogo from '../assets/northstar-logo.svg'
+import type { MemoryGraph } from '@calmvest/shared'
+import type { Screen } from '../types/screens'
+import { AgentRail } from '../components/dashboard/AgentRail'
+import { LandingNav } from '../components/layout/LandingNav'
+import { MiniGraph } from '../components/dashboard/MiniGraph'
+import { MiniOsHeader } from '../components/layout/MiniOsHeader'
+import { Logo } from '../components/brand/Logo'
 
-const memoryItems = [
+gsap.registerPlugin(ScrollTrigger)
+
+const features = [
   {
-    icon: <Heart size={24} weight="regular" />,
-    label: 'What matters',
-    text: 'Financial freedom, family, and peace of mind',
+    icon: <CirclesThreePlus size={22} />,
+    title: 'Memory Graph',
+    desc: 'A persistent map of your life and money. Every agent reads it before acting.',
   },
   {
-    icon: <Clock size={24} weight="regular" />,
-    label: 'Time horizon',
-    text: 'Long term (10+ years)',
+    icon: <Graph size={22} />,
+    title: 'Scenario Canvas',
+    desc: "Guided what-if simulations that stress-test your plan before you commit.",
   },
   {
-    icon: <Pulse size={24} weight="regular" />,
-    label: 'Risk comfort',
-    text: 'Moderate',
-    meter: true,
+    icon: <Wallet size={22} />,
+    title: 'Decision Inbox',
+    desc: 'Surfaced recommendations with trade-offs. No hunting through dashboards.',
   },
   {
-    icon: <Target size={24} weight="regular" />,
-    label: 'Current focus',
-    text: 'Grow wealth steadily, avoid stress',
+    icon: <ShieldCheck size={22} />,
+    title: 'Trust Receipts',
+    desc: 'Every suggestion comes with a plain-language audit trail and confidence score.',
   },
 ]
 
-const agents = [
-  {
-    icon: <Mountains size={24} weight="regular" />,
-    title: 'Strategist',
-    text: 'Builds and rebalances your portfolio',
-  },
-  {
-    icon: <ShieldCheck size={24} weight="regular" />,
-    title: 'Risk Guardian',
-    text: 'Monitors risk and keeps you on track',
-  },
-  {
-    icon: <Leaf size={24} weight="regular" />,
-    title: 'Behavior Coach',
-    text: 'Helps you stay calm and consistent',
-  },
-]
+export function LandingPage({
+  setScreen,
+  graph,
+}: {
+  setScreen: (screen: Screen) => void
+  graph: MemoryGraph | null
+}) {
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        '.feat-item',
+        { opacity: 0, y: 22 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.09,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '.l-features', start: 'top 82%' },
+        },
+      )
+      gsap.fromTo(
+        '.l-cta',
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+          scrollTrigger: { trigger: '.l-cta', start: 'top 88%' },
+        },
+      )
+    })
+    return () => {
+      ctx.revert()
+      ScrollTrigger.getAll().forEach((t) => t.kill())
+    }
+  }, [])
 
-export function LandingPage() {
   return (
-    <div className="landing-page screen-enter">
-      <section className="landing-hero" aria-label="Northstar landing page">
-        <img
-          className="landing-hero__image"
-          src={landingBackground}
-          alt=""
-          aria-hidden="true"
-        />
-        <div className="landing-hero__wash" aria-hidden="true" />
+    <div className="l-root screen-enter">
+      <LandingNav setScreen={setScreen} />
 
-        <nav className="north-nav" aria-label="Primary navigation">
-          <button className="north-brand" type="button">
-            <img className="north-logo-mark north-logo-mark--brand" src={northstarLogo} alt="" aria-hidden="true" />
-            <span>Northstar</span>
-          </button>
-
-          <div className="north-nav__links">
-            {['How it works', 'For beginners', 'Our agents', 'Safety', 'Pricing'].map((item) => (
-              <button type="button" key={item}>{item}</button>
-            ))}
-            <button type="button">
-              Learn <CaretDown size={14} />
+      {/* ─── Hero ─── */}
+      <section className="l-hero">
+        <div className="l-hero-copy">
+          <div className="l-badge"><span className="l-dot" />Agent-first wealth guidance</div>
+          <h1 className="l-h1">
+            Your money,<br />
+            handled with<br />
+            <em>context.</em>
+          </h1>
+          <p className="l-lead">
+            CalmVest uses specialized AI agents and your life context to give you
+            clear guidance—so you can make confident money decisions, starting today.
+          </p>
+          <div className="l-actions">
+            <button className="l-btn-primary" type="button" onClick={() => setScreen('onboarding')}>
+              Get started <ArrowRight size={17} />
+            </button>
+            <button className="l-btn-ghost" type="button" onClick={() => setScreen('dashboard')}>
+              <PlayCircle size={17} /> See how it works
             </button>
           </div>
+          <ul className="l-promises">
+            <li>Built for beginners</li>
+            <li>Private by design</li>
+            <li>Always working for you</li>
+          </ul>
+        </div>
 
-          <div className="north-nav__actions">
-            <button type="button">Log in</button>
-            <button className="north-nav__cta" type="button">
-              Get started
-            </button>
-          </div>
-        </nav>
-
-        <div className="north-hero-grid">
-          <div className="north-copy">
-            <div className="north-eyebrow">
-              <StarFour size={14} weight="fill" />
-              Goal-aware. Transparent. In your control.
-            </div>
-
-            <h1>
-              A <em>calm</em> operating
-              <span>system for money.</span>
-            </h1>
-
-            <p>
-              Northstar helps everyday investors make clear, goal-aware decisions,
-              showing what could happen, what it means for you, and what to do next.
-            </p>
-
-            <div className="north-actions">
-              <button className="north-primary" type="button">
-                Build my plan <ArrowRight size={22} />
-              </button>
-              <button className="north-secondary" type="button">
-                See how it works <PlayCircle size={22} />
-              </button>
-            </div>
-
-            <div className="north-proof" aria-label="Investor rating">
-              <div className="north-avatars" aria-hidden="true">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="north-stars" aria-hidden="true">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star size={15} weight="fill" key={index} />
-                ))}
-              </div>
-              <span>4.9 from 1,200+ new investors</span>
-            </div>
-          </div>
-
-          <div className="north-product" aria-label="Northstar product preview">
-            <div className="north-product__top">
-              <article className="memory-panel">
-                <header>
-                  <img className="north-logo-mark north-logo-mark--panel" src={northstarLogo} alt="" aria-hidden="true" />
-                  <div>
-                    <strong>Your Memory Profile</strong>
-                    <span>Built from our conversation</span>
-                  </div>
-                </header>
-                <div className="memory-list">
-                  {memoryItems.map((item) => (
-                    <div className="memory-row" key={item.label}>
-                      <span className="memory-icon">{item.icon}</span>
-                      <div>
-                        <strong>{item.label}</strong>
-                        <span>{item.text}</span>
-                        {item.meter ? <span className="risk-meter" aria-hidden="true" /> : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </article>
-
-              <div className="north-chat-column">
-                <article className="chat-bubble chat-bubble--user">
-                  <span>You</span>
-                  <p>I want to invest for the long term, but I get anxious with market ups and downs.</p>
-                  <time>11:24 AM</time>
-                </article>
-
-                <article className="chat-bubble chat-bubble--northstar">
-                  <span><img className="north-logo-mark north-logo-mark--inline" src={northstarLogo} alt="" aria-hidden="true" /> Northstar</span>
-                  <p>Understood. I&apos;ll focus on steady growth with managed risk and keep you informed without the noise.</p>
-                  <time>11:24 AM</time>
-                  <span className="north-sparkle" aria-hidden="true">
-                    <StarFour size={28} weight="fill" />
-                  </span>
-                </article>
-              </div>
-            </div>
-
-            <article className="agents-panel">
-              <h2>Your investing agents</h2>
-              <div className="agent-list">
-                {agents.map((agent) => (
-                  <div className="north-agent-card" key={agent.title}>
-                    <span className="agent-icon">{agent.icon}</span>
-                    <div>
-                      <strong>{agent.title}</strong>
-                      <span>{agent.text}</span>
-                      <small><StarFour size={12} weight="fill" /> Active</small>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </article>
-
-            <form className="goal-input" onSubmit={(event) => event.preventDefault()}>
-              <label htmlFor="goal">Ask anything or tell me your goal...</label>
-              <input id="goal" aria-label="Ask anything or tell me your goal" />
-              <button type="submit" aria-label="Submit goal">
-                <ArrowUp size={22} />
-              </button>
-            </form>
+        <div className="l-hero-frame">
+          <MiniOsHeader />
+          <div className="l-hero-grid">
+            <MiniGraph graph={graph} />
+            <AgentRail compact />
           </div>
         </div>
       </section>
+
+      {/* ─── Features strip ─── */}
+      <section className="l-features">
+        {features.map((f) => (
+          <div className="feat-item" key={f.title}>
+            <span className="feat-icon">{f.icon}</span>
+            <div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </div>
+            <button
+              className="feat-link"
+              type="button"
+              onClick={() => setScreen('dashboard')}
+            >
+              Learn more <ArrowRight size={13} />
+            </button>
+          </div>
+        ))}
+      </section>
+
+      {/* ─── CTA ─── */}
+      <section className="l-cta">
+        <div>
+          <h2>Ready for calm, intelligent money guidance?</h2>
+          <p>Let agents handle the analysis. You make the call.</p>
+        </div>
+        <div className="l-cta-actions">
+          <button className="l-btn-primary" type="button" onClick={() => setScreen('onboarding')}>
+            Get started <ArrowRight size={17} />
+          </button>
+          <button className="l-btn-ghost" type="button" onClick={() => setScreen('dashboard')}>
+            <PlayCircle size={17} /> See demo
+          </button>
+        </div>
+      </section>
+
+      {/* ─── Footer ─── */}
+      <footer className="l-footer">
+        <Logo />
+        <nav className="l-footer-links">
+          {['Product', 'How it works', 'Security', 'Pricing', 'About'].map((item) => (
+            <button type="button" key={item}>{item}</button>
+          ))}
+        </nav>
+        <span className="l-footer-copy">© 2024 CalmVest, Inc.</span>
+      </footer>
     </div>
   )
 }
