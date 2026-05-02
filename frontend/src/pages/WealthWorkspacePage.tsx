@@ -37,6 +37,8 @@ import landingBackground from '../assets/northstar-landing-bg.png'
 import northstarLogo from '../assets/northstar-logo.svg'
 
 const fallbackUserId = 'maya-patel-demo'
+const activeUserKey = 'northstar.activeUserId'
+const activeUserNameKey = 'northstar.activeUserName'
 
 const defaultAnswers: OnboardingAnswers = {
   userId: fallbackUserId,
@@ -164,18 +166,20 @@ const routeMeta: Record<WorkspaceRoute, { label: string; eyebrow: string; title:
     label: 'Home',
     eyebrow: 'Dashboard home',
     title: 'Memory graph is the app home.',
-    copy: 'The core app opens on reusable context: who Maya is, what she wants, what she fears, and what every agent can use.',
+    copy: 'The core app opens on reusable context: who the user is, what they want, what they fear, and what every agent can use.',
   },
 }
 
 export function WealthWorkspacePage() {
-  const activeUserId = localStorage.getItem('northstar.activeUserId') ?? fallbackUserId
+  const activeUserId = localStorage.getItem(activeUserKey) ?? fallbackUserId
+  const activeUserName = formatPersonName(localStorage.getItem(activeUserNameKey) ?? '')
+  const activeUserFirstName = firstNameFrom(activeUserName)
   const [route, setRoute] = useState<WorkspaceRoute>(() => getWorkspaceRoute())
   const [answers] = useState<OnboardingAnswers>({ ...defaultAnswers, userId: activeUserId })
   const [plaid, setPlaid] = useState<PlaidLinkResult | null>(null)
   const [enabledAccounts, setEnabledAccounts] = useState<Record<string, boolean>>({})
   const [visibleTransactions, setVisibleTransactions] = useState<Record<string, boolean>>({})
-  const [questionnaire, setQuestionnaire] = useState<QuestionnaireAnswers>(() => buildDefaultQuestionnaire())
+  const [questionnaire, setQuestionnaire] = useState<QuestionnaireAnswers>(() => buildDefaultQuestionnaire(activeUserId, activeUserName))
   const [activeQuestionSection, setActiveQuestionSection] = useState(questionnaireSections[0].id)
   const [diff, setDiff] = useState<MemoryDiffItem[]>([])
   const [onboardingTrace, setOnboardingTrace] = useState<AgentTraceEvent[]>([])
@@ -202,6 +206,31 @@ export function WealthWorkspacePage() {
   useEffect(() => {
     void refreshGraph()
   }, [])
+
+  useEffect(() => {
+    if (activeUserId === fallbackUserId) return
+    const graphName = formatPersonName(graph?.contextPacket.user.name ?? '')
+    if (!graphName) return
+    const timer = window.setTimeout(() => {
+      setQuestionnaire((current) => {
+        if (current.full_name?.trim() && current.full_name !== questionnaireSampleAnswers.full_name) return current
+        return { ...current, full_name: graphName }
+      })
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [activeUserId, graph])
+
+  useEffect(() => {
+    if (activeUserId === fallbackUserId) return
+    const timer = window.setTimeout(() => {
+      setQuestionnaire((current) => removeSampleAnswers(current, activeUserName))
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [activeUserId, activeUserName])
+
+  useEffect(() => {
+    localStorage.setItem(questionnaireStorageKey(activeUserId), JSON.stringify(questionnaire))
+  }, [activeUserId, questionnaire])
 
   async function refreshGraph() {
     const nextGraph = await getMemoryGraph(activeUserId)
@@ -249,7 +278,7 @@ export function WealthWorkspacePage() {
         ...answers,
         profileText,
         goal: questionnaire.primary_goal || answers.goal,
-        targetAmount: parseCurrencyAmount(questionnaire.primary_goal_amount) ?? parseCurrencyAmount(questionnaire.primary_goal) ?? 80000,
+        targetAmount: parseCurrencyAmount(questionnaire.primary_goal_amount) ?? parseCurrencyAmount(questionnaire.primary_goal) ?? 0,
         targetDate: questionnaire.primary_goal_date || answers.targetDate,
         withdrawalNeed: questionnaire.near_term_liquidity || answers.withdrawalNeed,
         drawdownFeeling: questionnaire.market_drop_response || answers.drawdownFeeling,
@@ -294,9 +323,6 @@ export function WealthWorkspacePage() {
           <img src={northstarLogo} alt="" aria-hidden="true" />
           <span>Northstar</span>
         </a>
-        <a className="workspace-topbar__link" href="/">
-          Landing
-        </a>
       </header>
 
       <main className={`workspace-page workspace-page--${route}`}>
@@ -332,6 +358,7 @@ export function WealthWorkspacePage() {
               setVisibleTransactions((current) => ({ ...current, [transactionId]: !current[transactionId] }))
             }
             error={error}
+            firstName={activeUserFirstName}
           />
         ) : null}
 
@@ -377,6 +404,7 @@ function ConnectAccountsPage({
   onToggleAccount,
   onToggleTransaction,
   error,
+  firstName,
 }: {
   plaid: PlaidLinkResult | null
   busy: boolean
@@ -387,15 +415,48 @@ function ConnectAccountsPage({
   onToggleAccount: (accountId: string) => void
   onToggleTransaction: (transactionId: string) => void
   error: string
+  firstName: string
 }) {
+  const greetingTarget = firstName ? `Welcome ${firstName}` : ''
+  const [typedGreeting, setTypedGreeting] = useState('')
   const accounts = plaid?.accounts ?? []
   const transactions = plaid?.transactions ?? []
   const groupedAccounts = groupAccounts(accounts)
   const enabledAccountCount = Object.values(enabledAccounts).filter(Boolean).length
   const visibleTransactionCount = Object.values(visibleTransactions).filter(Boolean).length
 
+  useEffect(() => {
+    if (!greetingTarget) return
+    let cancelled = false
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    async function animateGreeting() {
+      for (let index = 1; index <= greetingTarget.length; index += 1) {
+        if (cancelled) return
+        setTypedGreeting(greetingTarget.slice(0, index))
+        await sleep(52)
+      }
+      await sleep(2000)
+      for (let index = greetingTarget.length - 1; index >= 0; index -= 1) {
+        if (cancelled) return
+        setTypedGreeting(greetingTarget.slice(0, index))
+        await sleep(30)
+      }
+    }
+
+    void animateGreeting()
+    return () => {
+      cancelled = true
+    }
+  }, [greetingTarget])
+
   return (
     <section className="workspace-stage workspace-stage--full connect-stage">
+      {greetingTarget ? (
+        <span className={`workspace-welcome-type ${typedGreeting ? '' : 'is-empty'}`} aria-label={greetingTarget}>
+          {typedGreeting}
+        </span>
+      ) : null}
       <article className="workspace-card connect-product-card">
         <header className="workspace-card__header connect-hero-header">
           <div>
@@ -476,7 +537,7 @@ function ConnectAccountsPage({
 
         {error ? <div className="workspace-error workspace-error--inline">{error}</div> : null}
 
-        <div className="workspace-action-row">
+        <div className={`workspace-action-row ${plaid ? '' : 'workspace-action-row--single'}`}>
           <button className="workspace-primary wide" type="button" disabled={busy} onClick={onRun}>
             {busy ? 'Connecting accounts...' : plaid ? 'Refresh connection' : 'Connect accounts'} <ArrowRight size={18} />
           </button>
@@ -631,9 +692,14 @@ function CommitMemoryPage({
             <strong>Ready for memory commit</strong>
             <p>Creates structured goals, values, risk, tax context, approvals, and memory.md.</p>
           </div>
-          <button className="workspace-primary" type="button" disabled={busy} onClick={onCommit}>
-            {busy ? 'Compiling official memory...' : `Commit ${questionnaireFields.length} answers`} <Database size={18} />
-          </button>
+          <div className="memory-submit-action">
+            <button className="workspace-primary" type="button" disabled={busy} onClick={onCommit}>
+              {busy ? 'Compiling official memory...' : `Commit ${questionnaireFields.length} answers`} <Database size={18} />
+            </button>
+            {answeredCount < questionnaireFields.length ? (
+              <small>Only {answeredCount} of {questionnaireFields.length} answers filled out so far!</small>
+            ) : null}
+          </div>
         </div>
       </article>
     </section>
@@ -713,16 +779,21 @@ function GraphStudio({
   onSelect: (id: string) => void
 }) {
   const nodes = graph?.nodes ?? []
+  const personNode = nodes.find((node) => node.kind === 'person')
+  const sessionName = formatPersonName(localStorage.getItem(activeUserNameKey) ?? '')
+  const displayName = resolveGraphDisplayName(sessionName, personNode?.label, graph?.contextPacket.user.name)
+  const displayContext = formatGraphValue(personNode?.value || 'Your active memory profile')
+  const orbitNodes = nodes.filter((node) => node.kind !== 'person')
 
   return (
     <div className="graph-studio">
       <div className="graph-orbit">
         <div className="maya-node">
           <UserCircle size={28} weight="duotone" />
-          <strong>Maya</strong>
-          <span>home context</span>
+          <strong>{displayName}</strong>
+          <span>{displayContext}</span>
         </div>
-        {nodes.map((node, index) => (
+        {orbitNodes.map((node, index) => (
           <button
             className={`memory-node memory-node-${index % 8} ${node.id === selectedNodeId ? 'active' : ''}`}
             type="button"
@@ -730,7 +801,8 @@ function GraphStudio({
             onClick={() => onSelect(node.id)}
           >
             <NodeIcon kind={node.kind} />
-            <strong>{node.label}</strong>
+            <strong>{formatGraphLabel(node.label)}</strong>
+            <span>{formatGraphPreview(node)}</span>
           </button>
         ))}
       </div>
@@ -742,10 +814,10 @@ function GraphStudio({
               <NodeIcon kind={selectedNode.kind} />
               <div>
                 <span>{selectedNode.source}</span>
-                <h3>{selectedNode.label}</h3>
+                <h3>{formatGraphLabel(selectedNode.label)}</h3>
               </div>
             </div>
-            <p>{selectedNode.value}</p>
+            <p>{formatGraphValue(selectedNode.value)}</p>
             <div className="used-by">
               {selectedNode.usedBy.map((agent) => (
                 <span key={agent}>{agent}</span>
@@ -880,8 +952,128 @@ function formatMoney(value: number) {
   }).format(value)
 }
 
-function buildDefaultQuestionnaire(): QuestionnaireAnswers {
-  return Object.fromEntries(questionnaireFields.map((field) => [field.key, questionnaireSampleAnswers[field.key] ?? field.defaultValue]))
+function questionnaireStorageKey(userId: string) {
+  return `northstar.questionnaire.${userId}`
+}
+
+function buildDefaultQuestionnaire(userId: string, userName: string): QuestionnaireAnswers {
+  const stored = localStorage.getItem(questionnaireStorageKey(userId))
+  if (stored) {
+    try {
+      const parsed = {
+        ...blankQuestionnaire(userName),
+        ...(JSON.parse(stored) as QuestionnaireAnswers),
+      }
+      return userId === fallbackUserId ? parsed : removeSampleAnswers(parsed, userName)
+    } catch {
+      localStorage.removeItem(questionnaireStorageKey(userId))
+    }
+  }
+
+  if (userId === fallbackUserId) {
+    return Object.fromEntries(
+      questionnaireFields.map((field) => [field.key, questionnaireSampleAnswers[field.key] ?? field.defaultValue]),
+    )
+  }
+
+  return blankQuestionnaire(userName)
+}
+
+function removeSampleAnswers(answers: QuestionnaireAnswers, userName: string): QuestionnaireAnswers {
+  return Object.fromEntries(
+    questionnaireFields.map((field) => {
+      const value = answers[field.key] ?? ''
+      if (value === questionnaireSampleAnswers[field.key]) {
+        return [field.key, field.key === 'full_name' ? userName : field.defaultValue]
+      }
+      return [field.key, value]
+    }),
+  )
+}
+
+function resolveGraphDisplayName(sessionName: string, personLabel?: string, graphName?: string) {
+  const names = [personLabel, graphName, sessionName, 'You']
+    .map((name) => formatPersonName(name ?? ''))
+    .filter(Boolean)
+  if (sessionName) {
+    const nonDemoName = names.find((name) => !/^Maya(?:\s+Patel)?$/i.test(name))
+    return nonDemoName || sessionName
+  }
+  return names[0] || 'You'
+}
+
+function formatGraphLabel(label: string) {
+  return label
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    .replace(/\bAnd\b/g, 'and')
+}
+
+function formatGraphValue(value: string) {
+  const cleaned = value
+    .trim()
+    .replace(/_/g, ' ')
+    .replace(/\$0(?:\.00)?\s+by\s+unknown/gi, 'target amount and timeline TBD')
+    .replace(/\$0(?:\.00)?/gi, 'target amount TBD')
+    .replace(/\bby\s+unknown\b/gi, 'timeline TBD')
+    .replace(/\b0,\s*unknown\b/i, 'Your active memory profile')
+    .replace(/\bunknown\b/gi, 'not filled in yet')
+    .replace(/\bplain english\b/gi, 'Plain English')
+    .replace(/\bmoderate cautious\b/gi, 'Moderate and cautious')
+  if (!cleaned) return 'Not filled in yet'
+  return cleaned
+    .split(/\s*;\s*|\n+/)
+    .map((chunk) => {
+      const goalMatch = chunk.match(/^([^:]+):\s*(.+)$/)
+      if (!goalMatch) return sentenceCase(chunk)
+      const [, label, detail] = goalMatch
+      return `${sentenceCase(label)}\n${sentenceCase(detail.replace(/,\s*timeline TBD/gi, ' - Timeline TBD'))}`
+    })
+    .filter(Boolean)
+    .join('\n\n')
+}
+
+function formatGraphPreview(node: MemoryGraphNode) {
+  const detail = formatGraphValue(node.value)
+  if (node.kind === 'goal') {
+    const goals = detail
+      .split(/\n\n+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+    if (goals.length > 1) {
+      const firstGoal = goals[0]?.split('\n')[0] ?? 'Goals mapped'
+      return `${firstGoal} + ${goals.length - 1} more`
+    }
+  }
+  return detail
+    .replace(/\n+/g, ' - ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function sentenceCase(value: string) {
+  const text = value.trim()
+  if (!text) return ''
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}
+
+function blankQuestionnaire(userName: string): QuestionnaireAnswers {
+  return Object.fromEntries(
+    questionnaireFields.map((field) => [field.key, field.key === 'full_name' ? userName : field.defaultValue]),
+  )
+}
+
+function formatPersonName(value: string) {
+  return value
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ')
+}
+
+function firstNameFrom(value: string) {
+  return formatPersonName(value).split(/\s+/).filter(Boolean)[0] ?? ''
 }
 
 function buildProfileText(answers: QuestionnaireAnswers) {
@@ -978,7 +1170,7 @@ const questionnaireSections: Array<{ id: QuestionnaireSectionId; label: string; 
 ]
 
 const questionnaireFields: QuestionnaireField[] = [
-  { key: 'full_name', section: 'identity', label: 'Tell Northstar who this memory belongs to.', defaultValue: '', placeholder: 'Example: My name is Maya Patel. I usually go by Maya.' },
+  { key: 'full_name', section: 'identity', label: 'Tell Northstar who this memory belongs to.', defaultValue: '', placeholder: 'Example: My name is Jordan Lee. I usually go by Jordan.' },
   { key: 'age', section: 'identity', label: 'Share your age or life stage in your own words.', defaultValue: '', placeholder: 'Example: I am 24 and early in my career.' },
   { key: 'location', section: 'identity', label: 'Where do you live, and could that change?', defaultValue: '', placeholder: 'Example: I live in Chicago now, but I might move for work or a home purchase.' },
   { key: 'household', section: 'identity', label: 'Describe your household and anyone who depends on you.', defaultValue: '', placeholder: 'Example: No dependents right now, but I may help my parents occasionally.' },

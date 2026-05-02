@@ -2,11 +2,12 @@ import { CaretDown } from '@phosphor-icons/react'
 import { Avatar } from './Avatar'
 
 export function ProfileChip({
-  name = 'Kushagra Bharti',
+  name = 'Northstar user',
   role = 'Beginner investor',
   compact,
   onClick,
   ariaLabel,
+  expanded,
 }: {
   name?: string
   role?: string
@@ -14,6 +15,7 @@ export function ProfileChip({
   onClick?: () => void
   /** Override default accessible name */
   ariaLabel?: string
+  expanded?: boolean
 }) {
   return (
     <button
@@ -21,6 +23,8 @@ export function ProfileChip({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel ?? (compact ? `${name}, ${role}` : undefined)}
+      aria-haspopup="menu"
+      aria-expanded={expanded}
     >
       <Avatar name={name} compact />
       {!compact ? (

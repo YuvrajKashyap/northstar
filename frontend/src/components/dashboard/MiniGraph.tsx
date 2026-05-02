@@ -17,6 +17,9 @@ function trunc(s: string, n = 46) {
 
 /** Hero orbit graph — always uses clean static data, ignores live API */
 export function MiniGraph({ graph }: { graph: MemoryGraph | null }) {
+  const sessionName = localStorage.getItem('northstar.activeUserName')?.trim()
+  const graphName = graph?.contextPacket?.user?.name?.trim()
+  const displayName = sessionName || graphName || 'Northstar'
   const graphLabel = graph?.nodes.length
     ? `Memory preview with ${graph.nodes.length} live context nodes`
     : 'Memory preview with sample context nodes'
@@ -27,8 +30,8 @@ export function MiniGraph({ graph }: { graph: MemoryGraph | null }) {
       <div className="orbit-line two" />
       <div className="center-node">
         <UserCircle size={22} weight="duotone" />
-        <strong>Maya Patel</strong>
-        <span>Primary Profile</span>
+        <strong>{displayName}</strong>
+        <span>Primary profile</span>
       </div>
       {heroNodes.map((n, i) => (
         <div className={`orbit-card orbit-${i}`} key={n.id}>

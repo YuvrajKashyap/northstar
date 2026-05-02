@@ -2,7 +2,9 @@ import type { DemoSeed } from '@calmvest/shared';
 import { supabase } from './supabase.js';
 import { mirrorDemoSeed, mirrorMemory } from './local-mirror.js';
 
-export async function persistDemoSeed(seed: DemoSeed) {
+export async function persistDemoSeed(seed: DemoSeed, options: { persistMemory?: boolean } = {}) {
+  const persistMemory = options.persistMemory ?? true;
+
   const { error: userError } = await supabase.from('demo_users').upsert({
     id: seed.user.id,
     name: seed.user.name,
@@ -72,12 +74,15 @@ export async function persistDemoSeed(seed: DemoSeed) {
   });
   if (contextError) throw contextError;
 
-  const { error: memoryError } = await supabase.from('memory_documents').upsert({
-    user_id: seed.user.id,
-    content: seed.memoryTemplate,
-  });
-  if (memoryError) throw memoryError;
-
   await mirrorDemoSeed(seed);
-  await mirrorMemory(seed.user.id, seed.memoryTemplate, seed.contextPacket);
+
+  if (persistMemory) {
+    const { error: memoryError } = await supabase.from('memory_documents').upsert({
+      user_id: seed.user.id,
+      content: seed.memoryTemplate,
+    });
+    if (memoryError) throw memoryError;
+
+    await mirrorMemory(seed.user.id, seed.memoryTemplate, seed.contextPacket);
+  }
 }

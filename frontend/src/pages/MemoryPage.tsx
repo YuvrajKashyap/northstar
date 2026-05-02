@@ -8,24 +8,31 @@ import { Avatar } from '../components/common/Avatar'
 import { LiveDot } from '../components/common/LiveDot'
 
 export function MemoryPage(props: ScreenProps) {
+  const sessionName = localStorage.getItem('northstar.activeUserName')?.trim()
+  const graphName = props.graph?.contextPacket.user.name?.trim()
+  const displayName = sessionName || graphName || 'Northstar user'
+  const investorLevel = props.graph?.contextPacket.user.investor_level?.replace(/_/g, ' ') || 'profile in progress'
+  const primaryGoal = props.graph?.contextPacket.goals[0]
+  const riskComfort = props.graph?.contextPacket.risk_profile.risk_comfort?.replace(/_/g, ' ') || 'not filled in yet'
   const memorySections = [
-    ['Memory Summary', 'High-level overview', 'Maya is growth-oriented, values learning, and prefers clear next steps.'],
-    ['Identity', 'Personal and professional', 'Age 24, beginner investor, building toward a home goal.'],
-    ['Life Events', 'Milestones and experiences', 'House goal in progress with possible liquidity need next year.'],
-    ['Communication Style', 'Preferences and patterns', props.answers.communicationStyle],
+    ['Memory Summary', 'High-level overview', `${displayName}'s memory is built from committed questionnaire answers and connected account context.`],
+    ['Identity', 'Personal and professional', `${displayName} is marked as ${investorLevel}.`],
+    ['Goals', 'Priorities and timelines', primaryGoal ? `${primaryGoal.type.replace(/_/g, ' ')} with a ${primaryGoal.priority} priority.` : 'No committed goal yet.'],
+    ['Communication Style', 'Preferences and patterns', props.graph?.contextPacket.user.communication_style || props.answers.communicationStyle],
+    ['Risk Comfort', 'Behavior and market response', riskComfort],
     ['Constraints', 'Boundaries and limits', 'No auto-trading. Explain costs, taxes, and confidence.'],
   ]
 
   return (
     <AppChrome active="memory" setScreen={props.setScreen} graph={props.graph}>
       <section className="memory-screen screen-enter">
-        <AppPageHeader title="Memory" subtitle="Detailed view and editor for Maya Patel's memory." />
+        <AppPageHeader title="Memory" subtitle={`Detailed view and editor for ${displayName}'s memory.`} />
         <div className="memory-layout">
           <article>
             <div className="profile-heading">
-              <Avatar name="Maya Patel" />
+              <Avatar name={displayName} />
               <div>
-                <h2>Maya Patel <span>Verified</span></h2>
+                <h2>{displayName} <span>Verified</span></h2>
                 <p>Primary Profile - Last updated 2h ago</p>
               </div>
               <button type="button"><DotsThree size={22} /></button>

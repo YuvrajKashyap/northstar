@@ -10,7 +10,17 @@ import { authRouter } from './routes/auth.js';
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'] }));
+const localDevOrigin = /^http:\/\/(localhost|127\.0\.0\.1):51\d{2}$/;
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || localDevOrigin.test(origin)) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error(`CORS origin not allowed: ${origin}`));
+  },
+}));
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/api/health', healthRouter);

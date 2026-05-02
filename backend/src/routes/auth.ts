@@ -145,7 +145,7 @@ authRouter.post('/register', async (req, res, next) => {
 
     const userId = data.user.id;
     const seed = await buildRandomSeed({ userId, name: body.name, email: body.email });
-    await persistDemoSeed(seed);
+    await persistDemoSeed(seed, { persistMemory: false });
     await persistAuthProfile({
       email: body.email,
       name: body.name,

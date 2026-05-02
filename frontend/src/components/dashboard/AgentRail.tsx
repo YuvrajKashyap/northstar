@@ -54,12 +54,16 @@ export function AgentRail({
           setPrompt('')
         }}
       >
+        <div className="agent-composer-head">
+          <span>Ask Northstar</span>
+          <small>{busy ? 'Working' : 'Ready'}</small>
+        </div>
         <textarea
           className="agent-runner-input"
           rows={panel ? 3 : 4}
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          placeholder="Ask Northstar about your memory, portfolio, taxes, market context, or next decision."
+          placeholder="Ask about your memory, portfolio, taxes, market context, or next decision."
           disabled={busy}
         />
         <div className="agent-runner-actions">
@@ -73,7 +77,7 @@ export function AgentRail({
   const answerBlock =
     answer ? (
       <article className="agent-answer">
-        <span>Assistant</span>
+        <span>Northstar response</span>
         <p>{answer}</p>
       </article>
     ) : null
@@ -106,7 +110,7 @@ export function AgentRail({
           {traceBlock}
           {scenarioBlock}
           <div className="agent-rail__panel-agents">
-            <span className="agent-rail__panel-agents-label">Specialists</span>
+            <span className="agent-rail__panel-agents-label">Specialists on call</span>
             {cardsBlock}
           </div>
         </>

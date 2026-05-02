@@ -1,12 +1,17 @@
 import type { ReactNode } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bell,
+  CaretRight,
   CirclesThreePlus,
+  CreditCard,
   GearSix,
   MagnifyingGlass,
   Question,
+  SignOut,
   Sparkle,
+  UserCircle,
+  Wallet,
 } from '@phosphor-icons/react'
 import { navItems } from '../../data/workspaceContent'
 import type { Screen } from '../../types/screens'
@@ -34,12 +39,60 @@ export function AppChrome({
   graph?: MemoryGraph | null
 }) {
   const [utility, setUtility] = useState<UtilityModal>(null)
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement | null>(null)
+  const [sessionProfile, setSessionProfile] = useState(() => readSessionProfile())
   const searchShortcut = useMemo(() => {
     if (typeof navigator === 'undefined') return 'Ctrl K'
-    return /Mac|iPhone|iPad/i.test(navigator.userAgent) ? '⌘ K' : 'Ctrl K'
+    return /Mac|iPhone|iPad/i.test(navigator.userAgent) ? 'Cmd K' : 'Ctrl K'
   }, [])
 
-  const { name: profileName, role: profileRole } = workspaceProfileFromGraph(graph ?? null)
+  useEffect(() => {
+    const syncProfile = () => setSessionProfile(readSessionProfile())
+    window.addEventListener('northstar-auth', syncProfile)
+    window.addEventListener('storage', syncProfile)
+    return () => {
+      window.removeEventListener('northstar-auth', syncProfile)
+      window.removeEventListener('storage', syncProfile)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!accountMenuOpen) return
+    const closeOnPointer = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) setAccountMenuOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setAccountMenuOpen(false)
+    }
+    window.addEventListener('pointerdown', closeOnPointer)
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.removeEventListener('pointerdown', closeOnPointer)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [accountMenuOpen])
+
+  const graphProfile = workspaceProfileFromGraph(graph ?? null)
+  const profileName = sessionProfile.name || graphProfile.name
+  const profileRole = graphProfile.role
+  const profileEmail = sessionProfile.email || 'No email on file'
+
+  function openAccountScreen(screen: Screen) {
+    setAccountMenuOpen(false)
+    setScreen(screen)
+  }
+
+  function signOut() {
+    localStorage.removeItem('northstar.activeUserId')
+    localStorage.removeItem('northstar.activeUserEmail')
+    localStorage.removeItem('northstar.activeUserName')
+    localStorage.removeItem('northstar.accessToken')
+    window.dispatchEvent(new Event('northstar-auth'))
+    window.history.pushState({}, '', '/login')
+    window.dispatchEvent(new PopStateEvent('popstate'))
+    setScreen('signin')
+  }
 
   return (
     <div className={`os-shell os-shell--workspace os-shell--${active}`}>
@@ -95,7 +148,49 @@ export function AppChrome({
             <span>Help</span>
           </button>
           <div className="workspace-shell-header__profile-slot">
-            <ProfileChip name={profileName} role={profileRole} onClick={() => setScreen('profile')} />
+            <div className="account-menu-wrap" ref={accountMenuRef}>
+              <ProfileChip
+                name={profileName}
+                role={profileRole}
+                onClick={() => setAccountMenuOpen((open) => !open)}
+                expanded={accountMenuOpen}
+              />
+              {accountMenuOpen ? (
+                <div className="account-menu" role="menu" aria-label="Account menu">
+                  <div className="account-menu__identity">
+                    <span className="account-menu__avatar">{getInitials(profileName)}</span>
+                    <div>
+                      <strong>{profileName}</strong>
+                      <small>{profileEmail}</small>
+                    </div>
+                  </div>
+                  <button type="button" role="menuitem" onClick={() => openAccountScreen('profile')}>
+                    <UserCircle size={18} weight="regular" />
+                    Profile
+                    <CaretRight size={15} weight="regular" />
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => openAccountScreen('goals')}>
+                    <Wallet size={18} weight="regular" />
+                    Goals and plans
+                    <CaretRight size={15} weight="regular" />
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setAccountMenuOpen(false); setUtility('settings') }}>
+                    <CreditCard size={18} weight="regular" />
+                    Billing and data
+                    <CaretRight size={15} weight="regular" />
+                  </button>
+                  <button type="button" role="menuitem" onClick={() => { setAccountMenuOpen(false); setUtility('help') }}>
+                    <Question size={18} weight="regular" />
+                    Help center
+                    <CaretRight size={15} weight="regular" />
+                  </button>
+                  <button className="account-menu__signout" type="button" role="menuitem" onClick={signOut}>
+                    <SignOut size={18} weight="regular" />
+                    Sign out
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </header>
@@ -150,4 +245,21 @@ export function AppChrome({
       </WorkspaceModal>
     </div>
   )
+}
+
+function readSessionProfile() {
+  return {
+    name: localStorage.getItem('northstar.activeUserName') ?? '',
+    email: localStorage.getItem('northstar.activeUserEmail') ?? '',
+  }
+}
+
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }

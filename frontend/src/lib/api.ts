@@ -1,14 +1,25 @@
 import type { AgentRunRequest, AgentTraceEvent } from '@calmvest/shared'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
+
+function apiUrl(path: string) {
+  return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
+}
 
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
-    ...init,
-  })
-  if (!response.ok) throw new Error(await response.text())
-  return response.json() as Promise<T>
+  try {
+    const response = await fetch(apiUrl(path), {
+      headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+      ...init,
+    })
+    if (!response.ok) throw new Error(await response.text())
+    return response.json() as Promise<T>
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Could not reach the Northstar API at ${API_BASE || 'the Vite /api proxy'}. Make sure the backend is running on port 8787.`, { cause: error })
+    }
+    throw error
+  }
 }
 
 export async function postJson<T>(path: string, body?: unknown): Promise<T> {
@@ -19,7 +30,7 @@ export async function postJson<T>(path: string, body?: unknown): Promise<T> {
 }
 
 export async function streamAgentRun(request: AgentRunRequest, onEvent: (event: AgentTraceEvent) => void) {
-  const response = await fetch(`${API_BASE}/api/agent/run/stream`, {
+  const response = await fetch(apiUrl('/api/agent/run/stream'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
@@ -28,7 +39,7 @@ export async function streamAgentRun(request: AgentRunRequest, onEvent: (event: 
 }
 
 export async function streamScenarioTrace(userId: string, onEvent: (event: AgentTraceEvent) => void) {
-  const response = await fetch(`${API_BASE}/api/agent/scenario/stream`, {
+  const response = await fetch(apiUrl('/api/agent/scenario/stream'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId }),

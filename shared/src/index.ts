@@ -188,6 +188,13 @@ export interface MemoryGraph {
   contextPacket: ContextPacket;
 }
 
+export interface MemoryStatusResponse {
+  ok: true;
+  userId: string;
+  hasMemory: boolean;
+  hasContext: boolean;
+}
+
 export interface AuthUserSession {
   ok: true;
   userId: string;

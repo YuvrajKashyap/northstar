@@ -1,18 +1,31 @@
 import type {
   AgentTraceEvent,
+  MemoryStatusResponse,
   MemoryGraph,
   OnboardingAnswers,
   OnboardingCommitResult,
   PlaidLinkResult,
 } from '@calmvest/shared'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
+
+function apiUrl(path: string) {
+  return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`
+}
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
-    ...init,
-  })
+  let response: Response
+  try {
+    response = await fetch(apiUrl(path), {
+      headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
+      ...init,
+    })
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(`Could not reach the Northstar API at ${API_BASE || 'the Vite /api proxy'}. Make sure the backend is running on port 8787.`, { cause: error })
+    }
+    throw error
+  }
 
   if (!response.ok) {
     const message = await response.text()
@@ -40,8 +53,12 @@ export function getMemoryGraph(userId: string) {
   return requestJson<MemoryGraph>(`/api/memory/graph?userId=${encodeURIComponent(userId)}`)
 }
 
+export function getMemoryStatus(userId: string) {
+  return requestJson<MemoryStatusResponse>(`/api/memory/status?userId=${encodeURIComponent(userId)}`)
+}
+
 export async function streamScenarioTrace(onEvent: (event: AgentTraceEvent) => void) {
-  const response = await fetch(`${API_BASE}/api/agent/scenario/stream`, { method: 'POST' })
+  const response = await fetch(apiUrl('/api/agent/scenario/stream'), { method: 'POST' })
   if (!response.ok) {
     throw new Error(await response.text())
   }

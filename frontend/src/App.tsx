@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
 import { DashboardPage } from './pages/DashboardPage'
 import { GoalsPage } from './pages/GoalsPage'
@@ -8,7 +8,9 @@ import { MemoryPage } from './pages/MemoryPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SignInPage } from './pages/SignInPage'
 import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
+import { apiJson } from './lib/api'
 import type { Screen } from './types/screens'
+import type { MemoryStatusResponse } from '@calmvest/shared'
 import './styles/index.css'
 
 const screenRoutes = {
@@ -30,11 +32,21 @@ const pathScreens = Object.fromEntries(
   Object.entries(screenRoutes).map(([screen, route]) => [route, screen]),
 ) as Record<string, keyof typeof screenRoutes>
 
+const demoUserId = 'maya-patel-demo'
+const activeUserKey = 'northstar.activeUserId'
+
 function App() {
   const { screen, setScreen, error, screenProps } = useCalmVestWorkspace()
   const [hash, setHash] = useState(() => window.location.hash)
   const [path, setPath] = useState(() => window.location.pathname)
   const [authMode, setAuthMode] = useState<'register' | 'login'>('register')
+
+  const navigateTo = useCallback((nextScreen: Screen) => {
+    const nextPath = screenRoutes[nextScreen] ?? '/'
+    window.history.pushState({}, '', nextPath)
+    setPath(nextPath)
+    setScreen(nextScreen)
+  }, [setScreen])
 
   useEffect(() => {
     const syncLocation = () => {
@@ -52,8 +64,7 @@ function App() {
   useEffect(() => {
     if (path === '/workspace/home') {
       window.history.replaceState({}, '', '/dashboard')
-      setPath('/dashboard')
-      setScreen('dashboard')
+      window.dispatchEvent(new PopStateEvent('popstate'))
       return
     }
     const routedScreen = pathScreens[path]
@@ -65,16 +76,29 @@ function App() {
     }
   }, [path, screen, setScreen])
 
+  useEffect(() => {
+    if (!['/dashboard', '/profile', '/memory', '/goals'].includes(path)) return
+    const activeUserId = localStorage.getItem(activeUserKey)
+    if (!activeUserId || activeUserId === demoUserId) return
+
+    let cancelled = false
+    void apiJson<MemoryStatusResponse>(`/api/memory/status?userId=${encodeURIComponent(activeUserId)}`)
+      .then((status) => {
+        if (cancelled || status.hasMemory) return
+        navigateTo('workspace')
+      })
+      .catch(() => {
+        if (!cancelled) navigateTo('workspace')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [navigateTo, path])
+
   function openAuth(mode: 'register' | 'login') {
     setAuthMode(mode)
     navigateTo('signin')
-  }
-
-  function navigateTo(nextScreen: Screen) {
-    const nextPath = screenRoutes[nextScreen] ?? '/'
-    window.history.pushState({}, '', nextPath)
-    setPath(nextPath)
-    setScreen(nextScreen)
   }
 
   if (

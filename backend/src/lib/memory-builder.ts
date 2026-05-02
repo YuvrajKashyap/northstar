@@ -88,7 +88,7 @@ export function buildMemoryFromOnboarding(
     },
   };
 
-  const memoryMarkdown = `# CalmVest Memory: ${contextPacket.user.name}
+  const memoryMarkdown = `# Northstar Memory: ${contextPacket.user.name}
 
 ## Identity
 - Beginner investor
@@ -137,13 +137,14 @@ export async function buildComprehensiveMemoryFromOnboarding(
   source: 'llm' | 'deterministic';
 }> {
   const profile = await createStructuredMemoryProfile(answers, seed);
+  const usedLlm = Boolean(createOpenRouterClient() && answers.profileText?.trim());
   const contextPacket = profileToContextPacket(profile, seed.contextPacket);
   return {
     memoryMarkdown: profile.memory_markdown,
     contextPacket,
     diff: profileToDiff(profile, contextPacket),
     toolCalls: profile.tool_calls,
-    source: createOpenRouterClient() ? 'llm' : 'deterministic',
+    source: usedLlm ? 'llm' : 'deterministic',
   };
 }
 
@@ -156,7 +157,7 @@ async function createStructuredMemoryProfile(
     return deterministicProfile(answers, seed);
   }
 
-  const prompt = `You are CalmVest's onboarding memory compiler.
+  const prompt = `You are Northstar's onboarding memory compiler.
 
 Convert the user's full natural-language onboarding intake into an official durable financial memory.
 
@@ -367,14 +368,14 @@ function normalizeAnswers(answers: OnboardingAnswers): Required<OnboardingAnswer
   return {
     userId: answers.userId,
     profileText: answers.profileText ?? '',
-    goal: answers.goal || 'Build long-term financial security',
-    targetAmount: Number(answers.targetAmount || 80000),
-    targetDate: answers.targetDate || '2029-05',
-    withdrawalNeed: answers.withdrawalNeed || 'No specific withdrawal need captured yet',
-    drawdownFeeling: answers.drawdownFeeling || 'Wants clear guidance during sharp market drops',
-    taxableAccount: answers.taxableAccount ?? true,
+    goal: answers.goal || 'unknown',
+    targetAmount: Number(answers.targetAmount || 0),
+    targetDate: answers.targetDate || 'unknown',
+    withdrawalNeed: answers.withdrawalNeed || 'unknown',
+    drawdownFeeling: answers.drawdownFeeling || 'unknown',
+    taxableAccount: answers.taxableAccount ?? false,
     communicationStyle: answers.communicationStyle || 'Plain English with clear next steps',
-    values: answers.values || 'Avoid complexity. Explain tradeoffs before action.',
+    values: answers.values || '',
   };
 }
 
@@ -382,7 +383,7 @@ function renderMemoryMarkdown(profile: StructuredMemoryProfile, seed: DemoSeed):
   const goals = profile.goals
     .map((goal) => `- ${goal.type}: $${goal.target_amount.toLocaleString()} by ${goal.target_date} (${goal.priority}). ${goal.notes ?? ''}`)
     .join('\n');
-  return `# CalmVest Memory: ${profile.user.name}
+  return `# Northstar Memory: ${profile.user.name}
 
 ## Identity
 - Name: ${profile.user.name}
@@ -479,7 +480,7 @@ export function buildMemoryGraph(
     id: 'maya',
     label: contextPacket.user.name,
     kind: 'person',
-    value: `${contextPacket.user.age}, ${contextPacket.user.investor_level}`,
+    value: formatPersonValue(contextPacket),
     source: 'User profile',
     usedBy: ['Orchestrator', 'Communication Agent'],
   };
@@ -490,9 +491,7 @@ export function buildMemoryGraph(
       id: 'goals',
       label: 'Goals',
       kind: 'goal',
-      value: contextPacket.goals
-        .map((goal) => `${goal.type}: $${goal.target_amount.toLocaleString()} by ${goal.target_date}`)
-        .join(', '),
+      value: formatGoalsValue(contextPacket.goals),
       source: 'Onboarding',
       usedBy: ['Goal Agent', 'Scenario Agent', 'Rebalance Agent'],
     },
@@ -500,7 +499,7 @@ export function buildMemoryGraph(
       id: 'risk',
       label: 'Risk Comfort',
       kind: 'risk',
-      value: `${contextPacket.risk_profile.risk_comfort}; ${contextPacket.risk_profile.panic_response}`,
+      value: formatRiskValue(contextPacket),
       source: 'Onboarding',
       usedBy: ['Scenario Agent', 'Communication Agent'],
     },
@@ -508,7 +507,7 @@ export function buildMemoryGraph(
       id: 'accounts',
       label: 'Accounts',
       kind: 'account',
-      value: `${contextPacket.accounts_summary.brokerage_count} brokerage accounts, $${contextPacket.accounts_summary.portfolio_value.toLocaleString()} portfolio`,
+      value: formatAccountsValue(contextPacket),
       source: 'Account link',
       usedBy: ['Portfolio Agent', 'Tax Agent', 'Rebalance Agent'],
     },
@@ -516,7 +515,7 @@ export function buildMemoryGraph(
       id: 'tax',
       label: 'Tax Profile',
       kind: 'tax',
-      value: contextPacket.accounts_summary.taxable ? 'Taxable brokerage detected' : 'Taxable account not confirmed',
+      value: contextPacket.accounts_summary.taxable ? 'Taxable brokerage detected' : 'Taxable account not confirmed yet',
       source: 'Account link + onboarding',
       usedBy: ['Tax Agent', 'Rebalance Agent'],
     },
@@ -532,7 +531,7 @@ export function buildMemoryGraph(
       id: 'cash-flow',
       label: 'Cash Flow',
       kind: 'cash_flow',
-      value: `Cash available: $${contextPacket.accounts_summary.cash_available.toLocaleString()}; liquidity coverage ${Math.round(contextPacket.portfolio_features.liquidity_coverage * 100)}%`,
+      value: formatCashFlowValue(contextPacket),
       source: 'Account link',
       usedBy: ['Goal Agent', 'Scenario Agent'],
     },
@@ -557,4 +556,56 @@ export function buildMemoryGraph(
     memoryMarkdown,
     contextPacket,
   };
+}
+
+function formatPersonValue(contextPacket: ContextPacket) {
+  const details = [
+    contextPacket.user.age > 0 ? `${contextPacket.user.age}` : '',
+    cleanMemoryText(contextPacket.user.investor_level),
+  ].filter(Boolean);
+  return details.length ? details.join(', ') : 'Active memory profile';
+}
+
+function formatGoalsValue(goals: ContextPacket['goals']) {
+  if (!goals.length) return 'No committed goals yet';
+  return goals
+    .map((goal) => {
+      const parts = [
+        Number(goal.target_amount) > 0 ? `$${Number(goal.target_amount).toLocaleString()}` : 'target amount TBD',
+        isKnown(goal.target_date) ? `by ${goal.target_date}` : 'timeline TBD',
+      ];
+      return `${cleanMemoryText(goal.type)}: ${parts.join(', ')}`;
+    })
+    .join('; ');
+}
+
+function formatRiskValue(contextPacket: ContextPacket) {
+  const parts = [
+    cleanMemoryText(contextPacket.risk_profile.risk_comfort),
+    cleanMemoryText(contextPacket.risk_profile.panic_response),
+  ].filter((part) => isKnown(part));
+  return parts.length ? parts.join('; ') : 'Risk profile not filled in yet';
+}
+
+function formatAccountsValue(contextPacket: ContextPacket) {
+  const summary = contextPacket.accounts_summary;
+  if (summary.brokerage_count === 0 && summary.portfolio_value === 0) {
+    return 'No account context loaded yet';
+  }
+  return `${summary.brokerage_count} brokerage account${summary.brokerage_count === 1 ? '' : 's'}; $${summary.portfolio_value.toLocaleString()} portfolio`;
+}
+
+function formatCashFlowValue(contextPacket: ContextPacket) {
+  const cash = contextPacket.accounts_summary.cash_available;
+  const coverage = Math.round(contextPacket.portfolio_features.liquidity_coverage * 100);
+  if (cash === 0 && coverage === 0) return 'Cash flow not filled in yet';
+  return `Cash available: $${cash.toLocaleString()}; liquidity coverage ${coverage}%`;
+}
+
+function cleanMemoryText(value: string) {
+  return value.trim().replace(/_/g, ' ');
+}
+
+function isKnown(value: string) {
+  return Boolean(value.trim()) && !/^unknown$/i.test(value.trim());
 }
