@@ -3,6 +3,7 @@ import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
 import { DashboardPage } from './pages/DashboardPage'
 import { GoalsPage } from './pages/GoalsPage'
 import { LandingPage } from './pages/LandingPage'
+import { MarketingPage } from './pages/MarketingPage'
 import { MemoryPage } from './pages/MemoryPage'
 import { OnboardingPage } from './pages/OnboardingPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -20,6 +21,10 @@ function App() {
     return () => window.removeEventListener('hashchange', syncHash)
   }, [])
 
+  function openAuth(_mode: 'register' | 'login') {
+    setScreen('signin')
+  }
+
   if (hash === '#workspace' || hash.startsWith('#workspace/')) {
     return <WealthWorkspacePage />
   }
@@ -27,7 +32,12 @@ function App() {
   return (
     <main className="calmvest-root">
       {error ? <div className="error-toast">{error}</div> : null}
-      {screen === 'landing' ? <LandingPage /> : null}
+      {screen === 'landing' ? <LandingPage setScreen={setScreen} openAuth={openAuth} graph={screenProps.graph} /> : null}
+      {screen === 'how-it-works' ? <MarketingPage page="how-it-works" setScreen={setScreen} openAuth={openAuth} /> : null}
+      {screen === 'beginners' ? <MarketingPage page="beginners" setScreen={setScreen} openAuth={openAuth} /> : null}
+      {screen === 'agents' ? <MarketingPage page="agents" setScreen={setScreen} openAuth={openAuth} /> : null}
+      {screen === 'safety' ? <MarketingPage page="safety" setScreen={setScreen} openAuth={openAuth} /> : null}
+      {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={setScreen} openAuth={openAuth} /> : null}
       {screen === 'signin' ? <SignInPage setScreen={setScreen} /> : null}
       {screen === 'onboarding' ? <OnboardingPage {...screenProps} /> : null}
       {screen === 'profile' ? <ProfilePage {...screenProps} /> : null}

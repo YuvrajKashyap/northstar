@@ -1,23 +1,23 @@
 :root {
-  --bg: #031511;
-  --bg-2: #06221b;
-  --panel: rgba(8, 45, 35, 0.72);
-  --panel-strong: rgba(10, 58, 44, 0.9);
-  --panel-soft: rgba(198, 231, 181, 0.08);
-  --line: rgba(177, 230, 177, 0.18);
-  --line-strong: rgba(141, 231, 143, 0.44);
-  --text: #f5f2e6;
-  --muted: rgba(245, 242, 230, 0.68);
-  --quiet: rgba(245, 242, 230, 0.46);
-  --green: #76e887;
-  --green-2: #1fa65d;
-  --cream: #efe7cf;
-  --gold: #e8c86e;
-  --violet: #a783d8;
-  --blue: #81b7e8;
-  --danger: #e66f50;
-  --shadow: 0 26px 80px rgba(0, 0, 0, 0.38);
-  --inner: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --bg: #f7f2ea;
+  --bg-2: #eee8dd;
+  --panel: rgba(250, 247, 240, 0.9);
+  --panel-strong: rgba(252, 249, 243, 0.96);
+  --panel-soft: rgba(232, 229, 219, 0.72);
+  --line: rgba(41, 55, 47, 0.14);
+  --line-strong: rgba(47, 74, 62, 0.34);
+  --text: #24362e;
+  --muted: rgba(52, 69, 67, 0.76);
+  --quiet: rgba(52, 69, 67, 0.54);
+  --green: #2f4a3e;
+  --green-2: #5a7466;
+  --cream: #fffaf0;
+  --gold: #9d8f62;
+  --violet: #8f977f;
+  --blue: #6f8780;
+  --danger: #a35d4f;
+  --shadow: 0 40px 72px rgba(43, 36, 28, 0.2);
+  --inner: inset 0 1px 0 rgba(255, 255, 255, 0.88);
   --radius: 8px;
   --sans: Satoshi, Geist, Outfit, "Aptos Display", ui-sans-serif, system-ui, sans-serif;
   --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
@@ -25,7 +25,9 @@
 }
 
 .calmvest-root {
-  background: #030f0d;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.76), transparent 34rem),
+    linear-gradient(115deg, #f7f2ea 0%, #eee8dd 54%, #e6ded2 100%);
   color: var(--text);
   min-height: 100dvh;
   overflow-x: hidden;
@@ -68,7 +70,7 @@ button:active {
 
 input,
 textarea {
-  background: rgba(5, 25, 21, 0.82);
+  background: rgba(250, 247, 240, 0.92);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--text);
@@ -85,8 +87,8 @@ textarea {
 
 input:focus,
 textarea:focus {
-  border-color: rgba(118, 232, 135, 0.62);
-  box-shadow: 0 0 0 3px rgba(118, 232, 135, 0.1);
+  border-color: rgba(47, 74, 62, 0.44);
+  box-shadow: 0 0 0 3px rgba(47, 74, 62, 0.1);
 }
 
 h1,
@@ -123,10 +125,18 @@ kbd {
 .brand {
   background: transparent;
   color: var(--text);
-  display: grid;
+  align-items: center;
+  display: inline-flex;
+  gap: 0.58rem;
   line-height: 1;
   min-height: 0;
   padding: 0;
+}
+
+.brand-logo {
+  height: 2.5rem;
+  object-fit: contain;
+  width: 2.5rem;
 }
 
 .brand-mark {
@@ -136,10 +146,10 @@ kbd {
 }
 
 .brand-sub {
-  color: var(--quiet);
+  color: var(--muted);
+  display: block;
   font-size: 0.78rem;
   letter-spacing: -0.02em;
-  margin-left: 1.55rem;
   margin-top: 0.25rem;
 }
 
@@ -163,11 +173,11 @@ kbd {
 }
 
 .primary-action {
-  background: linear-gradient(180deg, #7cf08d 0%, #2ec463 100%);
+  background: #263b30;
   box-shadow:
-    0 4px 16px rgba(46, 196, 99, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  color: #041c10;
+    0 18px 40px rgba(38, 59, 48, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #fffaf0;
   font-weight: 700;
   letter-spacing: -0.015em;
   min-width: 136px;
@@ -175,8 +185,8 @@ kbd {
 
 .primary-action:hover {
   box-shadow:
-    0 8px 24px rgba(46, 196, 99, 0.36),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    0 22px 48px rgba(38, 59, 48, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .primary-action:active {
@@ -187,16 +197,16 @@ kbd {
 .secondary-action,
 .subtle-button,
 .icon-button {
-  background: rgba(9, 43, 35, 0.55);
-  border: 1px solid rgba(118, 232, 135, 0.14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: rgba(249, 247, 241, 0.5);
+  border: 1px solid rgba(38, 59, 48, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.64);
   color: var(--text);
 }
 
 .ghost-action:hover,
 .secondary-action:hover {
-  background: rgba(12, 54, 42, 0.7);
-  border-color: rgba(118, 232, 135, 0.22);
+  background: rgba(255, 252, 245, 0.72);
+  border-color: rgba(38, 59, 48, 0.32);
 }
 
 .secondary-action {
@@ -218,11 +228,11 @@ kbd {
 .secure-pill,
 .status-pill {
   align-items: center;
-  background: rgba(86, 180, 105, 0.09);
-  border: 1px solid rgba(118, 232, 135, 0.16);
+  background: rgba(232, 229, 219, 0.78);
+  border: 1px solid rgba(37, 58, 49, 0.12);
   border-radius: 999px;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-  color: var(--muted);
+  color: rgba(35, 50, 43, 0.78);
   display: inline-flex;
   font-size: 0.82rem;
   font-weight: 480;
@@ -245,7 +255,7 @@ kbd {
 }
 
 .secure-pill {
-  color: #cdeed0;
+  color: rgba(35, 50, 43, 0.78);
   font-size: 0.78rem;
 }
 
