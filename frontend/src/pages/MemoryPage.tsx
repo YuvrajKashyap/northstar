@@ -1,5 +1,5 @@
 import { ArrowRight, CirclesThreePlus, Clock, Copy, DotsThree, PencilSimple, Plus } from '@phosphor-icons/react'
-import { agentCards } from '../data/demoContent'
+import { agentCards } from '../data/workspaceContent'
 import type { ScreenProps } from '../types/screens'
 import { AgentUsageCard } from '../components/dashboard/AgentCards'
 import { AppChrome } from '../components/layout/AppChrome'

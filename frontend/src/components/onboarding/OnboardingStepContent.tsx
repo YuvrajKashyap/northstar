@@ -1,6 +1,6 @@
 import { CalendarCheck, ShieldCheck, TrendUp } from '@phosphor-icons/react'
 import type { OnboardingAnswers } from '@calmvest/shared'
-import { goalHelper } from '../../data/demoContent'
+import { goalHelper } from '../../data/workspaceContent'
 import type { OnboardingStep } from '../../types/screens'
 import { Field } from '../common/Field'
 

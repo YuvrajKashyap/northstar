@@ -12,7 +12,7 @@ import {
   Sparkle,
   Square,
 } from '@phosphor-icons/react'
-import { agentCards } from '../data/demoContent'
+import { agentCards } from '../data/workspaceContent'
 import type { Screen } from '../types/screens'
 import { AgentIcon } from '../components/common/AgentIcon'
 import { AuthOrbit } from '../components/auth/AuthOrbit'

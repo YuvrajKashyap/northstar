@@ -7,11 +7,11 @@ import type {
   OnboardingAnswers,
   PlaidLinkResult,
 } from '@calmvest/shared'
-import { defaultAnswers, userId } from '../data/demoContent'
+import { defaultAnswers, userId } from '../data/workspaceContent'
 import { apiJson, postJson, streamScenarioTrace } from '../lib/api'
 import type { HealthResponse, Screen } from '../types/screens'
 
-export function useCalmVestDemo() {
+export function useCalmVestWorkspace() {
   const [screen, setScreen] = useState<Screen>('landing')
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [plaid, setPlaid] = useState<PlaidLinkResult | null>(null)

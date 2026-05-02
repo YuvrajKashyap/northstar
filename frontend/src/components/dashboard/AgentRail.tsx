@@ -1,6 +1,6 @@
 import type { AgentTraceEvent } from '@calmvest/shared'
 import { ArrowRight } from '@phosphor-icons/react'
-import { agentCards } from '../../data/demoContent'
+import { agentCards } from '../../data/workspaceContent'
 import { LiveDot } from '../common/LiveDot'
 import { AgentActivityCard, CompactAgentRow } from './AgentCards'
 import { TraceList } from './TraceList'

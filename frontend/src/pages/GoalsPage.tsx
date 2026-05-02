@@ -1,5 +1,5 @@
 import { ArrowRight, Plus } from '@phosphor-icons/react'
-import { agentCards, goalRows } from '../data/demoContent'
+import { agentCards, goalRows } from '../data/workspaceContent'
 import type { ScreenProps } from '../types/screens'
 import { AgentUsageCard } from '../components/dashboard/AgentCards'
 import { AppChrome } from '../components/layout/AppChrome'

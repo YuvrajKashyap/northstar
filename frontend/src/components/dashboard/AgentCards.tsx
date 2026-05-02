@@ -1,5 +1,5 @@
 import { ArrowRight } from '@phosphor-icons/react'
-import { agentCards } from '../../data/demoContent'
+import { agentCards } from '../../data/workspaceContent'
 import { AgentIcon } from '../common/AgentIcon'
 
 export function AgentActivityCard({ card }: { card: (typeof agentCards)[number] }) {

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Bell, CirclesThreePlus, GearSix, MagnifyingGlass, ShieldCheck, Sparkle } from '@phosphor-icons/react'
-import { navItems } from '../../data/demoContent'
+import { navItems } from '../../data/workspaceContent'
 import type { Screen } from '../../types/screens'
 import { Logo } from '../brand/Logo'
 import { LiveDot } from '../common/LiveDot'

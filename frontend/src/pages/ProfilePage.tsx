@@ -19,7 +19,7 @@ export function ProfilePage(props: ScreenProps) {
             </div>
             <div className="secure-orb"><ShieldCheck size={54} /></div>
             <h2>Secure Connection</h2>
-            <p>Your data is encrypted and never stored outside the demo account model.</p>
+            <p>Your data is encrypted and used only to build your account context.</p>
             <div className="institution-grid">
               {['Greenfield Wealth', 'Pinecrest Advisors', 'Harbor Investments', 'Summit Financial', 'Evergreen Capital', 'Other Institution'].map((item, index) => (
                 <button className={index === 0 ? 'selected' : ''} type="button" key={item}>{item}</button>

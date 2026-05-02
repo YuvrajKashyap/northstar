@@ -1,5 +1,5 @@
 import { ArrowRight, CalendarCheck, Clock, Graph, Pulse, ShieldCheck, Target } from '@phosphor-icons/react'
-import { onboardingCopy, onboardingSteps, onboardingTitle } from '../data/demoContent'
+import { onboardingCopy, onboardingSteps, onboardingTitle } from '../data/workspaceContent'
 import type { ScreenProps } from '../types/screens'
 import { AppChrome } from '../components/layout/AppChrome'
 import { LiveDot } from '../components/common/LiveDot'

@@ -1,5 +1,5 @@
 import { TrendUp } from '@phosphor-icons/react'
-import { goalRows } from '../../data/demoContent'
+import { goalRows } from '../../data/workspaceContent'
 import { IconTile } from '../common/IconTile'
 
 export function GoalCard({ goal }: { goal: (typeof goalRows)[number] }) {
