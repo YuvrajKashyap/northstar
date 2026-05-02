@@ -18,6 +18,11 @@ export type Screen =
   | 'profile'
   | 'memory'
   | 'goals'
+  | 'agent-runs'
+  | 'plans'
+  | 'scenarios'
+  | 'insights'
+  | 'vault'
   | 'dashboard'
 
 export type HealthResponse = {

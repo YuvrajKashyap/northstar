@@ -319,10 +319,10 @@ export function WealthWorkspacePage() {
       <div className="workspace-surface__wash" aria-hidden="true" />
 
       <header className="workspace-topbar">
-        <a className="workspace-brand" href="/">
+        <button className="workspace-brand" type="button" onClick={() => window.location.reload()}>
           <img src={northstarLogo} alt="" aria-hidden="true" />
           <span>Northstar</span>
-        </a>
+        </button>
       </header>
 
       <main className={`workspace-page workspace-page--${route}`}>

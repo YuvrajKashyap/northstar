@@ -2,13 +2,9 @@ import {
   Briefcase,
   CalendarCheck,
   CirclesThreePlus,
-  Flag,
   Graph,
-  House,
   Pulse,
-  ShieldCheck,
   Target,
-  TreeEvergreen,
   Wallet,
 } from '@phosphor-icons/react'
 import type { OnboardingAnswers } from '@calmvest/shared'
@@ -30,12 +26,12 @@ export const defaultAnswers: OnboardingAnswers = {
 
 export const navItems: Array<{ screen: Screen; label: string; icon: typeof CirclesThreePlus }> = [
   { screen: 'dashboard', label: 'Memory Graph', icon: CirclesThreePlus },
-  { screen: 'profile', label: 'Agents', icon: Graph },
+  { screen: 'agent-runs', label: 'Agents', icon: Graph },
   { screen: 'goals', label: 'Goals', icon: Target },
-  { screen: 'memory', label: 'Plans', icon: CalendarCheck },
-  { screen: 'profile', label: 'Scenarios', icon: Briefcase },
-  { screen: 'memory', label: 'Insights', icon: Pulse },
-  { screen: 'profile', label: 'Vault', icon: Wallet },
+  { screen: 'plans', label: 'Plans', icon: CalendarCheck },
+  { screen: 'scenarios', label: 'Scenarios', icon: Briefcase },
+  { screen: 'insights', label: 'Insights', icon: Pulse },
+  { screen: 'vault', label: 'Vault', icon: Wallet },
 ]
 
 export const agentCards = [
@@ -70,53 +66,6 @@ export const agentCards = [
     tag: 'Ready to review',
     tone: 'blue',
     time: '1h ago',
-  },
-]
-
-export const goalRows = [
-  {
-    title: 'Home Down Payment',
-    subtitle: 'Buy my first home in the Bay Area',
-    icon: House,
-    target: '$120,000',
-    date: 'Jun 2027',
-    saved: '$57,600 saved',
-    progress: 48,
-    confidence: 'High Confidence',
-    tone: 'green',
-  },
-  {
-    title: 'Emergency Fund',
-    subtitle: '6 months of expenses for peace of mind',
-    icon: ShieldCheck,
-    target: '$30,000',
-    date: 'Dec 2025',
-    saved: '$21,600 saved',
-    progress: 72,
-    confidence: 'Very High Confidence',
-    tone: 'green',
-  },
-  {
-    title: 'Retirement',
-    subtitle: 'Retire comfortably and on my terms',
-    icon: TreeEvergreen,
-    target: '$1,500,000',
-    date: 'May 2055',
-    saved: '$240,000 saved',
-    progress: 16,
-    confidence: 'Medium Confidence',
-    tone: 'gold',
-  },
-  {
-    title: 'Travel Fund',
-    subtitle: 'Explore the world with family',
-    icon: Flag,
-    target: '$25,000',
-    date: 'Aug 2026',
-    saved: '$8,000 saved',
-    progress: 32,
-    confidence: 'Low Confidence',
-    tone: 'violet',
   },
 ]
 

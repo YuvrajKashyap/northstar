@@ -155,7 +155,7 @@ export function SignInPage({
 
   return (
     <div className="auth-page screen-enter">
-      <button className="auth-page-brand" type="button" onClick={() => setScreen('landing')}>
+      <button className="auth-page-brand" type="button" onClick={() => window.location.reload()}>
         <img src={northstarLogo} alt="" aria-hidden="true" />
         <span>Northstar</span>
       </button>

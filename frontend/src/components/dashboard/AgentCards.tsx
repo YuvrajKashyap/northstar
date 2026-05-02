@@ -1,7 +1,9 @@
 import { agentCards } from '../../data/workspaceContent'
 import { AgentIcon } from '../common/AgentIcon'
 
-export function AgentActivityCard({ card }: { card: (typeof agentCards)[number] }) {
+export type AgentCardModel = (typeof agentCards)[number]
+
+export function AgentActivityCard({ card }: { card: AgentCardModel }) {
   return (
     <article className="agent-card">
       <header>
@@ -19,7 +21,7 @@ export function AgentActivityCard({ card }: { card: (typeof agentCards)[number] 
 }
 
 /** Compact single-row variant used in hero product frame */
-export function CompactAgentRow({ card }: { card: (typeof agentCards)[number] }) {
+export function CompactAgentRow({ card }: { card: AgentCardModel }) {
   return (
     <div className="compact-agent-row">
       <AgentIcon tone={card.tone} compact />
@@ -32,7 +34,7 @@ export function CompactAgentRow({ card }: { card: (typeof agentCards)[number] })
   )
 }
 
-export function AgentUsageCard({ card }: { card: (typeof agentCards)[number] }) {
+export function AgentUsageCard({ card }: { card: AgentCardModel }) {
   return (
     <article className="usage-card">
       <header>

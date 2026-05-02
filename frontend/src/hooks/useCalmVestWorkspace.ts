@@ -22,6 +22,11 @@ const initialPathScreens: Record<string, Screen> = {
   '/profile': 'profile',
   '/memory': 'memory',
   '/goals': 'goals',
+  '/agents/workspace': 'agent-runs',
+  '/plans': 'plans',
+  '/scenarios': 'scenarios',
+  '/insights': 'insights',
+  '/vault': 'vault',
   '/dashboard': 'dashboard',
 }
 

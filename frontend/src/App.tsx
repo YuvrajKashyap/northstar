@@ -6,8 +6,10 @@ import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
 import { MemoryPage } from './pages/MemoryPage'
 import { ProfilePage } from './pages/ProfilePage'
+import { ScenarioCanvasPage } from './pages/ScenarioCanvasPage'
 import { SignInPage } from './pages/SignInPage'
 import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
+import { WorkspaceFeaturePage } from './pages/WorkspaceFeaturePage'
 import { apiJson } from './lib/api'
 import type { Screen } from './types/screens'
 import type { MemoryStatusResponse } from '@calmvest/shared'
@@ -25,6 +27,11 @@ const screenRoutes = {
   profile: '/profile',
   memory: '/memory',
   goals: '/goals',
+  'agent-runs': '/agents/workspace',
+  plans: '/plans',
+  scenarios: '/scenarios',
+  insights: '/insights',
+  vault: '/vault',
   dashboard: '/dashboard',
 } as const
 
@@ -77,7 +84,7 @@ function App() {
   }, [path, screen, setScreen])
 
   useEffect(() => {
-    if (!['/dashboard', '/profile', '/memory', '/goals'].includes(path)) return
+    if (!['/dashboard', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights', '/vault'].includes(path)) return
     const activeUserId = localStorage.getItem(activeUserKey)
     if (!activeUserId || activeUserId === demoUserId) return
 
@@ -125,10 +132,15 @@ function App() {
       {screen === 'safety' ? <MarketingPage page="safety" setScreen={navigateTo} openAuth={openAuth} /> : null}
       {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={navigateTo} openAuth={openAuth} /> : null}
       {screen === 'signin' ? <SignInPage setScreen={navigateTo} initialMode={authMode} /> : null}
-      {screen === 'profile' ? <ProfilePage {...screenProps} /> : null}
-      {screen === 'memory' ? <MemoryPage {...screenProps} /> : null}
-      {screen === 'goals' ? <GoalsPage {...screenProps} /> : null}
-      {screen === 'dashboard' ? <DashboardPage {...screenProps} /> : null}
+      {screen === 'profile' ? <ProfilePage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'memory' ? <MemoryPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'goals' ? <GoalsPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'agent-runs' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="agent-runs" /> : null}
+      {screen === 'plans' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="plans" /> : null}
+      {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'insights' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="insights" /> : null}
+      {screen === 'vault' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="vault" /> : null}
+      {screen === 'dashboard' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )
 }

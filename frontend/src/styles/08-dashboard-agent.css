@@ -14,6 +14,49 @@
   min-height: 72px;
 }
 
+.goals-empty-state {
+  align-items: center;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.86), rgba(247, 242, 233, 0.7));
+  border: 1px solid rgba(38, 59, 48, 0.12);
+  border-radius: 18px;
+  color: #263931;
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  min-height: 12rem;
+  padding: 1.35rem;
+  text-align: center;
+}
+
+.goals-empty-state svg {
+  color: rgba(38, 59, 48, 0.7);
+}
+
+.goals-empty-state strong {
+  color: #22372e;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 520;
+  letter-spacing: -0.03em;
+}
+
+.goals-empty-state p {
+  color: rgba(43, 58, 53, 0.68);
+  line-height: 1.5;
+  max-width: 31rem;
+}
+
+.goals-empty-state.compact {
+  border-radius: 16px;
+  min-height: 10rem;
+  padding: 1.1rem;
+}
+
+.goals-empty-state.compact strong {
+  font-size: 1.15rem;
+}
+
 .goals-side {
   align-content: start;
   display: grid;

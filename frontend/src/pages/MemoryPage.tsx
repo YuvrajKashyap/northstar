@@ -24,7 +24,16 @@ export function MemoryPage(props: ScreenProps) {
   ]
 
   return (
-    <AppChrome active="memory" setScreen={props.setScreen} graph={props.graph}>
+    <AppChrome
+      active="memory"
+      setScreen={props.setScreen}
+      graph={props.graph}
+      agentAnswer={props.agentAnswer}
+      scenarioTrace={props.scenarioTrace}
+      runAgent={props.runAgent}
+      runScenario={props.runScenario}
+      busyStep={props.busyStep}
+    >
       <section className="memory-screen screen-enter">
         <AppPageHeader title="Memory" subtitle={`Detailed view and editor for ${displayName}'s memory.`} />
         <div className="memory-layout">

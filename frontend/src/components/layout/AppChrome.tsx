@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Bell,
   CaretRight,
+  ChatsCircle,
   CirclesThreePlus,
   CreditCard,
   GearSix,
@@ -11,13 +12,13 @@ import {
   SignOut,
   Sparkle,
   UserCircle,
-  Wallet,
 } from '@phosphor-icons/react'
 import { navItems } from '../../data/workspaceContent'
 import type { Screen } from '../../types/screens'
 import { workspaceProfileFromGraph } from '../../lib/workspaceProfile'
-import type { MemoryGraph } from '@calmvest/shared'
+import type { AgentTraceEvent, MemoryGraph } from '@calmvest/shared'
 import { Logo } from '../brand/Logo'
+import { AgentRail } from '../dashboard/AgentRail'
 import { LiveDot } from '../common/LiveDot'
 import { ProfileChip } from '../common/ProfileChip'
 import { WorkspaceModal } from './WorkspaceModal'
@@ -30,16 +31,29 @@ export function AppChrome({
   setScreen,
   commandExtras,
   graph,
+  agentAnswer = '',
+  scenarioTrace = [],
+  runAgent,
+  runScenario,
+  busyStep,
+  showAgentDrawer = true,
 }: {
   children: ReactNode
-  active: 'dashboard' | 'profile' | 'memory' | 'goals'
+  active: Screen
   setScreen: (screen: Screen) => void
   /** Extra controls in the command row (e.g. Agent activity) */
   commandExtras?: ReactNode
   graph?: MemoryGraph | null
+  agentAnswer?: string
+  scenarioTrace?: AgentTraceEvent[]
+  runAgent?: (message: string) => void
+  runScenario?: () => void
+  busyStep?: string | null
+  showAgentDrawer?: boolean
 }) {
   const [utility, setUtility] = useState<UtilityModal>(null)
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const [agentPanelOpen, setAgentPanelOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
   const [sessionProfile, setSessionProfile] = useState(() => readSessionProfile())
   const searchShortcut = useMemo(() => {
@@ -95,7 +109,7 @@ export function AppChrome({
   }
 
   return (
-    <div className={`os-shell os-shell--workspace os-shell--${active}`}>
+    <div className={`os-shell os-shell--workspace os-shell--${active}${agentPanelOpen ? ' os-shell--agent-open' : ''}`}>
       <header className="workspace-shell-header">
         <div className="workspace-shell-header__brand">
           <Logo />
@@ -103,11 +117,7 @@ export function AppChrome({
         <nav className="workspace-nav" aria-label="Workspace">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive =
-              (active === 'dashboard' && item.screen === 'dashboard') ||
-              (active === 'goals' && item.screen === 'goals') ||
-              (active === 'memory' && item.screen === 'memory') ||
-              (active === 'profile' && item.label === 'Agents')
+            const isActive = active === item.screen
             return (
               <button
                 className={isActive ? 'active' : ''}
@@ -169,11 +179,6 @@ export function AppChrome({
                     Profile
                     <CaretRight size={15} weight="regular" />
                   </button>
-                  <button type="button" role="menuitem" onClick={() => openAccountScreen('goals')}>
-                    <Wallet size={18} weight="regular" />
-                    Goals and plans
-                    <CaretRight size={15} weight="regular" />
-                  </button>
                   <button type="button" role="menuitem" onClick={() => { setAccountMenuOpen(false); setUtility('settings') }}>
                     <CreditCard size={18} weight="regular" />
                     Billing and data
@@ -203,14 +208,67 @@ export function AppChrome({
             <kbd>{searchShortcut}</kbd>
           </div>
           {commandExtras ? <div className="command-bar__extras">{commandExtras}</div> : null}
-          <button className="command-icon-btn" type="button" aria-label="Assistant">
-            <Sparkle size={20} weight="regular" />
-          </button>
           <button className="command-icon-btn" type="button" aria-label="Notifications">
             <Bell size={20} weight="regular" />
           </button>
         </div>
         {children}
+
+        {showAgentDrawer ? (
+          <aside
+            id="workspace-agent-drawer"
+            className={`dashboard-agent-drawer${agentPanelOpen ? ' is-open' : ' is-collapsed'}`}
+            aria-label="Agent chat and tools"
+          >
+            {!agentPanelOpen ? (
+              <button
+                className="dashboard-agent-drawer__peek"
+                type="button"
+                onClick={() => setAgentPanelOpen(true)}
+              >
+                <ChatsCircle size={22} weight="regular" aria-hidden />
+                <span>Agent</span>
+              </button>
+            ) : (
+              <>
+                <div className="dashboard-agent-drawer__head">
+                  <div className="dashboard-agent-drawer__masthead">
+                    <span className="dashboard-agent-drawer__mark" aria-hidden>
+                      <Sparkle size={17} weight="fill" />
+                    </span>
+                    <div>
+                      <h2 className="dashboard-agent-drawer__title">Northstar agent</h2>
+                      <p className="dashboard-agent-drawer__sub">Memory-aware replies with visible tool context</p>
+                    </div>
+                  </div>
+                  <div className="dashboard-agent-drawer__signals" aria-label="Agent status">
+                    <span>Live memory</span>
+                    <span>Approval-first</span>
+                  </div>
+                  <button
+                    className="dashboard-agent-drawer__collapse"
+                    type="button"
+                    onClick={() => setAgentPanelOpen(false)}
+                    aria-label="Collapse agent panel"
+                  >
+                    <CaretRight size={20} weight="bold" aria-hidden />
+                  </button>
+                </div>
+                <div className="dashboard-agent-drawer__body">
+                  <AgentRail
+                    hideHeading
+                    panel
+                    answer={agentAnswer}
+                    trace={scenarioTrace}
+                    runAgent={runAgent ?? (() => undefined)}
+                    runScenario={runScenario ?? (() => undefined)}
+                    busy={busyStep === 'scenario'}
+                  />
+                </div>
+              </>
+            )}
+          </aside>
+        ) : null}
       </div>
 
       <WorkspaceModal
