@@ -3,7 +3,6 @@ import {
   CalendarCheck,
   CirclesThreePlus,
   Graph,
-  HouseLine,
   Pulse,
   Target,
 } from '@phosphor-icons/react'
