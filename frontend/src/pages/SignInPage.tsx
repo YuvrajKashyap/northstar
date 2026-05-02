@@ -23,6 +23,7 @@ function AuthInput({
   icon,
   placeholder,
   type = 'text',
+  autoComplete,
   showToggle,
   showPassword,
   onTogglePassword,
@@ -33,6 +34,7 @@ function AuthInput({
   icon: ReactNode
   placeholder: string
   type?: string
+  autoComplete?: string
   showToggle?: boolean
   showPassword?: boolean
   onTogglePassword?: () => void
@@ -42,7 +44,15 @@ function AuthInput({
   return (
     <label className="auth-input" htmlFor={id}>
       <span className="auth-input__icon">{icon}</span>
-      <input id={id} type={showToggle && showPassword ? 'text' : type} placeholder={placeholder} value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        id={id}
+        type={showToggle && showPassword ? 'text' : type}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        required
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
       {showToggle ? (
         <button className="auth-input__eye" type="button" aria-label="Toggle password visibility" onClick={onTogglePassword}>
           {showPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
@@ -63,6 +73,7 @@ export function SignInPage({
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [remember, setRemember] = useState(true)
   const [busy, setBusy] = useState(false)
@@ -95,8 +106,12 @@ export function SignInPage({
 
   async function submitAuth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    setBusy(true)
     setMessage(null)
+    if (isRegister && password !== confirmPassword) {
+      setMessage({ kind: 'error', text: 'Passwords do not match. Retype your password to continue.' })
+      return
+    }
+    setBusy(true)
     try {
       const session = isRegister
         ? await postJson<AuthUserSession>('/api/auth/register', { name, email, password })
@@ -150,7 +165,7 @@ export function SignInPage({
           </p>
         </header>
 
-        <div className="auth-tabs" role="tablist" aria-label="Authentication mode">
+        <div className={`auth-tabs auth-tabs--${mode}`} role="tablist" aria-label="Authentication mode">
           <button className={isRegister ? 'active' : ''} type="button" role="tab" aria-selected={isRegister} onClick={() => switchMode('register')}>
             Create account
           </button>
@@ -162,20 +177,35 @@ export function SignInPage({
         <form className="auth-form" onSubmit={submitAuth}>
           <div className="auth-fields">
             {isRegister ? (
-              <AuthInput id="auth-name" icon={<User size={18} />} placeholder="Full name" value={name} onChange={setName} />
+              <AuthInput id="auth-name" icon={<User size={18} />} placeholder="Full name" autoComplete="name" value={name} onChange={setName} />
             ) : null}
-            <AuthInput id="auth-email" icon={<EnvelopeSimple size={18} />} placeholder="Email address" type="email" value={email} onChange={setEmail} />
+            <AuthInput id="auth-email" icon={<EnvelopeSimple size={18} />} placeholder="Email address" type="email" autoComplete="email" value={email} onChange={setEmail} />
             <AuthInput
               id="auth-password"
               icon={<Lock size={18} />}
               placeholder="Password"
               type="password"
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
               showToggle
               showPassword={showPassword}
               onTogglePassword={() => setShowPassword((current) => !current)}
               value={password}
               onChange={setPassword}
             />
+            {isRegister ? (
+              <AuthInput
+                id="auth-confirm-password"
+                icon={<Lock size={18} />}
+                placeholder="Retype password"
+                type="password"
+                autoComplete="new-password"
+                showToggle
+                showPassword={showPassword}
+                onTogglePassword={() => setShowPassword((current) => !current)}
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+              />
+            ) : null}
           </div>
 
           {isRegister ? (
