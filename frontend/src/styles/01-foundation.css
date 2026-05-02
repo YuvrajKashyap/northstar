@@ -32,7 +32,7 @@
   position: relative;
 }
 
-/* grid overlay removed — was AI slop */
+/* grid overlay removed */
 
 .screen-enter {
   min-height: 100dvh;
