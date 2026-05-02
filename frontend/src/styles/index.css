@@ -8,4 +8,4 @@
 @import './08-dashboard-agent.css';
 @import './09-responsive.css';
 @import './10-wealth-workspace.css';
-@import './10-northstar-pages.css';
+@import '/src/styles/10-northstar-pages.css';

@@ -9,4 +9,4 @@ backend/src/data/traces
 backend/src/data/mirrors
 backend/src/data/*.local.json
 .codex-run
-.codex-frontend-dev*.log
+.codex-frontend-*.log
