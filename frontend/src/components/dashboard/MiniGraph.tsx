@@ -1,24 +1,22 @@
 import type { MemoryGraph } from '@calmvest/shared'
 import { UserCircle } from '@phosphor-icons/react'
 
-const fallbackNodes = [
-  { id: 'goals',   label: 'Goals',            value: 'Retire by 60\nFinancial freedom' },
-  { id: 'risk',    label: 'Risk Comfort',      value: 'Moderate\nHigh clarity' },
-  { id: 'values',  label: 'Values',           value: 'Freedom & flexibility\nLifelong learning' },
-  { id: 'tax',     label: 'Tax Profile',      value: 'Taxable brokerage\nMarginal bracket' },
-  { id: 'comms',   label: 'Comm. Style',      value: 'Plain English\nClear & concise' },
-  { id: 'cash',    label: 'Cash Flow',        value: '$2,150 available\nLiquidity 40%' },
+/** Static nodes for the hero preview — never use raw API strings here */
+const heroNodes = [
+  { id: 'goals',   label: 'Goals',          value: 'Home by 2027\nHigh clarity' },
+  { id: 'risk',    label: 'Risk Comfort',   value: 'Moderate\nCalm under pressure' },
+  { id: 'values',  label: 'Values',         value: 'Freedom & flexibility\nLifelong learning' },
+  { id: 'tax',     label: 'Tax Profile',    value: 'Taxable brokerage\nTax-aware trades' },
+  { id: 'comms',   label: 'Comm. Style',   value: 'Plain English\nClear next steps' },
+  { id: 'cash',    label: 'Cash Flow',      value: '$2,150 available\n40% liquidity' },
 ]
 
-function truncate(str: string, max = 52): string {
-  if (!str) return ''
-  return str.length > max ? str.slice(0, max).trimEnd() + '…' : str
+function trunc(s: string, n = 46) {
+  return s && s.length > n ? s.slice(0, n).trimEnd() + '…' : s
 }
 
-export function MiniGraph({ graph }: { graph: MemoryGraph | null }) {
-  const raw = graph?.nodes.filter((n) => n.id !== 'maya').slice(0, 6) ?? []
-  const nodes = raw.length > 0 ? raw : fallbackNodes
-
+/** Hero orbit graph — always uses clean static data, ignores live API */
+export function MiniGraph({ graph: _graph }: { graph: MemoryGraph | null }) {
   return (
     <div className="mini-graph">
       <div className="orbit-line" />
@@ -28,16 +26,17 @@ export function MiniGraph({ graph }: { graph: MemoryGraph | null }) {
         <strong>Maya Patel</strong>
         <span>Primary Profile</span>
       </div>
-      {nodes.map((node, index) => (
-        <div className={`orbit-card orbit-${index}`} key={node.id}>
-          <h4>{node.label}</h4>
-          <p>{truncate(node.value)}</p>
+      {heroNodes.map((n, i) => (
+        <div className={`orbit-card orbit-${i}`} key={n.id}>
+          <h4>{n.label}</h4>
+          <p>{n.value}</p>
         </div>
       ))}
     </div>
   )
 }
 
+/** Full dashboard graph — uses live API data with safe truncation */
 export function MemoryGalaxy({
   graph,
   selectedNodeId,
@@ -52,15 +51,15 @@ export function MemoryGalaxy({
     <div className="memory-galaxy">
       <div className="graph-ring ring-one" />
       <div className="graph-ring ring-two" />
-      {nodes.map((node, index) => (
+      {nodes.map((node, i) => (
         <button
           key={node.id}
           type="button"
-          className={`graph-node node-${index} ${selectedNodeId === node.id ? 'active' : ''}`}
+          className={`graph-node node-${i} ${selectedNodeId === node.id ? 'active' : ''}`}
           onClick={() => setSelectedNodeId(node.id)}
         >
           <strong>{node.label}</strong>
-          <span>{truncate(node.value, 48)}</span>
+          <span>{trunc(node.value, 48)}</span>
         </button>
       ))}
     </div>

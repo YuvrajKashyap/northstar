@@ -25,28 +25,14 @@
 }
 
 .calmvest-root {
-  background:
-    radial-gradient(circle at 18% 12%, rgba(63, 150, 92, 0.24), transparent 31rem),
-    radial-gradient(circle at 80% 6%, rgba(69, 196, 132, 0.14), transparent 28rem),
-    linear-gradient(135deg, #02110e 0%, #041914 46%, #05110f 100%);
+  background: #030f0d;
   color: var(--text);
   min-height: 100dvh;
   overflow-x: hidden;
   position: relative;
 }
 
-.calmvest-root::before {
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-  background-size: 58px 58px;
-  content: "";
-  inset: 0;
-  mask-image: radial-gradient(circle at 50% 28%, black, transparent 74%);
-  opacity: 0.45;
-  pointer-events: none;
-  position: fixed;
-}
+/* grid overlay removed — was AI slop */
 
 .screen-enter {
   min-height: 100dvh;
@@ -267,22 +253,7 @@ kbd {
   animation: breathe 2.8s ease-in-out infinite;
 }
 
-.landing {
-  border: 1px solid rgba(134, 232, 145, 0.16);
-  border-radius: 0 0 18px 18px;
-  margin: 0 auto;
-  max-width: 1800px;
-  overflow: hidden;
-}
-
-.landing-nav {
-  align-items: center;
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: 210px 1fr auto;
-  padding: 1.65rem 2.4rem;
-}
-
+/* .landing and .landing-nav moved to 02-landing.css */
 .landing-links {
   align-items: center;
   display: flex;
