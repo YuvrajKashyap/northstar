@@ -14,8 +14,6 @@ import {
   StarFour,
   Target,
 } from '@phosphor-icons/react'
-import type { MemoryGraph } from '@calmvest/shared'
-import type { Screen } from '../types/screens'
 import landingBackground from '../assets/northstar-landing-bg.png'
 
 const memoryItems = [
@@ -60,13 +58,7 @@ const agents = [
   },
 ]
 
-export function LandingPage({
-  setScreen,
-  graph: _graph,
-}: {
-  setScreen: (screen: Screen) => void
-  graph: MemoryGraph | null
-}) {
+export function LandingPage() {
   return (
     <div className="landing-page screen-enter">
       <section className="landing-hero" aria-label="Northstar landing page">
@@ -79,7 +71,7 @@ export function LandingPage({
         <div className="landing-hero__wash" aria-hidden="true" />
 
         <nav className="north-nav" aria-label="Primary navigation">
-          <button className="north-brand" type="button" onClick={() => setScreen('landing')}>
+          <button className="north-brand" type="button">
             <Compass size={38} weight="thin" />
             <span>Northstar</span>
           </button>
@@ -94,8 +86,8 @@ export function LandingPage({
           </div>
 
           <div className="north-nav__actions">
-            <button type="button" onClick={() => setScreen('signin')}>Log in</button>
-            <button className="north-nav__cta" type="button" onClick={() => setScreen('onboarding')}>
+            <button type="button">Log in</button>
+            <button className="north-nav__cta" type="button">
               Get started
             </button>
           </div>
@@ -119,10 +111,10 @@ export function LandingPage({
             </p>
 
             <div className="north-actions">
-              <button className="north-primary" type="button" onClick={() => setScreen('onboarding')}>
+              <button className="north-primary" type="button">
                 Build my plan <ArrowRight size={22} />
               </button>
-              <button className="north-secondary" type="button" onClick={() => setScreen('dashboard')}>
+              <button className="north-secondary" type="button">
                 See how it works <PlayCircle size={22} />
               </button>
             </div>
