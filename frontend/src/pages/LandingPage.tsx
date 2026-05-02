@@ -58,13 +58,7 @@ const agents = [
   },
 ]
 
-type LandingPageProps = {
-  onGetStarted?: () => void
-  onLogin?: () => void
-  onDemo?: () => void
-}
-
-export function LandingPage({ onGetStarted, onLogin, onDemo }: LandingPageProps) {
+export function LandingPage() {
   return (
     <div className="landing-page screen-enter">
       <section className="landing-hero" aria-label="Northstar landing page">
@@ -92,8 +86,8 @@ export function LandingPage({ onGetStarted, onLogin, onDemo }: LandingPageProps)
           </div>
 
           <div className="north-nav__actions">
-            <button type="button" onClick={onLogin}>Log in</button>
-            <button className="north-nav__cta" type="button" onClick={onGetStarted}>
+            <button type="button">Log in</button>
+            <button className="north-nav__cta" type="button">
               Get started
             </button>
           </div>
@@ -117,10 +111,10 @@ export function LandingPage({ onGetStarted, onLogin, onDemo }: LandingPageProps)
             </p>
 
             <div className="north-actions">
-              <button className="north-primary" type="button" onClick={onGetStarted}>
+              <button className="north-primary" type="button">
                 Build my plan <ArrowRight size={22} />
               </button>
-              <button className="north-secondary" type="button" onClick={onDemo}>
+              <button className="north-secondary" type="button">
                 See how it works <PlayCircle size={22} />
               </button>
             </div>
