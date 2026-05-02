@@ -7,7 +7,19 @@ import type {
   PlaidLinkResult,
 } from '@calmvest/shared'
 
-export type Screen = 'landing' | 'signin' | 'onboarding' | 'profile' | 'memory' | 'goals' | 'dashboard'
+export type Screen =
+  | 'landing'
+  | 'how-it-works'
+  | 'beginners'
+  | 'agents'
+  | 'safety'
+  | 'pricing'
+  | 'signin'
+  | 'onboarding'
+  | 'profile'
+  | 'memory'
+  | 'goals'
+  | 'dashboard'
 
 export type HealthResponse = {
   ok: boolean
