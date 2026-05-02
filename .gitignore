@@ -1,0 +1,9 @@
+.agents
+.claude
+node_modules
+dist
+.env
+.env.*
+!.env.example
+backend/src/data/traces
+backend/src/data/*.local.json

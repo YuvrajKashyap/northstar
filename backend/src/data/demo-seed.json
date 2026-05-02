@@ -1,0 +1,319 @@
+{
+  "user": {
+    "id": "maya-patel-demo",
+    "name": "Maya Patel",
+    "age": 24,
+    "investor_level": "beginner",
+    "communication_style": "plain_english"
+  },
+  "contextPacket": {
+    "user": {
+      "id": "maya-patel-demo",
+      "name": "Maya Patel",
+      "age": 24,
+      "investor_level": "beginner",
+      "communication_style": "plain_english"
+    },
+    "goals": [
+      {
+        "type": "home_down_payment",
+        "target_amount": 80000,
+        "target_date": "2029-05",
+        "priority": "high"
+      }
+    ],
+    "risk_profile": {
+      "risk_comfort": "moderate_cautious",
+      "panic_response": "very_worried_at_20pct_drop",
+      "liquidity_need": "may_withdraw_20pct_next_year"
+    },
+    "accounts_summary": {
+      "taxable": true,
+      "brokerage_count": 2,
+      "cash_available": 2150,
+      "portfolio_value": 60687.96
+    },
+    "portfolio_features": {
+      "top3_concentration": 0.81,
+      "equity_weight": 0.86,
+      "cash_weight": 0.04,
+      "growth_tech_overlap": "high",
+      "liquidity_coverage": 0.4
+    },
+    "constraints": {
+      "no_auto_trade": true,
+      "prefer_tax_aware": true,
+      "explain_costs": true
+    }
+  },
+  "memoryTemplate": "# CalmVest Memory: Maya Patel\n\n## Identity\n- Beginner investor\n- Prefers plain-English explanations\n\n## Goals\n- House down payment goal: $80,000 target by May 2029\n\n## Risk and Liquidity\n- Moderate-cautious risk comfort\n- Very worried by a 20% market drop\n- May need to withdraw 20% next year\n\n## Tax and Constraints\n- Taxable brokerage accounts\n- No automatic trading\n- Explain cost, tax, confidence, and approval status for recommendations\n\n## Open Questions\n- Confirm income stability\n- Confirm exact house purchase timing\n- Confirm whether sustainability preferences matter\n",
+  "accounts": [
+    {
+      "id": "acct-taxable-brokerage",
+      "name": "Maya Taxable Brokerage",
+      "type": "brokerage",
+      "taxable": true,
+      "balance": 58537.96
+    },
+    {
+      "id": "acct-mutual-fund",
+      "name": "Legacy Mutual Fund Account",
+      "type": "mutual_fund",
+      "taxable": true,
+      "balance": 3768
+    },
+    {
+      "id": "acct-cash",
+      "name": "Brokerage Sweep Cash",
+      "type": "cash",
+      "taxable": true,
+      "balance": 2150
+    }
+  ],
+  "holdings": [
+    {
+      "symbol": "VOO",
+      "name": "Vanguard S&P 500 ETF",
+      "assetClass": "etf",
+      "quantity": 72.44,
+      "price": 508.9,
+      "value": 36864.95,
+      "costBasis": 33120,
+      "sector": "Broad market"
+    },
+    {
+      "symbol": "QQQ",
+      "name": "Invesco QQQ Trust",
+      "assetClass": "etf",
+      "quantity": 18.75,
+      "price": 442.89,
+      "value": 8304.24,
+      "costBasis": 6900,
+      "sector": "Growth tech"
+    },
+    {
+      "symbol": "AAPL",
+      "name": "Apple Inc.",
+      "assetClass": "stock",
+      "quantity": 16,
+      "price": 191.19,
+      "value": 3059.05,
+      "costBasis": 2410,
+      "sector": "Technology"
+    },
+    {
+      "symbol": "MSFT",
+      "name": "Microsoft Corp.",
+      "assetClass": "stock",
+      "quantity": 8,
+      "price": 421.33,
+      "value": 3370.65,
+      "costBasis": 2710,
+      "sector": "Technology"
+    },
+    {
+      "symbol": "VTIAX",
+      "name": "Vanguard Total Intl Stock Index",
+      "assetClass": "mutual_fund",
+      "quantity": 120,
+      "price": 31.86,
+      "value": 3823.34,
+      "costBasis": 3400,
+      "sector": "International"
+    },
+    {
+      "symbol": "BND",
+      "name": "Vanguard Total Bond Market ETF",
+      "assetClass": "etf",
+      "quantity": 42,
+      "price": 73.49,
+      "value": 3086.62,
+      "costBasis": 2920,
+      "sector": "Fixed income"
+    },
+    {
+      "symbol": "CASH",
+      "name": "Brokerage sweep cash",
+      "assetClass": "cash",
+      "quantity": 1,
+      "price": 2179.11,
+      "value": 2179.11,
+      "costBasis": 2150,
+      "sector": "Cash"
+    }
+  ],
+  "taxLots": [
+    {
+      "id": "lot-voo-1",
+      "symbol": "VOO",
+      "acquiredAt": "2025-10-06",
+      "quantity": 72.44,
+      "costBasis": 33120
+    },
+    {
+      "id": "lot-qqq-2",
+      "symbol": "QQQ",
+      "acquiredAt": "2025-10-31",
+      "quantity": 18.75,
+      "costBasis": 6900
+    },
+    {
+      "id": "lot-aapl-3",
+      "symbol": "AAPL",
+      "acquiredAt": "2024-09-15",
+      "quantity": 16,
+      "costBasis": 2410
+    },
+    {
+      "id": "lot-msft-4",
+      "symbol": "MSFT",
+      "acquiredAt": "2025-03-23",
+      "quantity": 8,
+      "costBasis": 2710
+    },
+    {
+      "id": "lot-vtiax-5",
+      "symbol": "VTIAX",
+      "acquiredAt": "2025-04-23",
+      "quantity": 120,
+      "costBasis": 3400
+    },
+    {
+      "id": "lot-bnd-6",
+      "symbol": "BND",
+      "acquiredAt": "2024-08-23",
+      "quantity": 42,
+      "costBasis": 2920
+    }
+  ],
+  "transactions": [
+    {
+      "id": "txn-001",
+      "postedAt": "2026-05-01",
+      "accountId": "acct-mutual-fund",
+      "description": "Dividend reinvestment / fee",
+      "amount": -125.0,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-002",
+      "postedAt": "2026-04-15",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-003",
+      "postedAt": "2026-04-01",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 300,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-004",
+      "postedAt": "2026-03-26",
+      "accountId": "acct-mutual-fund",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-005",
+      "postedAt": "2026-01-29",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-006",
+      "postedAt": "2026-03-07",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Dividend reinvestment / fee",
+      "amount": -125.0,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-007",
+      "postedAt": "2026-01-19",
+      "accountId": "acct-cash",
+      "description": "Dividend reinvestment / fee",
+      "amount": -42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-008",
+      "postedAt": "2025-12-05",
+      "accountId": "acct-cash",
+      "description": "Monthly contribution",
+      "amount": 300,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-009",
+      "postedAt": "2025-11-14",
+      "accountId": "acct-cash",
+      "description": "Dividend reinvestment / fee",
+      "amount": -89.2,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-010",
+      "postedAt": "2026-01-04",
+      "accountId": "acct-cash",
+      "description": "Dividend reinvestment / fee",
+      "amount": -125.0,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-011",
+      "postedAt": "2025-11-02",
+      "accountId": "acct-mutual-fund",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-012",
+      "postedAt": "2025-10-15",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Dividend reinvestment / fee",
+      "amount": -125.0,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-013",
+      "postedAt": "2025-09-15",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-014",
+      "postedAt": "2025-10-18",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Dividend reinvestment / fee",
+      "amount": -42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-015",
+      "postedAt": "2025-07-25",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 300,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-016",
+      "postedAt": "2025-09-18",
+      "accountId": "acct-cash",
+      "description": "Dividend reinvestment / fee",
+      "amount": -42.5,
+      "type": "investment_activity"
+    }
+  ]
+}

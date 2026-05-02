@@ -1,0 +1,23 @@
+{
+  "name": "calmvest-agent-os",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently -n frontend,backend -c cyan,magenta \"npm run dev -w frontend\" \"npm run dev -w backend\"",
+    "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
+    "typecheck": "npm run typecheck -w shared && npm run typecheck -w backend && npm run typecheck -w frontend",
+    "seed:demo": "python scripts/generate_demo_seed.py --out backend/src/data/demo-seed.json",
+    "supabase:init": "npx supabase init",
+    "supabase:link": "npx supabase link --project-ref pvwekqquowgmdmknthes",
+    "supabase:push": "npx supabase db push"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
