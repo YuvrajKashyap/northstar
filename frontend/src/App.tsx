@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
 import { DashboardPage } from './pages/DashboardPage'
 import { GoalsPage } from './pages/GoalsPage'
+import { HomePage } from './pages/HomePage'
 import { InsightsPage } from './pages/InsightsPage'
 import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
@@ -150,7 +151,8 @@ function App() {
       {screen === 'plans' ? <PlansPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'insights' ? <InsightsPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'dashboard' || screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'dashboard' ? <HomePage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )
 }

@@ -165,7 +165,7 @@ export function AppChrome({
         <nav className="workspace-nav" aria-label="Workspace">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = active === item.screen || (active === 'dashboard' && item.screen === 'north')
+            const isActive = active === item.screen
             return (
               <button
                 className={isActive ? 'active' : ''}
