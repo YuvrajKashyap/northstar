@@ -257,7 +257,7 @@ export function useCalmVestWorkspace() {
       const goalInstruction = extractGoalActionInstruction(message)
       if (goalInstruction) {
         try {
-          const result = await postJson<GoalMemoryUpdateResponse & { action?: 'added' | 'updated' }>('/api/memory/goals/apply', {
+          const result = await postJson<GoalMemoryUpdateResponse>('/api/memory/goals/apply', {
             userId: currentUserId,
             description: goalInstruction,
           })
@@ -267,7 +267,10 @@ export function useCalmVestWorkspace() {
           setAgentAnswer((previous) => {
             const target = result.goal.target_amount > 0 ? formatAgentMoney(result.goal.target_amount) : 'target amount TBD'
             const date = result.goal.target_date && result.goal.target_date !== 'unknown' ? result.goal.target_date : 'timeline TBD'
-            const summary = `\n\nAction completed: ${result.action === 'updated' ? 'updated' : 'added'} ${result.goal.type} with ${target} by ${date}. It now appears in Goals.`
+            const action = result.action ?? 'added'
+            const summary = action === 'removed'
+              ? `\n\nAction completed: removed ${result.goal.type} from Goals.`
+              : `\n\nAction completed: ${action === 'updated' ? 'updated' : 'added'} ${result.goal.type} with ${target} by ${date}. It now appears in Goals.`
             return previous ? `${previous}${summary}` : summary.trim()
           })
         } catch (caught) {

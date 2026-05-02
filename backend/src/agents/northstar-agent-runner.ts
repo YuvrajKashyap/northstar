@@ -636,7 +636,7 @@ function buildAgentInstructions(userId: string, context: NorthRunContext): strin
     '- Use get_market_data, get_financials, and read_filings for market/company/filing facts when needed.',
     '- Use web_search for current web research that Financial Datasets does not cover. Keep external market/search/filing/financial tool calls to at most 3 total per run, then answer from the gathered context.',
     '- If a tool reports unavailable, missing, stale, or partial data, say that plainly and continue with what is known.',
-    '- If the user asks to add or update a saved goal, acknowledge the requested memory change plainly. The app may apply saved-goal memory edits after this response.',
+    '- If the user asks to add, update, or remove a saved goal, acknowledge the requested memory change plainly. The app may apply saved-goal memory edits after this response.',
     '- Separate education or recommendations from financial execution.',
     '- Never claim you placed trades, moved money, filed taxes, changed accounts, or contacted institutions.',
     '- Do not expose hidden chain-of-thought. Provide concise user-visible rationale and next steps only.',
