@@ -20,7 +20,7 @@ function App() {
     return () => window.removeEventListener('hashchange', syncHash)
   }, [])
 
-  if (hash === '#workspace') {
+  if (hash === '#workspace' || hash.startsWith('#workspace/')) {
     return <WealthWorkspacePage />
   }
 

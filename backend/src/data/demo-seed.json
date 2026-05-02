@@ -49,21 +49,80 @@
   "memoryTemplate": "# CalmVest Memory: Maya Patel\n\n## Identity\n- Beginner investor\n- Prefers plain-English explanations\n\n## Goals\n- House down payment goal: $80,000 target by May 2029\n\n## Risk and Liquidity\n- Moderate-cautious risk comfort\n- Very worried by a 20% market drop\n- May need to withdraw 20% next year\n\n## Tax and Constraints\n- Taxable brokerage accounts\n- No automatic trading\n- Explain cost, tax, confidence, and approval status for recommendations\n\n## Open Questions\n- Confirm income stability\n- Confirm exact house purchase timing\n- Confirm whether sustainability preferences matter\n",
   "accounts": [
     {
+      "id": "acct-chase-checking",
+      "institution": "Chase",
+      "name": "Everyday Checking",
+      "type": "checking",
+      "taxable": false,
+      "balance": 4260.44
+    },
+    {
+      "id": "acct-bankofamerica-savings",
+      "institution": "Bank of America",
+      "name": "Advantage Savings",
+      "type": "savings",
+      "taxable": false,
+      "balance": 12840.12
+    },
+    {
+      "id": "acct-amex-card",
+      "institution": "American Express",
+      "name": "Blue Cash Preferred",
+      "type": "credit",
+      "taxable": false,
+      "balance": -742.66
+    },
+    {
       "id": "acct-taxable-brokerage",
-      "name": "Maya Taxable Brokerage",
+      "institution": "Fidelity",
+      "name": "Individual Brokerage",
       "type": "brokerage",
       "taxable": true,
-      "balance": 58537.96
+      "balance": 33378.38
+    },
+    {
+      "id": "acct-schwab-brokerage",
+      "institution": "Charles Schwab",
+      "name": "Schwab One Brokerage",
+      "type": "brokerage",
+      "taxable": true,
+      "balance": 14565.11
+    },
+    {
+      "id": "acct-robinhood-brokerage",
+      "institution": "Robinhood",
+      "name": "Investing Account",
+      "type": "brokerage",
+      "taxable": true,
+      "balance": 7282.56
     },
     {
       "id": "acct-mutual-fund",
-      "name": "Legacy Mutual Fund Account",
+      "institution": "Vanguard",
+      "name": "Vanguard Mutual Fund Account",
       "type": "mutual_fund",
       "taxable": true,
-      "balance": 3768
+      "balance": 3823.34
+    },
+    {
+      "id": "acct-fidelity-mutual-fund",
+      "institution": "Fidelity",
+      "name": "Fidelity Mutual Fund Account",
+      "type": "mutual_fund",
+      "taxable": true,
+      "balance": 5810.28
+    },
+    {
+      "id": "acct-trowe-mutual-fund",
+      "institution": "T. Rowe Price",
+      "name": "T. Rowe Price Growth Fund",
+      "type": "mutual_fund",
+      "taxable": true,
+      "balance": 4440.92
     },
     {
       "id": "acct-cash",
+      "institution": "Fidelity",
       "name": "Brokerage Sweep Cash",
       "type": "cash",
       "taxable": true,
@@ -146,42 +205,42 @@
     {
       "id": "lot-voo-1",
       "symbol": "VOO",
-      "acquiredAt": "2025-10-06",
+      "acquiredAt": "2025-10-07",
       "quantity": 72.44,
       "costBasis": 33120
     },
     {
       "id": "lot-qqq-2",
       "symbol": "QQQ",
-      "acquiredAt": "2025-10-31",
+      "acquiredAt": "2025-11-01",
       "quantity": 18.75,
       "costBasis": 6900
     },
     {
       "id": "lot-aapl-3",
       "symbol": "AAPL",
-      "acquiredAt": "2024-09-15",
+      "acquiredAt": "2024-09-16",
       "quantity": 16,
       "costBasis": 2410
     },
     {
       "id": "lot-msft-4",
       "symbol": "MSFT",
-      "acquiredAt": "2025-03-23",
+      "acquiredAt": "2025-03-24",
       "quantity": 8,
       "costBasis": 2710
     },
     {
       "id": "lot-vtiax-5",
       "symbol": "VTIAX",
-      "acquiredAt": "2025-04-23",
+      "acquiredAt": "2025-04-24",
       "quantity": 120,
       "costBasis": 3400
     },
     {
       "id": "lot-bnd-6",
       "symbol": "BND",
-      "acquiredAt": "2024-08-23",
+      "acquiredAt": "2024-08-24",
       "quantity": 42,
       "costBasis": 2920
     }
@@ -189,131 +248,291 @@
   "transactions": [
     {
       "id": "txn-001",
-      "postedAt": "2026-05-01",
-      "accountId": "acct-mutual-fund",
-      "description": "Dividend reinvestment / fee",
-      "amount": -125.0,
+      "postedAt": "2026-05-02",
+      "accountId": "acct-robinhood-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
       "type": "investment_activity"
     },
     {
       "id": "txn-002",
-      "postedAt": "2026-04-15",
+      "postedAt": "2026-04-21",
+      "accountId": "acct-chase-checking",
+      "description": "Grocery purchase",
+      "amount": -86.42,
+      "type": "spending"
+    },
+    {
+      "id": "txn-003",
+      "postedAt": "2026-04-02",
       "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-004",
+      "postedAt": "2026-03-24",
+      "accountId": "acct-fidelity-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-005",
+      "postedAt": "2026-03-07",
+      "accountId": "acct-chase-checking",
+      "description": "Rent payment",
+      "amount": -1325,
+      "type": "housing"
+    },
+    {
+      "id": "txn-006",
+      "postedAt": "2026-02-06",
+      "accountId": "acct-mutual-fund",
+      "description": "Automatic investment",
       "amount": 150,
       "type": "contribution"
     },
     {
-      "id": "txn-003",
-      "postedAt": "2026-04-01",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
-      "amount": 300,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-004",
-      "postedAt": "2026-03-26",
-      "accountId": "acct-mutual-fund",
+      "id": "txn-007",
+      "postedAt": "2025-12-27",
+      "accountId": "acct-schwab-brokerage",
       "description": "Monthly contribution",
       "amount": 250,
       "type": "contribution"
     },
     {
-      "id": "txn-005",
-      "postedAt": "2026-01-29",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-006",
-      "postedAt": "2026-03-07",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Dividend reinvestment / fee",
-      "amount": -125.0,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-007",
-      "postedAt": "2026-01-19",
-      "accountId": "acct-cash",
-      "description": "Dividend reinvestment / fee",
-      "amount": -42.5,
-      "type": "investment_activity"
-    },
-    {
       "id": "txn-008",
-      "postedAt": "2025-12-05",
+      "postedAt": "2025-12-06",
       "accountId": "acct-cash",
-      "description": "Monthly contribution",
-      "amount": 300,
-      "type": "contribution"
+      "description": "Sweep interest",
+      "amount": 5.18,
+      "type": "interest"
     },
     {
       "id": "txn-009",
-      "postedAt": "2025-11-14",
-      "accountId": "acct-cash",
-      "description": "Dividend reinvestment / fee",
-      "amount": -89.2,
+      "postedAt": "2025-11-15",
+      "accountId": "acct-trowe-mutual-fund",
+      "description": "Capital gains distribution",
+      "amount": 76.4,
       "type": "investment_activity"
     },
     {
       "id": "txn-010",
-      "postedAt": "2026-01-04",
-      "accountId": "acct-cash",
-      "description": "Dividend reinvestment / fee",
-      "amount": -125.0,
+      "postedAt": "2026-01-05",
+      "accountId": "acct-fidelity-mutual-fund",
+      "description": "Capital gains distribution",
+      "amount": 76.4,
       "type": "investment_activity"
     },
     {
       "id": "txn-011",
-      "postedAt": "2025-11-02",
-      "accountId": "acct-mutual-fund",
+      "postedAt": "2025-09-24",
+      "accountId": "acct-chase-checking",
+      "description": "Payroll deposit",
+      "amount": 2400,
+      "type": "income"
+    },
+    {
+      "id": "txn-012",
+      "postedAt": "2025-11-29",
+      "accountId": "acct-schwab-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-013",
+      "postedAt": "2025-12-21",
+      "accountId": "acct-cash",
+      "description": "Cash transfer",
+      "amount": 300,
+      "type": "transfer"
+    },
+    {
+      "id": "txn-014",
+      "postedAt": "2025-12-10",
+      "accountId": "acct-schwab-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-015",
+      "postedAt": "2025-08-09",
+      "accountId": "acct-amex-card",
+      "description": "Travel purchase",
+      "amount": -214.2,
+      "type": "spending"
+    },
+    {
+      "id": "txn-016",
+      "postedAt": "2025-10-19",
+      "accountId": "acct-fidelity-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-017",
+      "postedAt": "2025-04-29",
+      "accountId": "acct-taxable-brokerage",
       "description": "Monthly contribution",
       "amount": 250,
       "type": "contribution"
     },
     {
-      "id": "txn-012",
-      "postedAt": "2025-10-15",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Dividend reinvestment / fee",
-      "amount": -125.0,
-      "type": "investment_activity"
+      "id": "txn-018",
+      "postedAt": "2025-09-06",
+      "accountId": "acct-bankofamerica-savings",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
     },
     {
-      "id": "txn-013",
-      "postedAt": "2025-09-15",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
+      "id": "txn-019",
+      "postedAt": "2025-09-28",
+      "accountId": "acct-cash",
+      "description": "Cash transfer",
+      "amount": 300,
+      "type": "transfer"
+    },
+    {
+      "id": "txn-020",
+      "postedAt": "2025-08-28",
+      "accountId": "acct-chase-checking",
+      "description": "Rent payment",
+      "amount": -1325,
+      "type": "housing"
+    },
+    {
+      "id": "txn-021",
+      "postedAt": "2025-05-07",
+      "accountId": "acct-trowe-mutual-fund",
+      "description": "Automatic investment",
       "amount": 150,
       "type": "contribution"
     },
     {
-      "id": "txn-014",
-      "postedAt": "2025-10-18",
+      "id": "txn-022",
+      "postedAt": "2025-04-19",
       "accountId": "acct-taxable-brokerage",
-      "description": "Dividend reinvestment / fee",
-      "amount": -42.5,
+      "description": "ETF purchase",
+      "amount": -300,
       "type": "investment_activity"
     },
     {
-      "id": "txn-015",
-      "postedAt": "2025-07-25",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
-      "amount": 300,
+      "id": "txn-023",
+      "postedAt": "2025-09-02",
+      "accountId": "acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
       "type": "contribution"
     },
     {
-      "id": "txn-016",
-      "postedAt": "2025-09-18",
-      "accountId": "acct-cash",
-      "description": "Dividend reinvestment / fee",
-      "amount": -42.5,
+      "id": "txn-024",
+      "postedAt": "2025-05-22",
+      "accountId": "acct-taxable-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
       "type": "investment_activity"
+    },
+    {
+      "id": "txn-025",
+      "postedAt": "2025-06-24",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-026",
+      "postedAt": "2024-11-23",
+      "accountId": "acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-027",
+      "postedAt": "2025-01-19",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "txn-028",
+      "postedAt": "2024-10-12",
+      "accountId": "acct-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-029",
+      "postedAt": "2025-06-28",
+      "accountId": "acct-cash",
+      "description": "Sweep interest",
+      "amount": 5.18,
+      "type": "interest"
+    },
+    {
+      "id": "txn-030",
+      "postedAt": "2025-04-20",
+      "accountId": "acct-cash",
+      "description": "Cash transfer",
+      "amount": 300,
+      "type": "transfer"
+    },
+    {
+      "id": "txn-031",
+      "postedAt": "2024-07-11",
+      "accountId": "acct-taxable-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-032",
+      "postedAt": "2024-12-22",
+      "accountId": "acct-robinhood-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-033",
+      "postedAt": "2025-01-07",
+      "accountId": "acct-amex-card",
+      "description": "Restaurant",
+      "amount": -48.6,
+      "type": "spending"
+    },
+    {
+      "id": "txn-034",
+      "postedAt": "2024-10-18",
+      "accountId": "acct-cash",
+      "description": "Sweep interest",
+      "amount": 5.18,
+      "type": "interest"
+    },
+    {
+      "id": "txn-035",
+      "postedAt": "2024-07-25",
+      "accountId": "acct-mutual-fund",
+      "description": "Capital gains distribution",
+      "amount": 76.4,
+      "type": "investment_activity"
+    },
+    {
+      "id": "txn-036",
+      "postedAt": "2024-06-01",
+      "accountId": "acct-cash",
+      "description": "Sweep interest",
+      "amount": 5.18,
+      "type": "interest"
     }
   ]
 }

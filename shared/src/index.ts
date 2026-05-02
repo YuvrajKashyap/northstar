@@ -77,7 +77,8 @@ export interface DemoSeed {
   accounts: Array<{
     id: string;
     name: string;
-    type: 'brokerage' | 'mutual_fund' | 'cash';
+    institution?: string;
+    type: 'checking' | 'savings' | 'credit' | 'brokerage' | 'mutual_fund' | 'cash';
     taxable: boolean;
     balance: number;
   }>;
@@ -111,10 +112,12 @@ export interface PlaidLinkResult {
   };
   accounts: DemoSeed['accounts'];
   holdings: Holding[];
+  transactions: DemoSeed['transactions'];
 }
 
 export interface OnboardingAnswers {
   userId: string;
+  profileText?: string;
   goal: string;
   targetAmount: number;
   targetDate: string;
@@ -123,6 +126,20 @@ export interface OnboardingAnswers {
   taxableAccount: boolean;
   communicationStyle: string;
   values: string;
+}
+
+export interface MemoryToolCall {
+  tool:
+    | 'create_user_profile'
+    | 'create_goal'
+    | 'create_life_event'
+    | 'create_user_value'
+    | 'create_risk_profile'
+    | 'create_tax_profile'
+    | 'set_communication_preferences'
+    | 'commit_onboarding_profile';
+  args: Record<string, unknown>;
+  result: string;
 }
 
 export interface MemoryDiffItem {

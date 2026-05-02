@@ -9,8 +9,9 @@ export const demoRouter = Router();
 
 export async function readDemoSeed(): Promise<DemoSeed> {
   const currentDir = dirname(fileURLToPath(import.meta.url));
-  const path = join(currentDir, '..', 'data', 'demo-seed.json');
-  const raw = await readFile(path, 'utf-8');
+  const distPath = join(currentDir, '..', 'data', 'demo-seed.json');
+  const sourcePath = join(currentDir, '..', '..', 'src', 'data', 'demo-seed.json');
+  const raw = await readFile(distPath, 'utf-8').catch(() => readFile(sourcePath, 'utf-8'));
   return JSON.parse(raw) as DemoSeed;
 }
 
@@ -30,7 +31,7 @@ demoRouter.post('/simulate-plaid-link', async (_req, res, next) => {
     const result: PlaidLinkResult = {
       ok: true,
       userId: seed.user.id,
-      institution: 'Northstar Demo Brokerage',
+      institution: 'Connected financial institutions',
       imported: {
         accounts: seed.accounts.length,
         holdings: seed.holdings.length,
@@ -39,6 +40,7 @@ demoRouter.post('/simulate-plaid-link', async (_req, res, next) => {
       },
       accounts: seed.accounts,
       holdings: seed.holdings,
+      transactions: seed.transactions,
     };
     res.json(result);
   } catch (error) {

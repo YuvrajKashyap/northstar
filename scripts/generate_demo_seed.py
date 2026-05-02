@@ -88,21 +88,80 @@ def build_seed() -> dict:
 
     accounts = [
         {
+            "id": "acct-chase-checking",
+            "institution": "Chase",
+            "name": "Everyday Checking",
+            "type": "checking",
+            "taxable": False,
+            "balance": 4260.44,
+        },
+        {
+            "id": "acct-bankofamerica-savings",
+            "institution": "Bank of America",
+            "name": "Advantage Savings",
+            "type": "savings",
+            "taxable": False,
+            "balance": 12840.12,
+        },
+        {
+            "id": "acct-amex-card",
+            "institution": "American Express",
+            "name": "Blue Cash Preferred",
+            "type": "credit",
+            "taxable": False,
+            "balance": -742.66,
+        },
+        {
             "id": "acct-taxable-brokerage",
-            "name": "Maya Taxable Brokerage",
+            "institution": "Fidelity",
+            "name": "Individual Brokerage",
             "type": "brokerage",
             "taxable": True,
-            "balance": money(portfolio_value - 2150),
+            "balance": money(portfolio_value * 0.55),
+        },
+        {
+            "id": "acct-schwab-brokerage",
+            "institution": "Charles Schwab",
+            "name": "Schwab One Brokerage",
+            "type": "brokerage",
+            "taxable": True,
+            "balance": money(portfolio_value * 0.24),
+        },
+        {
+            "id": "acct-robinhood-brokerage",
+            "institution": "Robinhood",
+            "name": "Investing Account",
+            "type": "brokerage",
+            "taxable": True,
+            "balance": money(portfolio_value * 0.12),
         },
         {
             "id": "acct-mutual-fund",
-            "name": "Legacy Mutual Fund Account",
+            "institution": "Vanguard",
+            "name": "Vanguard Mutual Fund Account",
             "type": "mutual_fund",
             "taxable": True,
-            "balance": 3768,
+            "balance": 3823.34,
+        },
+        {
+            "id": "acct-fidelity-mutual-fund",
+            "institution": "Fidelity",
+            "name": "Fidelity Mutual Fund Account",
+            "type": "mutual_fund",
+            "taxable": True,
+            "balance": 5810.28,
+        },
+        {
+            "id": "acct-trowe-mutual-fund",
+            "institution": "T. Rowe Price",
+            "name": "T. Rowe Price Growth Fund",
+            "type": "mutual_fund",
+            "taxable": True,
+            "balance": 4440.92,
         },
         {
             "id": "acct-cash",
+            "institution": "Fidelity",
             "name": "Brokerage Sweep Cash",
             "type": "cash",
             "taxable": True,
@@ -126,17 +185,51 @@ def build_seed() -> dict:
         )
 
     transactions = []
-    for index in range(16):
+    transaction_templates = {
+        "checking": [
+            ("Payroll deposit", 2400, "income"),
+            ("Rent payment", -1325, "housing"),
+            ("Grocery purchase", -86.42, "spending"),
+            ("Utilities", -124.18, "spending"),
+        ],
+        "savings": [
+            ("Automatic savings transfer", 500, "transfer"),
+            ("Emergency fund transfer", 250, "transfer"),
+            ("Interest paid", 8.72, "interest"),
+        ],
+        "credit": [
+            ("Statement payment", 620, "payment"),
+            ("Travel purchase", -214.2, "spending"),
+            ("Restaurant", -48.6, "spending"),
+        ],
+        "brokerage": [
+            ("ETF purchase", -300, "investment_activity"),
+            ("Dividend received", 42.5, "investment_activity"),
+            ("Monthly contribution", 250, "contribution"),
+        ],
+        "mutual_fund": [
+            ("Mutual fund purchase", -250, "investment_activity"),
+            ("Capital gains distribution", 76.4, "investment_activity"),
+            ("Automatic investment", 150, "contribution"),
+        ],
+        "cash": [
+            ("Sweep interest", 5.18, "interest"),
+            ("Cash transfer", 300, "transfer"),
+        ],
+    }
+
+    for index in range(36):
         posted_at = today - timedelta(days=index * rng.randint(11, 23))
-        amount = rng.choice([150, 250, 300, -42.5, -89.2, -125.0])
+        account = rng.choice(accounts)
+        description, amount, txn_type = rng.choice(transaction_templates[account["type"]])
         transactions.append(
             {
                 "id": f"txn-{index + 1:03d}",
                 "postedAt": str(posted_at),
-                "accountId": rng.choice(accounts)["id"],
-                "description": "Monthly contribution" if amount > 0 else "Dividend reinvestment / fee",
+                "accountId": account["id"],
+                "description": description,
                 "amount": money(amount),
-                "type": "contribution" if amount > 0 else "investment_activity",
+                "type": txn_type,
             }
         )
 
