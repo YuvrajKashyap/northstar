@@ -6,6 +6,7 @@ import { AppChrome } from '../components/layout/AppChrome'
 import { AppPageHeader } from '../components/layout/AppPageHeader'
 import { Avatar } from '../components/common/Avatar'
 import { LiveDot } from '../components/common/LiveDot'
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer'
 
 export function MemoryPage(props: ScreenProps) {
   const sessionName = localStorage.getItem('northstar.activeUserName')?.trim()
@@ -79,7 +80,7 @@ export function MemoryPage(props: ScreenProps) {
                 ))}
                 <article className="markdown-card">
                   <div><h3>Human-readable memory.md</h3><button type="button"><Copy size={16} /> Copy</button></div>
-                  <pre>{props.graph?.memoryMarkdown ?? 'Memory will appear after onboarding commit.'}</pre>
+                  <MarkdownRenderer>{props.graph?.memoryMarkdown ?? 'Memory will appear after onboarding commit.'}</MarkdownRenderer>
                 </article>
               </div>
             </div>
@@ -87,7 +88,7 @@ export function MemoryPage(props: ScreenProps) {
           <aside className="agent-usage-panel">
             <h3>Recent North tool usage <LiveDot /></h3>
             {agentCards.map((card) => (
-              <AgentUsageCard card={card} key={card.agent} />
+              <AgentUsageCard card={card} key={card.title} />
             ))}
             <div className="memory-controls">
               <h3>Memory controls</h3>

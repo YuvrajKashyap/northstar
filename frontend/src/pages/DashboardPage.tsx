@@ -36,7 +36,7 @@ export function DashboardPage(props: ScreenProps) {
 
   return (
     <AppChrome
-      active="dashboard"
+      active="north"
       setScreen={props.setScreen}
       graph={props.graph}
       agentAnswer={props.agentAnswer}

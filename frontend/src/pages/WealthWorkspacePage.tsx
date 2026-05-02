@@ -35,6 +35,7 @@ import {
 } from '../lib/wealthApi'
 import landingBackground from '../assets/northstar-landing-bg.png'
 import northstarLogo from '../assets/northstar-logo.svg'
+import questionnaireSampleMarkdown from '../../../docs/memory-questionnaire-sample.md?raw'
 
 const fallbackUserId = 'maya-patel-demo'
 const activeUserKey = 'northstar.activeUserId'
@@ -58,7 +59,7 @@ type ConnectedAccount = PlaidLinkResult['accounts'][number]
 type ConnectedTransaction = PlaidLinkResult['transactions'][number]
 type QuestionnaireAnswers = Record<string, string>
 
-const questionnaireSampleAnswers: QuestionnaireAnswers = {
+const questionnaireSampleFallbackAnswers: QuestionnaireAnswers = {
   full_name:
     'My name is Kushagra Bharti. I usually go by Kushagra, and this profile should treat me as the primary decision-maker for all financial planning. I want Northstar to remember that I prefer direct, practical guidance and that I care about seeing the reasoning behind recommendations before taking action.',
   age:
@@ -149,6 +150,11 @@ const questionnaireSampleAnswers: QuestionnaireAnswers = {
     'Northstar should ask later about exact income, account balances, cost basis, employer benefits, future location, home-buying timeline, insurance needs, family support expectations, values-based investing preferences, and whether my risk comfort changes after seeing real account data.',
 }
 
+const questionnaireSampleAnswers = parseQuestionnaireSampleMarkdown(
+  questionnaireSampleMarkdown,
+  questionnaireSampleFallbackAnswers,
+)
+
 const routeMeta: Record<WorkspaceRoute, { label: string; eyebrow: string; title: string; copy: string }> = {
   connect: {
     label: 'Connect',
@@ -230,14 +236,6 @@ export function WealthWorkspacePage() {
     }, 0)
     return () => window.clearTimeout(timer)
   }, [activeUserId, graph])
-
-  useEffect(() => {
-    if (activeUserId === fallbackUserId) return
-    const timer = window.setTimeout(() => {
-      setQuestionnaire((current) => removeSampleAnswers(current, activeUserName))
-    }, 0)
-    return () => window.clearTimeout(timer)
-  }, [activeUserId, activeUserName])
 
   useEffect(() => {
     localStorage.setItem(questionnaireStorageKey(activeUserId), JSON.stringify(questionnaire))
@@ -372,6 +370,7 @@ export function WealthWorkspacePage() {
             activeSection={activeQuestionSection}
             onSelectSection={setActiveQuestionSection}
             onUpdate={(key, value) => setQuestionnaire((current) => ({ ...current, [key]: value }))}
+            onAutofill={() => setQuestionnaire(buildSampleQuestionnaire())}
             onCommit={runMemoryCommit}
             error={error}
           />
@@ -610,6 +609,7 @@ function CommitMemoryPage({
   activeSection,
   onSelectSection,
   onUpdate,
+  onAutofill,
   onCommit,
   error,
 }: {
@@ -618,6 +618,7 @@ function CommitMemoryPage({
   activeSection: string
   onSelectSection: (sectionId: QuestionnaireSectionId) => void
   onUpdate: (key: string, value: string) => void
+  onAutofill: () => void
   onCommit: () => void
   error: string
 }) {
@@ -641,6 +642,9 @@ function CommitMemoryPage({
             <strong>{answeredCount}</strong>
             <span>of {questionnaireFields.length} answered</span>
           </div>
+          <button className="memory-sample-fill" type="button" onClick={onAutofill}>
+            Autofill sample.md
+          </button>
         </header>
 
         <div className="memory-section-tabs" role="tablist" aria-label="Questionnaire sections">
@@ -666,22 +670,14 @@ function CommitMemoryPage({
             {visibleFields.map((field) => {
               const globalIndex = questionnaireFields.findIndex((item) => item.key === field.key)
               return (
-                <label className={field.kind === 'long' ? 'question-field question-field--long' : 'question-field'} key={field.key}>
+                <label className="question-field question-field--long" key={field.key}>
                   <span>{String(globalIndex + 1).padStart(2, '0')}</span>
                   <strong>{field.label}</strong>
-                  {field.kind === 'long' ? (
-                    <textarea
-                      value={questionnaire[field.key] ?? ''}
-                      placeholder={field.placeholder}
-                      onChange={(event) => onUpdate(field.key, event.target.value)}
-                    />
-                  ) : (
-                    <input
-                      value={questionnaire[field.key] ?? ''}
-                      placeholder={field.placeholder}
-                      onChange={(event) => onUpdate(field.key, event.target.value)}
-                    />
-                  )}
+                  <textarea
+                    value={questionnaire[field.key] ?? ''}
+                    placeholder={field.placeholder}
+                    onChange={(event) => onUpdate(field.key, event.target.value)}
+                  />
                 </label>
               )
             })}
@@ -959,38 +955,63 @@ function questionnaireStorageKey(userId: string) {
   return `northstar.questionnaire.${userId}`
 }
 
+function parseQuestionnaireSampleMarkdown(markdown: string, fallback: QuestionnaireAnswers): QuestionnaireAnswers {
+  const sampleKeys = Object.keys(fallback)
+  const parsed: QuestionnaireAnswers = {}
+  let activeKey = ''
+
+  for (const rawLine of markdown.split(/\r?\n/)) {
+    const questionMatch = rawLine.match(/^\s*(\d+)\.\s+/)
+    if (questionMatch) {
+      activeKey = sampleKeys[Number(questionMatch[1]) - 1] ?? ''
+      continue
+    }
+
+    const answerMatch = rawLine.match(/^\s*-\s+(.*)$/)
+    if (answerMatch && activeKey) {
+      parsed[activeKey] = answerMatch[1].trim()
+      continue
+    }
+
+    if (activeKey && parsed[activeKey] && /^\s{5,}\S/.test(rawLine)) {
+      parsed[activeKey] = `${parsed[activeKey]} ${rawLine.trim()}`
+    }
+  }
+
+  return {
+    ...fallback,
+    ...parsed,
+  }
+}
+
 function buildDefaultQuestionnaire(userId: string, userName: string): QuestionnaireAnswers {
+  const sampleQuestionnaire = buildSampleQuestionnaire()
   const stored = localStorage.getItem(questionnaireStorageKey(userId))
   if (stored) {
     try {
-      const parsed = {
-        ...blankQuestionnaire(userName),
-        ...(JSON.parse(stored) as QuestionnaireAnswers),
+      const storedAnswers = JSON.parse(stored) as QuestionnaireAnswers
+      return {
+        ...sampleQuestionnaire,
+        ...nonEmptyQuestionnaireAnswers(storedAnswers),
+        full_name: storedAnswers.full_name?.trim() || sampleQuestionnaire.full_name || userName,
       }
-      return userId === fallbackUserId ? parsed : removeSampleAnswers(parsed, userName)
     } catch {
       localStorage.removeItem(questionnaireStorageKey(userId))
     }
   }
 
-  if (userId === fallbackUserId) {
-    return Object.fromEntries(
-      questionnaireFields.map((field) => [field.key, questionnaireSampleAnswers[field.key] ?? field.defaultValue]),
-    )
-  }
-
-  return blankQuestionnaire(userName)
+  return sampleQuestionnaire
 }
 
-function removeSampleAnswers(answers: QuestionnaireAnswers, userName: string): QuestionnaireAnswers {
+function buildSampleQuestionnaire(): QuestionnaireAnswers {
   return Object.fromEntries(
-    questionnaireFields.map((field) => {
-      const value = answers[field.key] ?? ''
-      if (value === questionnaireSampleAnswers[field.key]) {
-        return [field.key, field.key === 'full_name' ? userName : field.defaultValue]
-      }
-      return [field.key, value]
-    }),
+    questionnaireFields.map((field) => [field.key, questionnaireSampleAnswers[field.key] ?? field.defaultValue]),
+  )
+}
+
+function nonEmptyQuestionnaireAnswers(answers: QuestionnaireAnswers): QuestionnaireAnswers {
+  return Object.fromEntries(
+    Object.entries(answers).filter(([, value]) => value.trim().length > 0),
   )
 }
 
@@ -1058,12 +1079,6 @@ function sentenceCase(value: string) {
   const text = value.trim()
   if (!text) return ''
   return text.charAt(0).toUpperCase() + text.slice(1)
-}
-
-function blankQuestionnaire(userName: string): QuestionnaireAnswers {
-  return Object.fromEntries(
-    questionnaireFields.map((field) => [field.key, field.key === 'full_name' ? userName : field.defaultValue]),
-  )
 }
 
 function formatPersonName(value: string) {

@@ -2,6 +2,7 @@ import type { AgentTraceEvent } from '@calmvest/shared'
 import { ArrowRight, CheckCircle, PaperPlaneTilt, ShieldCheck, WarningCircle } from '@phosphor-icons/react'
 import { useMemo, useState } from 'react'
 import { agentCards } from '../../data/workspaceContent'
+import { MarkdownRenderer } from '../common/MarkdownRenderer'
 import { LiveDot } from '../common/LiveDot'
 import { AgentActivityCard, CompactAgentRow } from './AgentCards'
 import { TraceList } from './TraceList'
@@ -37,7 +38,7 @@ export function AgentRail({
           <LiveDot />
         </div>
         {agentCards.map((card) => (
-          <CompactAgentRow card={card} key={card.agent} />
+          <CompactAgentRow card={card} key={card.title} />
         ))}
       </aside>
     )
@@ -93,8 +94,8 @@ export function AgentRail({
     ) : null
 
   const cardsBlock = panel
-    ? agentCards.map((card) => <CompactAgentRow card={card} key={card.agent} />)
-    : agentCards.map((card) => <AgentActivityCard card={card} key={card.agent} />)
+    ? agentCards.map((card) => <CompactAgentRow card={card} key={card.title} />)
+    : agentCards.map((card) => <AgentActivityCard card={card} key={card.title} />)
 
   return (
     <aside className={`agent-rail${panel ? ' agent-rail--panel' : ''}`}>

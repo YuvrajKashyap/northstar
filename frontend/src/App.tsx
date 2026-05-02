@@ -32,6 +32,7 @@ const screenRoutes = {
   scenarios: '/scenarios',
   insights: '/insights',
   dashboard: '/dashboard',
+  north: '/north',
 } as const
 
 const pathScreens = Object.fromEntries(
