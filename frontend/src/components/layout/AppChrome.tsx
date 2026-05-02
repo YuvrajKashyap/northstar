@@ -19,7 +19,7 @@ export function AppChrome({
     <div className="os-shell">
       <aside className="sidebar">
         <Logo />
-        <nav>
+        <nav className="sidebar-nav">
           {navItems.map((item) => {
             const Icon = item.icon
             const isActive =

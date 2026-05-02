@@ -5,26 +5,52 @@ import { AgentIcon } from '../common/AgentIcon'
 export function AgentActivityCard({ card }: { card: (typeof agentCards)[number] }) {
   return (
     <article className="agent-card">
-      <AgentIcon tone={card.tone} />
-      <div>
-        <div><strong>{card.agent}</strong><span>{card.time}</span></div>
-        <h4>{card.title}</h4>
-        <p>{card.detail}</p>
-        <footer><span>{card.tag}</span><button type="button">View details <ArrowRight size={14} /></button></footer>
-      </div>
+      <header>
+        <AgentIcon tone={card.tone} />
+        <div>
+          <strong>{card.agent}</strong>
+          <span>{card.time}</span>
+        </div>
+        <span className={`agent-card-tag ${card.tone}`}>{card.tag}</span>
+      </header>
+      <h4>{card.title}</h4>
+      <p>{card.detail}</p>
+      <footer>
+        <button type="button" className="subtle-button">View details <ArrowRight size={13} /></button>
+      </footer>
     </article>
+  )
+}
+
+/** Compact single-row variant used in hero product frame */
+export function CompactAgentRow({ card }: { card: (typeof agentCards)[number] }) {
+  return (
+    <div className="compact-agent-row">
+      <AgentIcon tone={card.tone} compact />
+      <div className="compact-agent-body">
+        <strong>{card.title}</strong>
+        <span>{card.time} · {card.agent}</span>
+      </div>
+      <span className={`agent-pill ${card.tone}`}>{card.tag}</span>
+    </div>
   )
 }
 
 export function AgentUsageCard({ card }: { card: (typeof agentCards)[number] }) {
   return (
     <article className="usage-card">
-      <AgentIcon tone={card.tone} />
-      <div>
-        <strong>{card.agent}</strong>
-        <span>{card.time}</span>
-        <p>{card.detail}</p>
-        <div className="tag-row"><span>Goals</span><span>Risk Comfort</span><span>+5</span></div>
+      <header>
+        <AgentIcon tone={card.tone} />
+        <div>
+          <strong>{card.agent}</strong>
+          <span>{card.time}</span>
+        </div>
+      </header>
+      <p>{card.detail}</p>
+      <div className="tag-row">
+        <span>Goals</span>
+        <span>Risk Comfort</span>
+        <span>+3</span>
       </div>
     </article>
   )

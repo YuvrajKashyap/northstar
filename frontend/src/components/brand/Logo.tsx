@@ -1,8 +1,8 @@
 export function Logo() {
   return (
     <button className="brand" type="button">
-      <strong>CalmVest</strong>
-      <span>Agent OS</span>
+      <span className="brand-mark">CalmVest</span>
+      <span className="brand-sub">Agent OS</span>
     </button>
   )
 }
