@@ -212,7 +212,10 @@ export function WealthWorkspacePage() {
   }, [activeUserId])
 
   useEffect(() => {
-    void refreshGraph()
+    const timer = window.setTimeout(() => {
+      void refreshGraph()
+    }, 0)
+    return () => window.clearTimeout(timer)
   }, [refreshGraph])
 
   useEffect(() => {

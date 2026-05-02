@@ -12,6 +12,7 @@ export type GoalCardModel = {
   confidence: string
   tone: 'green' | 'gold' | 'violet' | 'blue'
   rawTargetAmount: number
+  status: 'active' | 'completed' | 'on-track' | 'at-risk'
 }
 
 export function GoalCard({ goal }: { goal: GoalCardModel }) {

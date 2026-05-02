@@ -16,6 +16,7 @@ export function ProfilePage(props: ScreenProps) {
       runAgent={props.runAgent}
       runScenario={props.runScenario}
       busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
     >
       <section className="profile-screen screen-enter">
         <AppPageHeader title="Import & Connect Accounts" subtitle="Connect your financial accounts to build your personalized financial context." />

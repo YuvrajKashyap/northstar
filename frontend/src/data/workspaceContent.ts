@@ -5,7 +5,6 @@ import {
   Graph,
   Pulse,
   Target,
-  Wallet,
 } from '@phosphor-icons/react'
 import type { OnboardingAnswers } from '@calmvest/shared'
 import type { Screen } from '../types/screens'
@@ -31,7 +30,6 @@ export const navItems: Array<{ screen: Screen; label: string; icon: typeof Circl
   { screen: 'plans', label: 'Plans', icon: CalendarCheck },
   { screen: 'scenarios', label: 'Scenarios', icon: Briefcase },
   { screen: 'insights', label: 'Insights', icon: Pulse },
-  { screen: 'vault', label: 'Vault', icon: Wallet },
 ]
 
 export const agentCards = [

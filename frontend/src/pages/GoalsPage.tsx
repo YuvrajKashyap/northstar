@@ -8,6 +8,7 @@ import {
   Target,
   TreeEvergreen,
 } from '@phosphor-icons/react'
+import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { ScreenProps } from '../types/screens'
 import { AgentUsageCard, type AgentCardModel } from '../components/dashboard/AgentCards'
@@ -15,9 +16,16 @@ import { AppChrome } from '../components/layout/AppChrome'
 import { AppPageHeader } from '../components/layout/AppPageHeader'
 import { GoalCard, type GoalCardModel } from '../components/goals/GoalCard'
 
+type GoalFilter = 'all' | 'active' | 'completed' | 'on-track' | 'at-risk'
+
 export function GoalsPage(props: ScreenProps) {
+  const [filter, setFilter] = useState<GoalFilter>('all')
+  const [goalAgentOpen, setGoalAgentOpen] = useState(false)
+  const [goalPrompt, setGoalPrompt] = useState('')
+  const [goalError, setGoalError] = useState('')
   const context = props.graph?.contextPacket
   const goals = buildUserGoals(props)
+  const filteredGoals = filterGoals(goals, filter)
   const goalInsights = buildGoalInsights(goals)
   const visibleCapital = getVisibleCapital(props)
   const totalTarget = goals.reduce((sum, goal) => sum + goal.rawTargetAmount, 0)
@@ -28,6 +36,21 @@ export function GoalsPage(props: ScreenProps) {
   const priorityCounts = countPriorities(context?.goals ?? [])
   const featuredGoal = goals[0]
   const onTrackPercent = goals.length > 0 ? Math.round((onTrackCount / goals.length) * 100) : 0
+  const goalAgentBusy = props.busyStep === 'goal'
+
+  async function submitGoalFromAgent() {
+    const description = goalPrompt.trim()
+    if (!description || goalAgentBusy) return
+    setGoalError('')
+    try {
+      await props.submitGoal(description)
+      setGoalPrompt('')
+      setGoalAgentOpen(false)
+      setFilter('all')
+    } catch (caught) {
+      setGoalError(caught instanceof Error ? caught.message : 'Could not save this goal.')
+    }
+  }
 
   return (
     <AppChrome
@@ -39,6 +62,7 @@ export function GoalsPage(props: ScreenProps) {
       runAgent={props.runAgent}
       runScenario={props.runScenario}
       busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
     >
       <section className="goals-screen screen-enter">
         <AppPageHeader title="Goals" subtitle="Your life goals, supported by North's specialist tools and real progress." />
@@ -71,16 +95,50 @@ export function GoalsPage(props: ScreenProps) {
           <article className="goals-main">
             <div className="filter-row">
               {[
-                `All Goals ${goals.length}`,
-                `Active ${activeCount}`,
-                `Completed ${completedCount}`,
-                `On Track ${onTrackCount}`,
-                `At Risk ${atRiskCount}`,
-              ].map((item, index) => (
-                <button className={index === 0 ? 'active' : ''} type="button" key={item}>{item}</button>
+                { id: 'all', label: `All Goals ${goals.length}` },
+                { id: 'active', label: `Active ${activeCount}` },
+                { id: 'completed', label: `Completed ${completedCount}` },
+                { id: 'on-track', label: `On Track ${onTrackCount}` },
+                { id: 'at-risk', label: `At Risk ${atRiskCount}` },
+              ].map((item) => (
+                <button
+                  className={filter === item.id ? 'active' : ''}
+                  type="button"
+                  key={item.id}
+                  onClick={() => setFilter(item.id as GoalFilter)}
+                >
+                  {item.label}
+                </button>
               ))}
-              <button className="primary-action" type="button"><Plus size={18} /> Add Goal</button>
+              <button className="primary-action" type="button" onClick={() => setGoalAgentOpen(true)}>
+                <Plus size={18} /> Add Goal
+              </button>
             </div>
+            {goalAgentOpen ? (
+              <article className="goal-agent-card">
+                <div className="goal-agent-card__head">
+                  <span className="goals-eyebrow"><Sparkle size={14} weight="fill" /> Goal agent</span>
+                  <button type="button" onClick={() => setGoalAgentOpen(false)}>Close</button>
+                </div>
+                <h3>Describe the goal in plain English.</h3>
+                <p>Northstar will add it to this signed-in user&apos;s goals and update their memory profile.</p>
+                <textarea
+                  value={goalPrompt}
+                  onChange={(event) => setGoalPrompt(event.target.value)}
+                  placeholder="Example: I want to save $45,000 for an emergency fund by December 2027. This is high priority because I want six months of expenses protected before investing more."
+                  disabled={goalAgentBusy}
+                />
+                {goalError ? <div className="goal-agent-card__error">{goalError}</div> : null}
+                <div className="goal-agent-card__actions">
+                  <button className="ghost-action" type="button" onClick={() => setGoalPrompt('')} disabled={goalAgentBusy || !goalPrompt}>
+                    Clear
+                  </button>
+                  <button className="primary-action" type="button" onClick={submitGoalFromAgent} disabled={goalAgentBusy || !goalPrompt.trim()}>
+                    {goalAgentBusy ? 'Updating memory...' : 'Update Memory'} <ArrowRight size={16} />
+                  </button>
+                </div>
+              </article>
+            ) : null}
             <div className="priority-row">
               <span><Target size={15} /> Goal Priority</span>
               <strong>High <em>{priorityCounts.high}</em></strong>
@@ -88,13 +146,13 @@ export function GoalsPage(props: ScreenProps) {
               <strong>Low <em>{priorityCounts.low}</em></strong>
             </div>
             <div className="goal-list">
-              {goals.length > 0 ? (
-                goals.map((goal) => <GoalCard goal={goal} key={`${goal.title}-${goal.date}`} />)
+              {filteredGoals.length > 0 ? (
+                filteredGoals.map((goal) => <GoalCard goal={goal} key={`${goal.title}-${goal.date}`} />)
               ) : (
                 <article className="goals-empty-state">
                   <Target size={24} />
-                  <strong>No goals saved yet</strong>
-                  <p>Finish the memory questionnaire to save goals to this user&apos;s profile. They will appear here automatically.</p>
+                  <strong>{goals.length > 0 ? 'No goals match this filter' : 'No goals saved yet'}</strong>
+                  <p>{goals.length > 0 ? 'Choose another filter or add a new goal through the goal agent.' : 'Finish onboarding or add a goal here to save it to this user&apos;s memory profile.'}</p>
                 </article>
               )}
             </div>
@@ -177,8 +235,15 @@ function buildUserGoals(props: ScreenProps): GoalCardModel[] {
       confidence,
       tone,
       rawTargetAmount: targetAmount,
+      status: progress >= 100 ? 'completed' : tone === 'violet' ? 'at-risk' : tone === 'green' ? 'on-track' : 'active',
     }
   })
+}
+
+function filterGoals(goals: GoalCardModel[], filter: GoalFilter) {
+  if (filter === 'all') return goals
+  if (filter === 'active') return goals.filter((goal) => goal.status !== 'completed')
+  return goals.filter((goal) => goal.status === filter)
 }
 
 function getVisibleCapital(props: ScreenProps) {

@@ -33,6 +33,7 @@ export function MemoryPage(props: ScreenProps) {
       runAgent={props.runAgent}
       runScenario={props.runScenario}
       busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
     >
       <section className="memory-screen screen-enter">
         <AppPageHeader title="Memory" subtitle={`Detailed view and editor for ${displayName}'s memory.`} />

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import gsap from 'gsap'
-import type { AgentTraceEvent, MemoryGraph, OnboardingAnswers, PlaidLinkResult } from '@calmvest/shared'
+import type { AgentTraceEvent, GoalMemoryUpdateResponse, MemoryGraph, OnboardingAnswers, PlaidLinkResult } from '@calmvest/shared'
 import { defaultAnswers, userId } from '../data/workspaceContent'
 import { apiJson, postJson, streamAgentRun, streamScenarioTrace } from '../lib/api'
 import type { HealthResponse, Screen } from '../types/screens'
@@ -26,7 +26,6 @@ const initialPathScreens: Record<string, Screen> = {
   '/plans': 'plans',
   '/scenarios': 'scenarios',
   '/insights': 'insights',
-  '/vault': 'vault',
   '/dashboard': 'dashboard',
 }
 
@@ -270,6 +269,25 @@ export function useCalmVestWorkspace() {
     }
   }
 
+  async function submitGoal(description: string) {
+    setError(null)
+    setBusyStep('goal')
+    try {
+      const result = await postJson<GoalMemoryUpdateResponse>('/api/memory/goals', {
+        userId: currentUserId,
+        description,
+      })
+      const resolvedGraph = graphOrFallback(result.graph, currentUserId)
+      setGraph(resolvedGraph)
+      setSelectedNodeId('goals')
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Could not save goal.')
+      throw caught
+    } finally {
+      setBusyStep(null)
+    }
+  }
+
   function handleAgentEvent(event: AgentTraceEvent) {
     if (event.type === 'message_delta' && typeof event.payload.delta === 'string') {
       setAgentAnswer((previous) => `${previous}${event.payload.delta}`)
@@ -300,6 +318,7 @@ export function useCalmVestWorkspace() {
       simulatePlaidLink,
       runAgent,
       runScenario,
+      submitGoal,
       setScreen,
     },
   }

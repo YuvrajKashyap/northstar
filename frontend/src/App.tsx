@@ -31,7 +31,6 @@ const screenRoutes = {
   plans: '/plans',
   scenarios: '/scenarios',
   insights: '/insights',
-  vault: '/vault',
   dashboard: '/dashboard',
 } as const
 
@@ -84,7 +83,7 @@ function App() {
   }, [path, screen, setScreen])
 
   useEffect(() => {
-    if (!['/dashboard', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights', '/vault'].includes(path)) return
+    if (!['/dashboard', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights'].includes(path)) return
     const activeUserId = localStorage.getItem(activeUserKey)
     if (!activeUserId || activeUserId === demoUserId) return
 
@@ -139,7 +138,6 @@ function App() {
       {screen === 'plans' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="plans" /> : null}
       {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'insights' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="insights" /> : null}
-      {screen === 'vault' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="vault" /> : null}
       {screen === 'dashboard' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )

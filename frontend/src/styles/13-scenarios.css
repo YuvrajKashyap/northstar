@@ -1,148 +1,204 @@
 .scenario-screen {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.85rem;
-  min-height: 0;
-  overflow: auto;
-  padding-bottom: 1rem;
+  color: #182720;
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 2rem;
 }
 
 .scenario-hero {
   align-items: end;
+  backdrop-filter: blur(18px) saturate(1.08);
+  background:
+    linear-gradient(135deg, rgba(255, 252, 245, 0.86), rgba(238, 233, 222, 0.62)),
+    radial-gradient(circle at 92% 8%, rgba(90, 116, 102, 0.12), transparent 17rem);
+  border: 1px solid rgba(38, 59, 48, 0.12);
+  border-radius: 22px;
+  box-shadow:
+    0 22px 52px rgba(43, 36, 28, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.84);
   display: grid;
-  gap: 1.2rem;
+  gap: 1rem;
   grid-template-columns: minmax(0, 1fr) auto;
+  overflow: hidden;
+  padding: 1.2rem;
+  position: relative;
+}
+
+.scenario-hero::before {
+  background: linear-gradient(90deg, rgba(38, 59, 48, 0.24), transparent);
+  content: "";
+  height: 1px;
+  left: 1.2rem;
+  position: absolute;
+  right: 1.2rem;
+  top: 0;
 }
 
 .scenario-kicker {
   align-items: center;
-  color: rgba(38, 59, 48, 0.68);
+  color: rgba(38, 59, 48, 0.58);
   display: inline-flex;
-  font-size: 0.72rem;
-  font-weight: 780;
-  gap: 0.42rem;
-  letter-spacing: 0.07em;
+  font-size: 0.68rem;
+  font-weight: 820;
+  gap: 0.35rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
+.scenario-kicker svg {
+  color: #263b30;
+}
+
 .scenario-hero h1 {
-  color: #20342b;
+  color: #17251e;
   font-family: var(--serif);
-  font-size: clamp(2.35rem, 4vw, 4.7rem);
+  font-size: clamp(2rem, 3vw, 3.05rem);
   font-weight: 520;
-  letter-spacing: -0.058em;
-  line-height: 0.94;
-  margin-top: 0.32rem;
-  max-width: 52rem;
+  letter-spacing: 0;
+  line-height: 0.96;
+  margin: 0.58rem 0 0;
+  max-width: none;
+  white-space: nowrap;
 }
 
 .scenario-hero p {
-  color: rgba(32, 52, 43, 0.72);
-  font-size: 1rem;
+  color: rgba(43, 58, 53, 0.72);
+  font-size: 0.96rem;
   line-height: 1.55;
-  margin-top: 0.62rem;
-  max-width: 50rem;
+  margin: 0.72rem 0 0;
+  max-width: none;
+}
+
+.scenario-hero p span {
+  display: block;
+}
+
+.scenario-hero__nowrap {
+  white-space: nowrap;
 }
 
 .scenario-hero__status {
   align-items: center;
-  background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.94), rgba(246, 241, 232, 0.9));
-  border: 1px solid rgba(38, 59, 48, 0.14);
+  background: rgba(255, 252, 245, 0.68);
+  border: 1px solid rgba(38, 59, 48, 0.1);
   border-radius: 16px;
-  box-shadow:
-    0 18px 42px rgba(43, 36, 28, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  color: #263b30;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
   display: grid;
-  gap: 0.08rem 0.7rem;
-  grid-template-columns: 2rem auto;
+  gap: 0.22rem 0.62rem;
+  grid-template-columns: 1.45rem auto;
   min-width: 12rem;
-  padding: 0.78rem 0.9rem;
+  padding: 0.8rem;
 }
 
 .scenario-hero__status svg {
+  color: #263b30;
   grid-row: span 2;
 }
 
 .scenario-hero__status span {
-  color: rgba(43, 58, 53, 0.56);
-  font-size: 0.72rem;
-  font-weight: 720;
+  color: rgba(38, 59, 48, 0.52);
+  font-size: 0.66rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .scenario-hero__status strong {
-  font-size: 0.92rem;
+  color: #1f3329;
+  font-size: 0.9rem;
+  font-weight: 760;
 }
 
 .scenario-workbench {
+  align-items: start;
   display: grid;
   gap: 1rem;
-  grid-template-columns: 19rem minmax(0, 1fr);
+  grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
 }
 
 .scenario-bank,
 .scenario-slot,
 .scenario-result,
 .scenario-agent-review {
-  background:
-    linear-gradient(145deg, rgba(255, 253, 248, 0.96), rgba(246, 241, 232, 0.91));
-  border: 1px solid rgba(38, 59, 48, 0.14);
-  border-radius: 18px;
+  backdrop-filter: blur(18px) saturate(1.08);
+  background: rgba(255, 252, 245, 0.68);
+  border: 1px solid rgba(38, 59, 48, 0.12);
   box-shadow:
-    0 20px 44px rgba(43, 36, 28, 0.1),
+    0 18px 42px rgba(43, 36, 28, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.82);
 }
 
 .scenario-bank {
-  align-content: start;
+  border-radius: 20px;
   display: grid;
-  gap: 0.72rem;
-  padding: 0.82rem;
+  gap: 0.9rem;
+  padding: 0.9rem;
 }
 
 .scenario-bank__head {
   display: grid;
-  gap: 0.24rem;
+  gap: 0.36rem;
 }
 
 .scenario-bank__head strong {
-  color: #20342b;
-  font-size: 1.08rem;
+  color: #17251e;
+  font-family: var(--serif);
+  font-size: 1.32rem;
+  font-weight: 540;
+  letter-spacing: -0.035em;
+}
+
+.scenario-bank__head p {
+  color: rgba(43, 58, 53, 0.65);
+  font-size: 0.82rem;
+  line-height: 1.42;
+  margin: 0;
 }
 
 .scenario-preset-list {
   display: grid;
-  gap: 0.44rem;
-  max-height: 27.4rem;
-  overflow: auto;
+  gap: 0.42rem;
 }
 
 .scenario-preset-list button {
   align-items: center;
-  background: rgba(255, 252, 245, 0.74);
-  border: 1px solid rgba(38, 59, 48, 0.1);
-  border-radius: 12px;
-  color: #263b30;
+  background: rgba(255, 252, 245, 0.54);
+  border: 1px solid transparent;
+  border-radius: 14px;
+  color: #1c2d25;
+  cursor: pointer;
   display: grid;
   gap: 0.62rem;
-  grid-template-columns: 1.4rem 1fr 1rem;
-  justify-content: stretch;
-  min-height: 3.65rem;
-  padding: 0.62rem;
+  grid-template-columns: 1.35rem minmax(0, 1fr) 1rem;
+  min-height: 3.8rem;
+  padding: 0.65rem;
   text-align: left;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    transform 180ms ease;
 }
 
-.scenario-preset-list button:hover {
-  background: rgba(38, 59, 48, 0.06);
-  border-color: rgba(38, 59, 48, 0.18);
+.scenario-preset-list button:hover,
+.scenario-preset-list button:focus-visible {
+  background: rgba(255, 252, 245, 0.9);
+  border-color: rgba(38, 59, 48, 0.14);
+  outline: 0;
+  transform: translateY(-1px);
+}
+
+.scenario-preset-list button > svg:first-child {
+  color: rgba(38, 59, 48, 0.72);
 }
 
 .scenario-preset-list strong,
 .scenario-preset-list small {
   display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .scenario-preset-list strong {
@@ -151,61 +207,88 @@
 }
 
 .scenario-preset-list small {
-  color: rgba(43, 58, 53, 0.58);
-  font-size: 0.72rem;
-  margin-top: 0.12rem;
+  color: rgba(38, 59, 48, 0.54);
+  font-size: 0.7rem;
+  margin-top: 0.16rem;
 }
 
 .scenario-slots,
 .scenario-comparison {
   display: grid;
-  gap: 1rem;
+  gap: 0.8rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .scenario-slot {
+  border-radius: 20px;
   display: grid;
-  gap: 0.58rem;
-  padding: 0.82rem;
+  gap: 0.78rem;
+  padding: 0.9rem;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 }
 
 .scenario-slot.is-selected {
-  border-color: rgba(38, 59, 48, 0.32);
+  border-color: rgba(38, 59, 48, 0.3);
   box-shadow:
-    0 22px 48px rgba(43, 36, 28, 0.13),
-    0 0 0 3px rgba(38, 59, 48, 0.07),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    0 24px 52px rgba(43, 36, 28, 0.12),
+    0 0 0 4px rgba(38, 59, 48, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+}
+
+.scenario-slot__top {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
 }
 
 .scenario-slot__select {
-  align-self: start;
   background: #263b30;
-  border: 1px solid rgba(38, 59, 48, 0.22);
+  border: 1px solid rgba(38, 59, 48, 0.18);
   border-radius: 999px;
   color: #fffaf0;
-  font-size: 0.78rem;
-  font-weight: 740;
-  min-height: 1.9rem;
-  padding: 0 0.72rem;
-  width: max-content;
+  font-size: 0.76rem;
+  font-weight: 780;
+  min-height: 2rem;
+  padding: 0 0.7rem;
+}
+
+.scenario-kind-pill {
+  border: 1px solid rgba(38, 59, 48, 0.1);
+  border-radius: 999px;
+  color: rgba(38, 59, 48, 0.66);
+  font-size: 0.66rem;
+  font-weight: 820;
+  letter-spacing: 0.07em;
+  padding: 0.36rem 0.52rem;
+  text-transform: uppercase;
+}
+
+.scenario-kind-pill--choice {
+  background: rgba(38, 59, 48, 0.08);
+}
+
+.scenario-kind-pill--event {
+  background: rgba(157, 143, 98, 0.14);
 }
 
 .scenario-field-grid {
   display: grid;
-  gap: 0.55rem;
-  grid-template-columns: 1fr 1fr;
+  gap: 0.52rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .scenario-slot label {
+  color: rgba(38, 59, 48, 0.58);
   display: grid;
+  font-size: 0.68rem;
+  font-weight: 820;
   gap: 0.32rem;
-}
-
-.scenario-slot label span {
-  color: rgba(43, 58, 53, 0.58);
-  font-size: 0.7rem;
-  font-weight: 760;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -213,26 +296,37 @@
 .scenario-slot select,
 .scenario-slot textarea {
   background: rgba(255, 252, 245, 0.78);
-  border: 1px solid rgba(38, 59, 48, 0.13);
+  border: 1px solid rgba(38, 59, 48, 0.12);
   border-radius: 12px;
-  color: #23372f;
+  color: #182720;
   font: inherit;
-  min-width: 0;
+  font-size: 0.84rem;
+  font-weight: 620;
+  letter-spacing: 0;
+  min-height: 2.45rem;
   outline: 0;
+  padding: 0 0.68rem;
+  text-transform: none;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background 180ms ease;
   width: 100%;
-}
-
-.scenario-slot input,
-.scenario-slot select {
-  min-height: 2.55rem;
-  padding: 0 0.7rem;
 }
 
 .scenario-slot textarea {
   line-height: 1.45;
-  min-height: 5.4rem;
+  min-height: 8rem;
   padding: 0.68rem;
   resize: vertical;
+}
+
+.scenario-slot input:focus,
+.scenario-slot select:focus,
+.scenario-slot textarea:focus {
+  background: rgba(255, 252, 245, 0.96);
+  border-color: rgba(38, 59, 48, 0.3);
+  box-shadow: 0 0 0 3px rgba(38, 59, 48, 0.08);
 }
 
 .scenario-comparison {
@@ -240,138 +334,155 @@
 }
 
 .scenario-result {
+  border-radius: 20px;
   display: grid;
-  gap: 0.9rem;
+  gap: 0.82rem;
   overflow: hidden;
-  padding: 0.95rem;
+  padding: 0.9rem;
   position: relative;
 }
 
 .scenario-result::before {
-  background: #6f8780;
+  background: var(--scenario-accent, #5a7466);
   content: "";
-  height: 0.22rem;
-  inset: 0 0 auto;
+  height: 3px;
+  left: 0;
   position: absolute;
+  right: 0;
+  top: 0;
 }
 
-.scenario-result--green::before { background: #5f7d60; }
-.scenario-result--blue::before { background: #6f8780; }
-.scenario-result--gold::before { background: #a8935d; }
-.scenario-result--red::before { background: #a35d4f; }
+.scenario-result--green {
+  --scenario-accent: #3f6d55;
+}
+
+.scenario-result--blue {
+  --scenario-accent: #536f77;
+}
+
+.scenario-result--gold {
+  --scenario-accent: #9d8f62;
+}
+
+.scenario-result--red {
+  --scenario-accent: #a45d4f;
+}
 
 .scenario-result header {
-  display: grid;
-  gap: 0.18rem;
+  align-items: start;
+  display: flex;
+  gap: 0.8rem;
+  justify-content: space-between;
 }
 
-.scenario-result header span {
-  color: rgba(43, 58, 53, 0.58);
-  font-size: 0.72rem;
-  font-weight: 780;
-  letter-spacing: 0.06em;
+.scenario-result header span,
+.scenario-result header em {
+  color: rgba(38, 59, 48, 0.52);
+  display: block;
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 820;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .scenario-result header strong {
-  color: #20342b;
-  font-size: 1.1rem;
-  line-height: 1.1;
+  color: #17251e;
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.12;
+  margin-top: 0.22rem;
+}
+
+.scenario-result header em {
+  background: rgba(38, 59, 48, 0.07);
+  border-radius: 999px;
+  flex-shrink: 0;
+  padding: 0.32rem 0.48rem;
 }
 
 .scenario-score {
   align-items: end;
-  background: rgba(255, 252, 245, 0.68);
-  border: 1px solid rgba(38, 59, 48, 0.1);
-  border-radius: 14px;
   display: flex;
   gap: 0.55rem;
-  padding: 0.78rem;
 }
 
 .scenario-score span {
-  color: #20342b;
+  color: #17251e;
   font-family: var(--serif);
-  font-size: 2.8rem;
-  font-weight: 560;
+  font-size: 3rem;
+  font-weight: 540;
   letter-spacing: -0.05em;
-  line-height: 0.82;
+  line-height: 0.9;
 }
 
 .scenario-score small {
-  color: rgba(43, 58, 53, 0.58);
-  font-size: 0.76rem;
-  font-weight: 700;
-  padding-bottom: 0.12rem;
+  color: rgba(38, 59, 48, 0.58);
+  font-size: 0.72rem;
+  font-weight: 740;
+  margin-bottom: 0.22rem;
 }
 
 .scenario-bars {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.52rem;
 }
 
 .scenario-bar {
   display: grid;
-  gap: 0.32rem;
+  gap: 0.28rem;
 }
 
 .scenario-bar div {
   align-items: center;
-  color: rgba(43, 58, 53, 0.68);
   display: flex;
-  font-size: 0.76rem;
   justify-content: space-between;
 }
 
+.scenario-bar span,
 .scenario-bar strong {
-  color: #20342b;
-}
-
-.scenario-bar::after {
-  background: rgba(232, 229, 219, 0.78);
-  border-radius: 999px;
-  content: "";
-  grid-column: 1;
-  grid-row: 2;
-  height: 0.44rem;
+  color: rgba(38, 59, 48, 0.64);
+  font-size: 0.72rem;
+  font-weight: 760;
 }
 
 .scenario-bar i {
-  background: #6f8780;
+  background: linear-gradient(90deg, #263b30, #6f8780 65%, #c9bd86);
   border-radius: 999px;
-  grid-column: 1;
-  grid-row: 2;
-  height: 0.44rem;
-  position: relative;
-  z-index: 1;
+  display: block;
+  height: 0.52rem;
+  max-width: 100%;
 }
 
 .scenario-bar i.inverse {
-  background: #a8935d;
+  background: linear-gradient(90deg, #9d8f62, #a45d4f);
 }
 
 .scenario-result-copy {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.52rem;
 }
 
 .scenario-result-copy p {
-  color: rgba(43, 58, 53, 0.72);
-  font-size: 0.84rem;
-  line-height: 1.45;
+  color: rgba(43, 58, 53, 0.7);
+  font-size: 0.8rem;
+  line-height: 1.43;
+  margin: 0;
 }
 
 .scenario-result-copy strong {
-  color: #20342b;
+  color: #1d3027;
   display: block;
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.18rem;
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.07em;
+  margin-bottom: 0.16rem;
   text-transform: uppercase;
 }
 
 .scenario-agent-review {
   align-items: start;
+  border-radius: 22px;
   display: grid;
   gap: 1rem;
   grid-template-columns: 3rem minmax(0, 1fr);
@@ -381,7 +492,7 @@
 .scenario-agent-review__mark {
   align-items: center;
   background: #263b30;
-  border-radius: 14px;
+  border-radius: 16px;
   color: #fffaf0;
   display: flex;
   height: 3rem;
@@ -390,71 +501,97 @@
 }
 
 .scenario-agent-review h2 {
-  color: #20342b;
+  color: #17251e;
   font-family: var(--serif);
-  font-size: clamp(1.8rem, 3vw, 3rem);
+  font-size: clamp(1.5rem, 2.2vw, 2.25rem);
   font-weight: 520;
-  letter-spacing: -0.05em;
-  line-height: 1;
-  margin-top: 0.3rem;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  margin: 0.48rem 0 0;
 }
 
 .scenario-agent-review p {
   color: rgba(43, 58, 53, 0.72);
+  font-size: 0.94rem;
   line-height: 1.55;
-  margin-top: 0.65rem;
-  max-width: 68rem;
+  margin: 0.62rem 0 0;
+  max-width: 78ch;
 }
 
 .scenario-agent-review__grid {
   display: grid;
   gap: 0.7rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 0.85rem;
+  margin-top: 0.9rem;
 }
 
 .scenario-agent-review__grid div {
-  background: rgba(255, 252, 245, 0.68);
+  background: rgba(255, 252, 245, 0.54);
   border: 1px solid rgba(38, 59, 48, 0.1);
-  border-radius: 14px;
+  border-radius: 16px;
   display: grid;
   gap: 0.34rem;
-  padding: 0.78rem;
+  padding: 0.75rem;
 }
 
 .scenario-agent-review__grid div.is-best {
-  background: rgba(95, 125, 96, 0.12);
-  border-color: rgba(38, 59, 48, 0.24);
+  background: rgba(38, 59, 48, 0.08);
+  border-color: rgba(38, 59, 48, 0.2);
 }
 
 .scenario-agent-review__grid svg {
-  color: #5f7d60;
+  color: #263b30;
 }
 
 .scenario-agent-review__grid strong {
-  color: #20342b;
-  font-size: 0.9rem;
+  color: #1a2b23;
+  font-size: 0.86rem;
 }
 
 .scenario-agent-review__grid span {
-  color: rgba(43, 58, 53, 0.66);
-  font-size: 0.8rem;
-  line-height: 1.4;
+  color: rgba(38, 59, 48, 0.64);
+  font-size: 0.76rem;
+  line-height: 1.38;
 }
 
 @media (max-width: 1180px) {
   .scenario-workbench,
-  .scenario-hero {
+  .scenario-slots,
+  .scenario-comparison,
+  .scenario-agent-review__grid {
     grid-template-columns: 1fr;
   }
 
   .scenario-bank {
-    order: 2;
+    position: static;
   }
 
-  .scenario-slots,
-  .scenario-comparison,
-  .scenario-agent-review__grid {
+  .scenario-preset-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .scenario-hero,
+  .scenario-agent-review {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-hero h1 {
+    max-width: none;
+    white-space: normal;
+  }
+
+  .scenario-hero__nowrap {
+    white-space: normal;
+  }
+
+  .scenario-hero__status {
+    min-width: 0;
+  }
+
+  .scenario-preset-list,
+  .scenario-field-grid {
     grid-template-columns: 1fr;
   }
 }

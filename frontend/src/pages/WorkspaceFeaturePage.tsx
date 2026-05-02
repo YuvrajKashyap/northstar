@@ -7,7 +7,6 @@ import {
   Graph,
   Pulse,
   ShieldCheck,
-  Wallet,
 } from '@phosphor-icons/react'
 import { agentCards } from '../data/workspaceContent'
 import type { Screen, ScreenProps } from '../types/screens'
@@ -44,14 +43,7 @@ const featureMeta = {
     cards: ['Cash flexibility', 'Goal drift', 'Tax sensitivity', 'Behavior watchlist'],
     detail: 'Insights are designed to surface meaningful changes without turning every data point into noise.',
   },
-  vault: {
-    title: 'Vault',
-    subtitle: 'Secure records for memory, receipts, exports, and user-approved financial context.',
-    icon: Wallet,
-    cards: ['Memory exports', 'Trust receipts', 'Account permissions', 'Data retention'],
-    detail: 'The vault is where Northstar will make data ownership, deletion, and audit trails easy to inspect.',
-  },
-} as const satisfies Record<'agent-runs' | 'plans' | 'scenarios' | 'insights' | 'vault', {
+} as const satisfies Record<'agent-runs' | 'plans' | 'scenarios' | 'insights', {
   title: string
   subtitle: string
   icon: typeof CirclesThreePlus
@@ -76,6 +68,7 @@ export function WorkspaceFeaturePage({
       runAgent={props.runAgent}
       runScenario={props.runScenario}
       busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
     >
       <section className="workspace-feature-screen screen-enter">
         <AppPageHeader title={meta.title} subtitle={meta.subtitle} />

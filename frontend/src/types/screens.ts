@@ -22,7 +22,6 @@ export type Screen =
   | 'plans'
   | 'scenarios'
   | 'insights'
-  | 'vault'
   | 'dashboard'
 
 export type HealthResponse = {
@@ -47,5 +46,6 @@ export type ScreenProps = {
   simulatePlaidLink: () => void
   runAgent: (message: string, mode?: 'general' | 'fresh_check' | 'demo_scenario') => void
   runScenario: () => void
+  submitGoal: (description: string) => Promise<void>
   setScreen: (screen: Screen) => void
 }

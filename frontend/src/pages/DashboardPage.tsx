@@ -87,7 +87,17 @@ export function DashboardPage(props: ScreenProps) {
   const visibleTrace = props.scenarioTrace.filter((event) => event.type !== 'message_delta')
 
   return (
-    <AppChrome active="dashboard" setScreen={props.setScreen} graph={props.graph}>
+    <AppChrome
+      active="dashboard"
+      setScreen={props.setScreen}
+      graph={props.graph}
+      agentAnswer={props.agentAnswer}
+      scenarioTrace={props.scenarioTrace}
+      runAgent={props.runAgent}
+      runScenario={props.runScenario}
+      busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
+    >
       <section className="north-chat-screen screen-enter">
         <main className="north-chat-main" aria-label="North chat">
           <header className="north-chat-header">

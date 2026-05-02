@@ -203,6 +203,15 @@ export interface RawMemoryDocument {
   updatedAt: string | null;
 }
 
+export interface GoalMemoryUpdateResponse {
+  ok: true;
+  userId: string;
+  goal: ContextPacket['goals'][number];
+  memoryMarkdown: string;
+  contextPacket: ContextPacket;
+  graph: MemoryGraph;
+}
+
 export interface AuthUserSession {
   ok: true;
   userId: string;

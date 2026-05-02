@@ -16,7 +16,7 @@ import {
 import { navItems } from '../../data/workspaceContent'
 import type { Screen } from '../../types/screens'
 import { workspaceProfileFromGraph } from '../../lib/workspaceProfile'
-import type { AgentTraceEvent, MemoryGraph } from '@calmvest/shared'
+import type { AgentTraceEvent, MemoryGraph, MemoryGraphNode } from '@calmvest/shared'
 import { Logo } from '../brand/Logo'
 import { AgentRail } from '../dashboard/AgentRail'
 import { LiveDot } from '../common/LiveDot'
@@ -37,6 +37,7 @@ export function AppChrome({
   runScenario,
   busyStep,
   showAgentDrawer = true,
+  onSelectMemoryNode,
 }: {
   children: ReactNode
   active: Screen
@@ -50,11 +51,16 @@ export function AppChrome({
   runScenario?: () => void
   busyStep?: string | null
   showAgentDrawer?: boolean
+  onSelectMemoryNode?: (id: string) => void
 }) {
   const [utility, setUtility] = useState<UtilityModal>(null)
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const [agentPanelOpen, setAgentPanelOpen] = useState(false)
+  const [memoryQuery, setMemoryQuery] = useState('')
+  const [searchOpen, setSearchOpen] = useState(false)
   const accountMenuRef = useRef<HTMLDivElement | null>(null)
+  const searchRef = useRef<HTMLDivElement | null>(null)
+  const searchInputRef = useRef<HTMLInputElement | null>(null)
   const [sessionProfile, setSessionProfile] = useState(() => readSessionProfile())
   const searchShortcut = useMemo(() => {
     if (typeof navigator === 'undefined') return 'Ctrl K'
@@ -87,10 +93,40 @@ export function AppChrome({
     }
   }, [accountMenuOpen])
 
+  useEffect(() => {
+    if (!searchOpen) return
+    const closeOnPointer = (event: PointerEvent) => {
+      if (!searchRef.current?.contains(event.target as Node)) setSearchOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSearchOpen(false)
+    }
+    window.addEventListener('pointerdown', closeOnPointer)
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      window.removeEventListener('pointerdown', closeOnPointer)
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [searchOpen])
+
+  useEffect(() => {
+    const focusSearch = (event: KeyboardEvent) => {
+      const isMac = /Mac|iPhone|iPad/i.test(navigator.userAgent)
+      if (event.key.toLowerCase() !== 'k' || (isMac ? !event.metaKey : !event.ctrlKey)) return
+      event.preventDefault()
+      searchInputRef.current?.focus()
+      setSearchOpen(true)
+    }
+    window.addEventListener('keydown', focusSearch)
+    return () => window.removeEventListener('keydown', focusSearch)
+  }, [])
+
   const graphProfile = workspaceProfileFromGraph(graph ?? null)
   const profileName = sessionProfile.name || graphProfile.name
   const profileRole = graphProfile.role
   const profileEmail = sessionProfile.email || 'No email on file'
+  const memoryResults = useMemo(() => searchMemoryGraph(graph ?? null, memoryQuery), [graph, memoryQuery])
+  const shouldShowSearchResults = searchOpen && memoryQuery.trim().length > 0
 
   function openAccountScreen(screen: Screen) {
     setAccountMenuOpen(false)
@@ -106,6 +142,17 @@ export function AppChrome({
     window.history.pushState({}, '', '/login')
     window.dispatchEvent(new PopStateEvent('popstate'))
     setScreen('signin')
+  }
+
+  function openMemoryResult(result: MemorySearchResult) {
+    setSearchOpen(false)
+    setMemoryQuery('')
+    if (result.nodeId) {
+      onSelectMemoryNode?.(result.nodeId)
+      setScreen('dashboard')
+      return
+    }
+    setScreen('memory')
   }
 
   return (
@@ -202,10 +249,51 @@ export function AppChrome({
 
       <div className="os-main">
         <div className="command-bar">
-          <div className="search-box" role="search">
+          <div className={`search-box${searchOpen ? ' search-box--active' : ''}`} role="search" ref={searchRef}>
             <MagnifyingGlass size={18} weight="regular" />
-            <span>Search memories...</span>
+            <input
+              ref={searchInputRef}
+              type="search"
+              value={memoryQuery}
+              onChange={(event) => {
+                setMemoryQuery(event.target.value)
+                setSearchOpen(true)
+              }}
+              onFocus={() => setSearchOpen(true)}
+              placeholder="Search memories..."
+              aria-label="Search memories"
+              aria-expanded={shouldShowSearchResults}
+              aria-controls="memory-search-results"
+              autoComplete="off"
+            />
             <kbd>{searchShortcut}</kbd>
+            {shouldShowSearchResults ? (
+              <div className="memory-search-popover" id="memory-search-results" role="listbox">
+                <div className="memory-search-popover__head">
+                  <span>Memory results</span>
+                  <strong>{memoryResults.length}</strong>
+                </div>
+                {memoryResults.length > 0 ? (
+                  memoryResults.map((result) => (
+                    <button
+                      type="button"
+                      key={`${result.type}-${result.nodeId ?? 'markdown'}-${result.title}`}
+                      role="option"
+                      onClick={() => openMemoryResult(result)}
+                    >
+                      <span className="memory-search-popover__kind">{result.type}</span>
+                      <strong>{result.title}</strong>
+                      <small>{result.snippet}</small>
+                    </button>
+                  ))
+                ) : (
+                  <div className="memory-search-popover__empty">
+                    <strong>No matching memory yet</strong>
+                    <small>Try a goal, risk word, account detail, or phrase from your questionnaire.</small>
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
           {commandExtras ? <div className="command-bar__extras">{commandExtras}</div> : null}
           <button className="command-icon-btn" type="button" aria-label="Notifications">
@@ -303,6 +391,89 @@ export function AppChrome({
       </WorkspaceModal>
     </div>
   )
+}
+
+type MemorySearchResult = {
+  type: string
+  title: string
+  snippet: string
+  nodeId?: string
+  score: number
+}
+
+function searchMemoryGraph(graph: MemoryGraph | null, query: string): MemorySearchResult[] {
+  const normalizedQuery = normalizeSearchText(query)
+  if (!graph || !normalizedQuery) return []
+  const tokens = normalizedQuery.split(' ').filter(Boolean)
+  const results: MemorySearchResult[] = []
+
+  for (const node of graph.nodes) {
+    const haystack = normalizeSearchText([node.label, node.kind, node.value, node.source, ...node.usedBy].join(' '))
+    const score = scoreSearchMatch(haystack, normalizedQuery, tokens)
+    if (score <= 0) continue
+    results.push({
+      type: labelForMemoryKind(node.kind),
+      title: node.label,
+      snippet: makeSearchSnippet(node.value || node.source || node.label, query),
+      nodeId: node.id,
+      score,
+    })
+  }
+
+  const markdown = graph.memoryMarkdown?.trim()
+  if (markdown) {
+    const haystack = normalizeSearchText(markdown)
+    const score = scoreSearchMatch(haystack, normalizedQuery, tokens)
+    if (score > 0) {
+      results.push({
+        type: 'Memory document',
+        title: 'Human-readable memory.md',
+        snippet: makeSearchSnippet(markdown.replace(/^#+\s*/gm, ''), query),
+        score: score - 0.25,
+      })
+    }
+  }
+
+  return results.sort((a, b) => b.score - a.score).slice(0, 8)
+}
+
+function scoreSearchMatch(haystack: string, query: string, tokens: string[]) {
+  if (!haystack) return 0
+  let score = haystack.includes(query) ? 6 : 0
+  for (const token of tokens) {
+    if (token.length < 2) continue
+    if (haystack.includes(token)) score += 1
+  }
+  return score
+}
+
+function makeSearchSnippet(value: string, query: string) {
+  const clean = value.replace(/\s+/g, ' ').trim()
+  if (!clean) return 'Saved memory context'
+  const lower = clean.toLowerCase()
+  const token = query.trim().toLowerCase().split(/\s+/).find(Boolean) ?? ''
+  const index = token ? lower.indexOf(token) : -1
+  const start = index > 36 ? index - 36 : 0
+  const snippet = clean.slice(start, start + 150)
+  return `${start > 0 ? '...' : ''}${snippet}${clean.length > start + 150 ? '...' : ''}`
+}
+
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/[_-]/g, ' ').replace(/[^\w\s$.,]/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function labelForMemoryKind(kind: MemoryGraphNode['kind']) {
+  const labels: Record<MemoryGraphNode['kind'], string> = {
+    person: 'Profile',
+    goal: 'Goal',
+    risk: 'Risk',
+    account: 'Account',
+    tax: 'Tax',
+    values: 'Values',
+    cash_flow: 'Cash flow',
+    communication: 'Communication',
+  }
+  return labels[kind]
 }
 
 function readSessionProfile() {

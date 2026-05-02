@@ -138,6 +138,7 @@ export function ScenarioCanvasPage(props: ScreenProps) {
       runAgent={props.runAgent}
       runScenario={props.runScenario}
       busyStep={props.busyStep}
+      onSelectMemoryNode={props.setSelectedNodeId}
     >
       <section className="scenario-screen screen-enter">
         <header className="scenario-hero">
@@ -148,8 +149,11 @@ export function ScenarioCanvasPage(props: ScreenProps) {
             </span>
             <h1>Compare three futures before you react.</h1>
             <p>
-              Test choices you control and events you do not. Northstar separates forecasts from
-              recommendations, then shows which path fits your memory, goals, and risk comfort.
+              <span>Test choices you control and events you do not.</span>
+              <span className="scenario-hero__nowrap">
+                Northstar separates forecasts from recommendations, then shows which path fits your
+                memory, goals, and risk comfort.
+              </span>
             </p>
           </div>
           <div className="scenario-hero__status">
@@ -167,6 +171,7 @@ export function ScenarioCanvasPage(props: ScreenProps) {
                 Preset bank
               </span>
               <strong>Fill slot {selectedSlot + 1}</strong>
+              <p>Pick a starting point, then edit the numbers and timing yourself.</p>
             </div>
             <div className="scenario-preset-list">
               {scenarioPresets.map((preset) => {
@@ -191,13 +196,18 @@ export function ScenarioCanvasPage(props: ScreenProps) {
                 className={`scenario-slot ${selectedSlot === index ? 'is-selected' : ''}`}
                 key={`slot-${index}`}
               >
-                <button
-                  className="scenario-slot__select"
-                  type="button"
-                  onClick={() => setSelectedSlot(index)}
-                >
-                  Scenario {index + 1}
-                </button>
+                <header className="scenario-slot__top">
+                  <button
+                    className="scenario-slot__select"
+                    type="button"
+                    onClick={() => setSelectedSlot(index)}
+                  >
+                    Scenario {index + 1}
+                  </button>
+                  <span className={`scenario-kind-pill scenario-kind-pill--${scenario.kind}`}>
+                    {scenario.kind === 'choice' ? 'Choice' : 'Event'}
+                  </span>
+                </header>
                 <div className="scenario-field-grid">
                   <label>
                     <span>Type</span>
@@ -241,8 +251,11 @@ export function ScenarioCanvasPage(props: ScreenProps) {
           {results.map((result, index) => (
             <article className={`scenario-result scenario-result--${result.tone}`} key={`result-${index}`}>
               <header>
-                <span>{result.kind === 'choice' ? 'Decision path' : 'Outside event'}</span>
-                <strong>{result.title || `Scenario ${index + 1}`}</strong>
+                <div>
+                  <span>{result.kind === 'choice' ? 'Decision path' : 'Outside event'}</span>
+                  <strong>{result.title || `Scenario ${index + 1}`}</strong>
+                </div>
+                <em>{result.kind === 'choice' ? 'Can decide' : 'Prepare'}</em>
               </header>
               <div className="scenario-score">
                 <span>{result.score}</span>
