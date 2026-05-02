@@ -1,0 +1,754 @@
+/* Workspace shell: top nav + modals (no persistent sidebars) */
+
+.os-shell--workspace {
+  --workspace-sidebar-collapsed: 52px;
+  --workspace-sidebar-width: min(400px, 38vw);
+  background:
+    url('../assets/northstar-landing-bg.png') center center / cover no-repeat fixed,
+    linear-gradient(115deg, #f7f2ea 0%, #eee8dd 54%, #e6ded2 100%);
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: unset;
+  min-height: 100dvh;
+  position: relative;
+}
+
+.os-shell--workspace::after {
+  background:
+    linear-gradient(180deg, rgba(249, 245, 238, 0.52) 0%, rgba(249, 245, 238, 0.28) 38%, rgba(249, 245, 238, 0.48) 100%),
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255, 252, 245, 0.55), transparent 55%);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 0;
+}
+
+.os-shell--workspace > * {
+  position: relative;
+  z-index: 1;
+}
+
+.workspace-shell-header {
+  align-items: center;
+  backdrop-filter: blur(14px);
+  background: rgba(252, 249, 243, 0.68);
+  border-bottom: 1px solid rgba(38, 59, 48, 0.1);
+  box-shadow: 0 14px 36px rgba(43, 36, 28, 0.06);
+  display: grid;
+  gap: 0.65rem 1rem;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0.72rem clamp(1rem, 3vw, 2rem);
+}
+
+.workspace-shell-header__brand .brand {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.workspace-shell-header__brand .brand-mark {
+  font-size: 1.35rem;
+}
+
+.workspace-shell-header__brand .brand-sub {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .workspace-shell-header__brand .brand-sub {
+    display: block;
+    font-size: 0.66rem;
+  }
+}
+
+.workspace-nav {
+  background: rgba(255, 252, 245, 0.94);
+  border: 1px solid rgba(38, 59, 48, 0.16);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 8px 26px rgba(43, 36, 28, 0.07);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  justify-content: center;
+  margin: 0;
+  max-height: none;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 0.32rem 0.45rem;
+  scrollbar-width: thin;
+}
+
+.workspace-nav button {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #0f1712;
+  cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 0.38rem;
+  font-size: 0.8rem;
+  font-weight: 640;
+  min-height: 34px;
+  padding: 0 0.72rem;
+  transition:
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+  white-space: nowrap;
+}
+
+.workspace-nav button:hover:not(.active) {
+  background: rgba(38, 59, 48, 0.08);
+  border-color: rgba(38, 59, 48, 0.1);
+}
+
+.workspace-nav button svg {
+  color: #0f1812;
+  flex-shrink: 0;
+  opacity: 1;
+}
+
+.workspace-nav button.active {
+  background: #263b30;
+  border-color: rgba(38, 59, 48, 0.2);
+  box-shadow:
+    0 12px 28px rgba(38, 59, 48, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #fffaf0;
+}
+
+.workspace-nav button.active svg {
+  color: #fffaf0;
+  opacity: 1;
+}
+
+.workspace-shell-header__tools {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  justify-content: flex-end;
+}
+
+.workspace-shell-header__profile-slot {
+  align-items: stretch;
+  border-left: 1px solid rgba(38, 59, 48, 0.12);
+  display: flex;
+  margin-left: 0.25rem;
+  padding-left: 0.55rem;
+}
+
+.workspace-icon-btn {
+  align-items: center;
+  background: rgba(249, 247, 241, 0.85);
+  border: 1px solid rgba(38, 59, 48, 0.12);
+  border-radius: 10px;
+  color: #263931;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  min-height: 34px;
+  padding: 0 0.55rem;
+}
+
+.workspace-icon-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.workspace-icon-btn em {
+  color: rgba(38, 59, 48, 0.45);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+}
+
+.workspace-icon-btn--quiet span:not(:first-of-type) {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .workspace-icon-btn--quiet span:not(:first-of-type) {
+    display: inline;
+  }
+}
+
+.os-shell--workspace .os-main {
+  background: none;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1rem clamp(1rem, 3vw, 2rem) 1.25rem;
+  width: 100%;
+}
+
+.os-shell--workspace .command-bar {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  min-height: 48px;
+}
+
+.os-shell--workspace .search-box {
+  align-items: center;
+  background: rgba(255, 252, 245, 0.94);
+  border: 1px solid rgba(38, 59, 48, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 8px 26px rgba(43, 36, 28, 0.05);
+  display: flex;
+  flex: 1 1 220px;
+  font-size: 0.84rem;
+  gap: 0.5rem;
+  min-height: 44px;
+  min-width: 0;
+  padding: 0 0.85rem;
+}
+
+.os-shell--workspace .search-box span {
+  color: rgba(28, 43, 36, 0.72);
+  flex: 1;
+  min-width: 0;
+}
+
+.command-bar__extras {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.command-agents-btn {
+  align-items: center;
+  background: #263b30;
+  border: 1px solid rgba(38, 59, 48, 0.25);
+  border-radius: 12px;
+  box-shadow:
+    0 14px 32px rgba(38, 59, 48, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #fffaf0;
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 620;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 1rem;
+}
+
+.command-agents-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.command-agents-btn--active {
+  background: #1f3028;
+  box-shadow:
+    0 10px 26px rgba(38, 59, 48, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.command-icon-btn {
+  align-items: center;
+  background: rgba(255, 252, 245, 0.88);
+  border: 1px solid rgba(38, 59, 48, 0.14);
+  border-radius: 12px;
+  color: #263931;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 44px;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+  width: 44px;
+}
+
+.command-icon-btn svg {
+  display: block;
+}
+
+/* Profile chip: true vertical centering */
+.profile-chip {
+  align-items: center;
+  background: rgba(255, 252, 245, 0.94);
+  border: 1px solid rgba(38, 59, 48, 0.15);
+  border-radius: 14px;
+  box-sizing: border-box;
+  color: var(--text);
+  cursor: pointer;
+  display: inline-flex;
+  flex-shrink: 0;
+  gap: 0.55rem;
+  max-width: min(280px, 36vw);
+  min-height: 44px;
+  padding: 0.25rem 0.6rem 0.25rem 0.35rem;
+  text-align: left;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.profile-chip:hover {
+  background: #fffefb;
+  border-color: rgba(38, 59, 48, 0.22);
+  box-shadow: 0 10px 28px rgba(43, 36, 28, 0.08);
+}
+
+.profile-chip:focus-visible {
+  border-color: rgba(38, 59, 48, 0.35);
+  outline: 2px solid rgba(38, 59, 48, 0.25);
+  outline-offset: 2px;
+}
+
+.profile-chip__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.06rem;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.profile-chip__text strong {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 640;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-chip__text small {
+  color: rgba(43, 58, 53, 0.58);
+  display: block;
+  font-size: 0.68rem;
+}
+
+.profile-chip__caret {
+  color: rgba(38, 59, 48, 0.45);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.profile-chip--compact {
+  gap: 0.35rem;
+  max-width: none;
+  padding: 0.25rem 0.45rem 0.25rem 0.35rem;
+}
+
+.profile-chip--compact .profile-chip__caret {
+  margin-left: 0;
+}
+
+.avatar--compact,
+.avatar.compact-avatar {
+  align-items: center;
+  box-shadow: none;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 740;
+  height: 32px;
+  justify-content: center;
+  letter-spacing: -0.02em;
+  width: 32px;
+}
+
+.avatar--compact::before,
+.avatar--compact::after,
+.avatar.compact-avatar::before,
+.avatar.compact-avatar::after {
+  display: none;
+}
+
+/* Modal */
+.workspace-modal-backdrop {
+  align-items: center;
+  animation: workspace-modal-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: rgba(26, 38, 32, 0.42);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 1.5rem 1rem;
+  position: fixed;
+  z-index: 2000;
+}
+
+@keyframes workspace-modal-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.workspace-modal {
+  animation: workspace-modal-panel 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: rgba(252, 249, 243, 0.96);
+  border: 1px solid rgba(38, 59, 48, 0.14);
+  border-radius: 22px;
+  box-shadow:
+    0 40px 90px rgba(43, 36, 28, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #263931;
+  margin: auto;
+  max-height: min(88dvh, 900px);
+  max-width: 480px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.workspace-modal--wide {
+  max-width: min(520px, 96vw);
+}
+
+@keyframes workspace-modal-panel {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.workspace-modal__head {
+  align-items: center;
+  border-bottom: 1px solid rgba(38, 59, 48, 0.1);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 1rem 1.1rem 0.95rem;
+}
+
+.workspace-modal__head h2 {
+  color: #23372f;
+  font-family: var(--serif);
+  font-size: 1.28rem;
+  font-weight: 520;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+
+.workspace-modal__close {
+  align-items: center;
+  background: rgba(249, 247, 241, 0.85);
+  border: 1px solid rgba(38, 59, 48, 0.12);
+  border-radius: 10px;
+  color: rgba(38, 59, 48, 0.75);
+  display: flex;
+  flex-shrink: 0;
+  height: 40px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0;
+  width: 40px;
+}
+
+.workspace-modal__close svg {
+  display: block;
+}
+
+.workspace-modal__body {
+  max-height: min(72dvh, 760px);
+  overflow: auto;
+  padding: 1.05rem 1.1rem 1.25rem;
+}
+
+.workspace-modal__copy {
+  color: rgba(43, 58, 53, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0 0 0.85rem;
+  text-wrap: pretty;
+}
+
+.workspace-modal__status {
+  align-items: center;
+  color: rgba(38, 59, 48, 0.62);
+  display: flex;
+  font-size: 0.82rem;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.agent-rail--modal {
+  backdrop-filter: none;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  display: grid;
+  gap: 0.65rem;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .os-shell--workspace.os-shell--dashboard {
+    --workspace-header-band: clamp(7rem, 18vw + 4.5rem, 11rem);
+  }
+
+  .workspace-shell-header {
+    grid-template-columns: 1fr;
+    justify-items: stretch;
+  }
+
+  .workspace-shell-header__tools {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .workspace-shell-header__profile-slot {
+    border-left: 0;
+    flex-basis: 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .workspace-nav {
+    justify-content: flex-start;
+  }
+}
+
+/*
+ * Northstar pages theme (10-northstar-pages.css) paints .dashboard-screen (and siblings)
+ * with an opaque cream gradient + fixed ::before wash—that sits on top of the workspace
+ * photo and kills it. Strip those layers inside the workspace shell only.
+ */
+.os-shell--workspace .dashboard-screen,
+.os-shell--workspace .profile-screen,
+.os-shell--workspace .memory-screen,
+.os-shell--workspace .goals-screen {
+  background: none;
+}
+
+.os-shell--workspace .dashboard-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.os-shell--workspace .dashboard-screen::before,
+.os-shell--workspace .profile-screen::before,
+.os-shell--workspace .memory-screen::before,
+.os-shell--workspace .goals-screen::before {
+  content: none;
+  display: none;
+}
+
+/* Northstar theme frosts .command-bar heavily; lighten so the photo reads at the top */
+.os-shell--workspace .command-bar {
+  background: rgba(252, 249, 243, 0.68);
+  border: 1px solid rgba(38, 59, 48, 0.11);
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(43, 36, 28, 0.07);
+  backdrop-filter: blur(12px);
+}
+
+/*
+ * Dashboard: 10-wealth-workspace.css loads AFTER 08-dashboard-agent and styles .graph-orbit
+ * with a cream “card” (background, border, radius). Those rules must lose for the studio map.
+ */
+.os-shell--workspace.os-shell--dashboard .dashboard-graph-orbit.graph-orbit {
+  background: radial-gradient(ellipse 76% 72% at 42% 50%, rgba(90, 116, 102, 0.09), transparent 70%);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: clamp(340px, 50vh, 560px);
+  overflow: visible;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-graph-orbit.graph-orbit::before,
+.os-shell--workspace.os-shell--dashboard .dashboard-graph-orbit.graph-orbit::after {
+  border: none;
+  content: none;
+  display: none;
+}
+
+/* Graph left column | agent panel fixed on the right; full usable width */
+.os-shell--workspace.os-shell--dashboard {
+  --workspace-header-band: clamp(4.05rem, 3.5rem + 1.4vw, 5.45rem);
+  --workspace-command-band: calc(1rem + 48px + 0.85rem);
+  --workspace-drawer-top: calc(var(--workspace-header-band) + var(--workspace-command-band));
+}
+
+.os-shell--workspace.os-shell--dashboard .os-main {
+  padding-bottom: 1.25rem;
+  padding-left: clamp(1rem, 3vw, 2rem);
+  padding-right: 0;
+  padding-top: 1rem;
+}
+
+.os-shell--workspace.os-shell--dashboard .workspace-shell-header {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 50;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-studio {
+  box-sizing: border-box;
+  margin: 0;
+  max-width: none;
+  padding-right: var(--workspace-sidebar-collapsed);
+  position: relative;
+  width: 100%;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-studio:has(.dashboard-studio__workspace--panel-open) {
+  padding-right: var(--workspace-sidebar-width);
+}
+
+/*
+ * Sidebar is position:fixed (removed from flow). Reserve space on .dashboard-studio so hero + map clear it.
+ */
+.os-shell--workspace.os-shell--dashboard .dashboard-studio__workspace,
+.os-shell--workspace.os-shell--dashboard .dashboard-studio__workspace--panel-open {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0;
+  grid-template-columns: unset;
+  min-height: 0;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-studio__graph-stack {
+  min-width: 0;
+}
+
+/* Full-height strip, flush to viewport right, below workspace top nav */
+.os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer {
+  backdrop-filter: blur(22px) saturate(1.15);
+  background: rgba(252, 249, 243, 0.94);
+  border: none;
+  border-left: 1px solid rgba(38, 59, 48, 0.14);
+  border-radius: 0;
+  bottom: 0;
+  box-shadow: -18px 0 56px rgba(43, 36, 28, 0.09);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  max-height: none;
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+  top: var(--workspace-drawer-top);
+  width: var(--workspace-sidebar-collapsed);
+  z-index: 25;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-open {
+  width: var(--workspace-sidebar-width);
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-collapsed {
+  width: var(--workspace-sidebar-collapsed);
+}
+
+/* Flex chain: body + rail fill the strip; prompt grows instead of dead space */
+.os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer .agent-rail.agent-rail--panel {
+  align-content: stretch;
+  align-self: stretch;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 0;
+}
+
+.os-shell--workspace.os-shell--dashboard .agent-rail--panel .agent-runner-form {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-height: 0;
+}
+
+.os-shell--workspace.os-shell--dashboard .agent-rail--panel .agent-runner-input {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 5.5rem;
+  resize: none;
+  width: 100%;
+}
+
+.os-shell--workspace.os-shell--dashboard .agent-rail--panel .agent-rail__panel-agents {
+  flex-shrink: 0;
+}
+
+/* Balance the map in the band left of the sidebar */
+.os-shell--workspace.os-shell--dashboard .dashboard-graph-stage {
+  justify-content: center;
+  padding-left: clamp(0.35rem, 2.5vw, 1.5rem);
+  padding-right: clamp(0.35rem, 2.5vw, 1.5rem);
+}
+
+.os-shell--workspace.os-shell--dashboard .dashboard-graph-stage__orbit {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: min(640px, 100%);
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .os-shell--workspace {
+    --workspace-sidebar-width: min(100vw - 48px, 360px);
+  }
+
+  .os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer {
+    bottom: 0;
+    max-height: none;
+    top: var(--workspace-drawer-top);
+  }
+
+  /* 08-dashboard-agent mobile rules target legacy in-flow drawer — reset for workspace sidebar */
+  .os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-open {
+    max-height: none;
+    min-width: 0;
+    order: unset;
+    width: var(--workspace-sidebar-width);
+  }
+
+  .os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-collapsed {
+    flex-direction: column;
+    max-height: none;
+    min-width: 0;
+    order: unset;
+    width: var(--workspace-sidebar-collapsed);
+  }
+
+  .os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-collapsed .dashboard-agent-drawer__peek {
+    flex-direction: column;
+    min-height: 0;
+    padding: 0.5rem 0.35rem;
+    width: 100%;
+  }
+
+  .os-shell--workspace.os-shell--dashboard .dashboard-agent-drawer.is-collapsed .dashboard-agent-drawer__peek span {
+    writing-mode: vertical-rl;
+  }
+}

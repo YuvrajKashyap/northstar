@@ -8,6 +8,9 @@ dist
 backend/src/data/traces
 backend/src/data/mirrors
 backend/src/data/*.local.json
+backend/src/data/auth-users.json
+backend/src/data/generated-auth
+backend-dev.log
 .codex-run
 .codex-frontend-*.log
 

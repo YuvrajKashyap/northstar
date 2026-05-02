@@ -50,6 +50,12 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (path === '/workspace/home') {
+      window.history.replaceState({}, '', '/dashboard')
+      setPath('/dashboard')
+      setScreen('dashboard')
+      return
+    }
     const routedScreen = pathScreens[path]
     if (routedScreen && routedScreen !== screen) {
       setScreen(routedScreen)

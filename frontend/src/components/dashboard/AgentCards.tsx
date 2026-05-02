@@ -1,4 +1,3 @@
-import { ArrowRight } from '@phosphor-icons/react'
 import { agentCards } from '../../data/workspaceContent'
 import { AgentIcon } from '../common/AgentIcon'
 
@@ -15,9 +14,6 @@ export function AgentActivityCard({ card }: { card: (typeof agentCards)[number] 
       </header>
       <h4>{card.title}</h4>
       <p>{card.detail}</p>
-      <footer>
-        <button type="button" className="subtle-button">View details <ArrowRight size={13} /></button>
-      </footer>
     </article>
   )
 }

@@ -8,7 +8,7 @@ import { GoalCard } from '../components/goals/GoalCard'
 
 export function GoalsPage(props: ScreenProps) {
   return (
-    <AppChrome active="goals" setScreen={props.setScreen}>
+    <AppChrome active="goals" setScreen={props.setScreen} graph={props.graph}>
       <section className="goals-screen screen-enter">
         <AppPageHeader title="Goals" subtitle="Your life goals, supported by intelligent agents and real progress." />
         <div className="goals-layout">

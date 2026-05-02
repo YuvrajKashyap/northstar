@@ -37,8 +37,10 @@ export type ScreenProps = {
   selectedNodeId: string
   setSelectedNodeId: (id: string) => void
   scenarioTrace: AgentTraceEvent[]
+  agentAnswer: string
   busyStep: string | null
   simulatePlaidLink: () => void
+  runAgent: (message: string) => void
   runScenario: () => void
   setScreen: (screen: Screen) => void
 }

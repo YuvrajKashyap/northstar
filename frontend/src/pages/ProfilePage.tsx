@@ -7,7 +7,7 @@ import { ProfileCard } from '../components/profile/ProfileCard'
 
 export function ProfilePage(props: ScreenProps) {
   return (
-    <AppChrome active="profile" setScreen={props.setScreen}>
+    <AppChrome active="profile" setScreen={props.setScreen} graph={props.graph}>
       <section className="profile-screen screen-enter">
         <AppPageHeader title="Import & Connect Accounts" subtitle="Connect your financial accounts to build your personalized financial context." />
         <div className="profile-layout">

@@ -1,4 +1,4 @@
-import type { AgentTraceEvent } from '@calmvest/shared'
+import type { AgentRunRequest, AgentTraceEvent } from '@calmvest/shared'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
 
@@ -18,8 +18,25 @@ export async function postJson<T>(path: string, body?: unknown): Promise<T> {
   })
 }
 
-export async function streamScenarioTrace(onEvent: (event: AgentTraceEvent) => void) {
-  const response = await fetch(`${API_BASE}/api/agent/scenario/stream`, { method: 'POST' })
+export async function streamAgentRun(request: AgentRunRequest, onEvent: (event: AgentTraceEvent) => void) {
+  const response = await fetch(`${API_BASE}/api/agent/run/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })
+  await readSseTrace(response, onEvent)
+}
+
+export async function streamScenarioTrace(userId: string, onEvent: (event: AgentTraceEvent) => void) {
+  const response = await fetch(`${API_BASE}/api/agent/scenario/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId }),
+  })
+  await readSseTrace(response, onEvent)
+}
+
+async function readSseTrace(response: Response, onEvent: (event: AgentTraceEvent) => void) {
   const reader = response.body?.getReader()
   if (!reader) return
 

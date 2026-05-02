@@ -2,9 +2,11 @@ export type ModelId = 'openai/gpt-5.4-mini' | 'openai/gpt-5.4' | 'openai/gpt-5.5
 
 export type AgentEventType =
   | 'agent_started'
+  | 'message_delta'
   | 'model_stream'
   | 'tool_call'
   | 'tool_result'
+  | 'tool_warning'
   | 'handoff'
   | 'receipt_created'
   | 'agent_completed'
@@ -18,6 +20,12 @@ export interface AgentTraceEvent {
   label: string;
   timestamp: string;
   payload: Record<string, unknown>;
+}
+
+export interface AgentRunRequest {
+  userId: string;
+  message: string;
+  mode?: 'general' | 'fresh_check';
 }
 
 export interface ContextPacket {
