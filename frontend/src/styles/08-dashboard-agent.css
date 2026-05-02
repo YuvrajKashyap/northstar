@@ -1,0 +1,254 @@
+
+.confidence.low {
+  background: rgba(167, 131, 216, 0.16);
+}
+
+.confidence.medium {
+  background: rgba(232, 200, 110, 0.14);
+}
+
+.add-goal-card {
+  background: transparent;
+  border: 1px dashed rgba(118, 232, 135, 0.42);
+  color: var(--muted);
+  min-height: 72px;
+}
+
+.goals-side {
+  align-content: start;
+  display: grid;
+  gap: 1rem;
+}
+
+.confidence-card,
+.impact-card {
+  padding: 1.3rem;
+}
+
+.confidence-card h3,
+.impact-card h3 {
+  font-size: 1.22rem;
+  font-weight: 560;
+}
+
+.donut {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 138px 1fr;
+  margin: 1.7rem 0 1rem;
+}
+
+.donut-ring {
+  align-items: center;
+  background:
+    radial-gradient(circle, #08241d 0 50%, transparent 51%),
+    conic-gradient(var(--green) 0 58%, var(--gold) 58% 78%, var(--violet) 78% 100%);
+  border-radius: 50%;
+  display: grid;
+  height: 122px;
+  place-items: center;
+  text-align: center;
+  width: 122px;
+}
+
+.donut-ring strong {
+  display: block;
+  font-size: 2rem;
+}
+
+.donut-ring span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.legend-stack {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.legend-stack span,
+.legend-row span {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.legend-stack i,
+.legend-row i {
+  background: var(--green);
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+}
+
+.legend-stack i.gold,
+.legend-row i.gold { background: var(--gold); }
+.legend-stack i.violet,
+.legend-row i.violet { background: var(--violet); }
+.legend-row i.blue { background: var(--blue); }
+
+.impact-list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.impact-row {
+  padding: 1rem;
+}
+
+.impact-row strong {
+  color: var(--green);
+  display: block;
+  margin-top: 0.4rem;
+}
+
+.dashboard-layout {
+  grid-template-columns: minmax(0, 1fr) 380px;
+}
+
+.graph-canvas {
+  min-height: 700px;
+  overflow: hidden;
+  padding: 1.2rem;
+  position: relative;
+}
+
+.graph-toolbar {
+  display: flex;
+  gap: 0.65rem;
+  position: absolute;
+  top: 1rem;
+}
+
+.memory-galaxy {
+  min-height: 620px;
+}
+
+.memory-galaxy::before,
+.memory-galaxy::after {
+  border: 1px dashed rgba(232, 200, 110, 0.22);
+  border-radius: 50%;
+  content: "";
+  inset: 14%;
+  position: absolute;
+}
+
+.memory-galaxy::after {
+  inset: 27%;
+}
+
+.graph-node {
+  cursor: pointer;
+  transition:
+    transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 220ms ease;
+}
+
+.graph-node:hover,
+.graph-node.selected {
+  filter: brightness(1.08);
+  transform: translateY(-3px);
+}
+
+.graph-node.financial { background: linear-gradient(150deg, #cde5c4, #acd1b2); }
+.graph-node.behavioral { background: linear-gradient(150deg, #d8c5ee, #bbd7bd); }
+.graph-node.life { background: linear-gradient(150deg, #f3e6c7, #d4e0bd); }
+
+.node-0 { left: 11%; top: 19%; }
+.node-1 { left: 41%; top: 6%; }
+.node-2 { right: 12%; top: 12%; }
+.node-3 { right: 9%; top: 39%; }
+.node-4 { right: 16%; bottom: 16%; }
+.node-5 { left: 49%; bottom: 9%; }
+.node-6 { left: 26%; bottom: 15%; }
+.node-7 { left: 8%; bottom: 36%; }
+
+.legend-row {
+  align-items: center;
+  background: rgba(4, 24, 20, 0.72);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  bottom: 1.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  left: 50%;
+  padding: 0.7rem 0.9rem;
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.dashboard-bottom {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: 0.9fr 1.1fr;
+  margin-top: 1rem;
+}
+
+.summary-card,
+.privacy-card {
+  padding: 1.25rem;
+}
+
+.summary-card h3,
+.privacy-card h3 {
+  font-size: 1.25rem;
+  font-weight: 560;
+  margin-bottom: 0.65rem;
+}
+
+.summary-card p,
+.privacy-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.privacy-grid {
+  display: grid;
+  gap: 0.7rem;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 1.1rem;
+}
+
+.privacy-tile {
+  padding: 0.9rem;
+}
+
+.privacy-tile p {
+  font-size: 0.8rem;
+}
+
+.agent-rail {
+  align-content: start;
+  display: grid;
+  gap: 1rem;
+  padding: 1.3rem;
+}
+
+.agent-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+}
+
+.agent-card header {
+  align-items: center;
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: 46px 1fr auto;
+}
+
+.agent-card h3 {
+  font-size: 1rem;
+  font-weight: 560;
+}
