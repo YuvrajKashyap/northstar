@@ -14,19 +14,43 @@ import './styles/index.css'
 function App() {
   const { screen, setScreen, error, screenProps } = useCalmVestWorkspace()
   const [hash, setHash] = useState(() => window.location.hash)
+  const [path, setPath] = useState(() => window.location.pathname)
+  const [authMode, setAuthMode] = useState<'register' | 'login'>('register')
 
   useEffect(() => {
-    const syncHash = () => setHash(window.location.hash)
-    window.addEventListener('hashchange', syncHash)
-    return () => window.removeEventListener('hashchange', syncHash)
+    const syncLocation = () => {
+      setHash(window.location.hash)
+      setPath(window.location.pathname)
+    }
+    window.addEventListener('hashchange', syncLocation)
+    window.addEventListener('popstate', syncLocation)
+    return () => {
+      window.removeEventListener('hashchange', syncLocation)
+      window.removeEventListener('popstate', syncLocation)
+    }
   }, [])
 
-  function openAuth(_mode: 'register' | 'login') {
+  function openAuth(mode: 'register' | 'login') {
+    setAuthMode(mode)
+    window.history.pushState({}, '', '/login')
+    setPath('/login')
     setScreen('signin')
+  }
+
+  function navigateFromRoute(nextScreen: Parameters<typeof setScreen>[0]) {
+    if (path === '/login' || path === '/auth') {
+      window.history.pushState({}, '', '/')
+      setPath('/')
+    }
+    setScreen(nextScreen)
   }
 
   if (hash === '#workspace' || hash.startsWith('#workspace/')) {
     return <WealthWorkspacePage />
+  }
+
+  if (path === '/login' || path === '/auth') {
+    return <SignInPage setScreen={navigateFromRoute} initialMode={authMode} />
   }
 
   return (
@@ -38,7 +62,7 @@ function App() {
       {screen === 'agents' ? <MarketingPage page="agents" setScreen={setScreen} openAuth={openAuth} /> : null}
       {screen === 'safety' ? <MarketingPage page="safety" setScreen={setScreen} openAuth={openAuth} /> : null}
       {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'signin' ? <SignInPage setScreen={setScreen} /> : null}
+      {screen === 'signin' ? <SignInPage setScreen={setScreen} initialMode={authMode} /> : null}
       {screen === 'onboarding' ? <OnboardingPage {...screenProps} /> : null}
       {screen === 'profile' ? <ProfilePage {...screenProps} /> : null}
       {screen === 'memory' ? <MemoryPage {...screenProps} /> : null}

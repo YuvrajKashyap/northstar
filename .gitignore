@@ -10,3 +10,6 @@ backend/src/data/mirrors
 backend/src/data/*.local.json
 .codex-run
 .codex-frontend-*.log
+
+.chrome-auth-shot
+.codex-run

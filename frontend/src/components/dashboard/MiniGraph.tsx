@@ -16,9 +16,13 @@ function trunc(s: string, n = 46) {
 }
 
 /** Hero orbit graph — always uses clean static data, ignores live API */
-export function MiniGraph({ graph: _graph }: { graph: MemoryGraph | null }) {
+export function MiniGraph({ graph }: { graph: MemoryGraph | null }) {
+  const graphLabel = graph?.nodes.length
+    ? `Memory preview with ${graph.nodes.length} live context nodes`
+    : 'Memory preview with sample context nodes'
+
   return (
-    <div className="mini-graph">
+    <div className="mini-graph" aria-label={graphLabel}>
       <div className="orbit-line" />
       <div className="orbit-line two" />
       <div className="center-node">

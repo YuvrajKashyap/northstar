@@ -22,9 +22,13 @@ const learnItems: Array<{ label: string; helper: string; screen: Screen }> = [
 ]
 
 export function MarketingNav({ setScreen, openAuth }: MarketingNavProps) {
+  function reloadLanding() {
+    window.location.href = window.location.pathname
+  }
+
   return (
     <nav className="north-nav" aria-label="Primary navigation">
-      <button className="north-brand" type="button" onClick={() => setScreen?.('landing')}>
+      <button className="north-brand" type="button" onClick={reloadLanding}>
         <img className="north-logo-mark north-logo-mark--brand" src={northstarLogo} alt="" aria-hidden="true" />
         <span>Northstar</span>
       </button>
