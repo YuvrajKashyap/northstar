@@ -148,7 +148,7 @@ export function SignInPage({
         <span>Northstar</span>
       </button>
 
-      <section className="auth-card" aria-label="Northstar authentication">
+      <section className={`auth-card ${isRegister ? 'auth-card--register' : 'auth-card--login'}`} aria-label="Northstar authentication">
         <button className="auth-card-brand" type="button" onClick={() => setScreen('landing')}>
           <img src={northstarLogo} alt="" aria-hidden="true" />
           <span>Northstar</span>
