@@ -1,4 +1,11 @@
-import type { AgentRunRequest, AgentTraceEvent, RawMemoryDocument } from '@calmvest/shared'
+import type {
+  AgentRunRequest,
+  AgentTraceEvent,
+  PlanApprovalResponse,
+  PlanGenerateResponse,
+  PlansResponse,
+  RawMemoryDocument,
+} from '@calmvest/shared'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
 
@@ -49,6 +56,18 @@ export async function streamScenarioTrace(userId: string, onEvent: (event: Agent
 
 export function getRawMemory(userId: string) {
   return apiJson<RawMemoryDocument>(`/api/memory/raw?userId=${encodeURIComponent(userId)}`)
+}
+
+export function getPlans(userId: string) {
+  return apiJson<PlansResponse>(`/api/plans?userId=${encodeURIComponent(userId)}`)
+}
+
+export function generatePlan(userId: string) {
+  return postJson<PlanGenerateResponse>('/api/plans/generate', { userId })
+}
+
+export function updatePlanStepApproval(planId: string, stepId: string, userId: string, approvalStatus: 'approved' | 'rejected') {
+  return postJson<PlanApprovalResponse>(`/api/plans/${planId}/steps/${stepId}/approval`, { userId, approvalStatus })
 }
 
 async function readSseTrace(response: Response, onEvent: (event: AgentTraceEvent) => void) {

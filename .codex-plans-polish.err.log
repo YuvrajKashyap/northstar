@@ -1,0 +1,34 @@
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:43:32 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:43:33 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:43:33 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:43:33 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:18 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:19 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:19 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:19 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:53 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:54 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target .stagger-in not found. https://gsap.com
+[2m12:44:54 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+[2m12:44:54 PM[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22mGSAP target  not found. https://gsap.com
+npm error Lifecycle script `dev` failed with error:
+npm error code 4294967295
+npm error path C:\Users\ykyuv\dev\northstar\frontend
+npm error workspace frontend@0.0.0
+npm error location C:\Users\ykyuv\dev\northstar\frontend
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c vite --host 127.0.0.1 --port 5177

@@ -93,24 +93,34 @@ export function GoalsPage(props: ScreenProps) {
         </div>
         <div className="goals-layout">
           <article className="goals-main">
-            <div className="filter-row">
-              {[
-                { id: 'all', label: `All Goals ${goals.length}` },
-                { id: 'active', label: `Active ${activeCount}` },
-                { id: 'completed', label: `Completed ${completedCount}` },
-                { id: 'on-track', label: `On Track ${onTrackCount}` },
-                { id: 'at-risk', label: `At Risk ${atRiskCount}` },
-              ].map((item) => (
-                <button
-                  className={filter === item.id ? 'active' : ''}
-                  type="button"
-                  key={item.id}
-                  onClick={() => setFilter(item.id as GoalFilter)}
-                >
-                  {item.label}
-                </button>
-              ))}
-              <button className="primary-action" type="button" onClick={() => setGoalAgentOpen(true)}>
+            <div className="goals-control-stack">
+              <div className="filter-row">
+                {[
+                  { id: 'all', label: `All ${goals.length}` },
+                  { id: 'active', label: `Active ${activeCount}` },
+                  { id: 'on-track', label: `On Track ${onTrackCount}` },
+                  { id: 'at-risk', label: `Needs Detail ${atRiskCount}` },
+                ].map((item) => (
+                  <button
+                    className={filter === item.id ? 'active' : ''}
+                    type="button"
+                    key={item.id}
+                    onClick={() => setFilter(item.id as GoalFilter)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+                {completedCount > 0 ? (
+                  <button
+                    className={filter === 'completed' ? 'active' : ''}
+                    type="button"
+                    onClick={() => setFilter('completed')}
+                  >
+                    Done {completedCount}
+                  </button>
+                ) : null}
+              </div>
+              <button className="primary-action goals-add-action" type="button" onClick={() => setGoalAgentOpen(true)}>
                 <Plus size={18} /> Add Goal
               </button>
             </div>
@@ -139,7 +149,7 @@ export function GoalsPage(props: ScreenProps) {
                 </div>
               </article>
             ) : null}
-            <div className="priority-row">
+            <div className="priority-row" aria-label="Goal priority counts">
               <span><Target size={15} /> Goal Priority</span>
               <strong>High <em>{priorityCounts.high}</em></strong>
               <strong>Medium <em>{priorityCounts.medium}</em></strong>
@@ -199,7 +209,7 @@ export function GoalsPage(props: ScreenProps) {
 }
 
 function buildGoalInsights(goals: GoalCardModel[]): AgentCardModel[] {
-  return goals.slice(0, 3).map((goal) => ({
+  return goals.slice(0, 2).map((goal) => ({
     agent: 'Goal Agent',
     title: `${goal.title} profile synced`,
     detail: `${goal.target} target - ${goal.date} timeline - ${goal.confidence.toLowerCase()}`,
@@ -226,7 +236,7 @@ function buildUserGoals(props: ScreenProps): GoalCardModel[] {
 
     return {
       title: titleCase(goal.type || 'Financial goal'),
-      subtitle: `${titleCase(goal.priority || 'medium')} priority from this user's memory profile`,
+      subtitle: `${titleCase(goal.priority || 'medium')} priority from memory profile`,
       icon: iconForGoal(goal.type),
       target: hasTarget ? formatMoney(targetAmount) : 'Target TBD',
       date: hasDate ? formatGoalDate(goal.target_date) : 'Timeline TBD',

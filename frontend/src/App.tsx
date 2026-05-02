@@ -2,17 +2,17 @@ import { useCallback, useEffect, useState } from 'react'
 import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
 import { DashboardPage } from './pages/DashboardPage'
 import { GoalsPage } from './pages/GoalsPage'
+import { InsightsPage } from './pages/InsightsPage'
 import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
 import { MemoryPage } from './pages/MemoryPage'
+import { PlansPage } from './pages/PlansPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { ScenarioCanvasPage } from './pages/ScenarioCanvasPage'
 import { SignInPage } from './pages/SignInPage'
 import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
 import { WorkspaceFeaturePage } from './pages/WorkspaceFeaturePage'
-import { apiJson } from './lib/api'
 import type { Screen } from './types/screens'
-import type { MemoryStatusResponse } from '@calmvest/shared'
 import './styles/index.css'
 
 const screenRoutes = {
@@ -37,9 +37,6 @@ const screenRoutes = {
 const pathScreens = Object.fromEntries(
   Object.entries(screenRoutes).map(([screen, route]) => [route, screen]),
 ) as Record<string, keyof typeof screenRoutes>
-
-const demoUserId = 'maya-patel-demo'
-const activeUserKey = 'northstar.activeUserId'
 
 function App() {
   const { screen, setScreen, error, screenProps } = useCalmVestWorkspace()
@@ -82,26 +79,6 @@ function App() {
     }
   }, [path, screen, setScreen])
 
-  useEffect(() => {
-    if (!['/dashboard', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights'].includes(path)) return
-    const activeUserId = localStorage.getItem(activeUserKey)
-    if (!activeUserId || activeUserId === demoUserId) return
-
-    let cancelled = false
-    void apiJson<MemoryStatusResponse>(`/api/memory/status?userId=${encodeURIComponent(activeUserId)}`)
-      .then((status) => {
-        if (cancelled || status.hasMemory) return
-        navigateTo('workspace')
-      })
-      .catch(() => {
-        if (!cancelled) navigateTo('workspace')
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [navigateTo, path])
-
   function openAuth(mode: 'register' | 'login') {
     setAuthMode(mode)
     navigateTo('signin')
@@ -135,9 +112,9 @@ function App() {
       {screen === 'memory' ? <MemoryPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'goals' ? <GoalsPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'agent-runs' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="agent-runs" /> : null}
-      {screen === 'plans' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="plans" /> : null}
+      {screen === 'plans' ? <PlansPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'insights' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="insights" /> : null}
+      {screen === 'insights' ? <InsightsPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'dashboard' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )

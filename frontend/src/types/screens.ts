@@ -32,6 +32,7 @@ export type HealthResponse = {
 }
 
 export type ScreenProps = {
+  currentUserId: string
   health: HealthResponse | null
   plaid: PlaidLinkResult | null
   answers: OnboardingAnswers

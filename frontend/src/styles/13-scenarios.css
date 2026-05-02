@@ -518,6 +518,42 @@
   max-width: 78ch;
 }
 
+.scenario-agent-review__metrics {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0.85rem;
+}
+
+.scenario-agent-review__metrics span {
+  background: rgba(255, 252, 245, 0.58);
+  border: 1px solid rgba(38, 59, 48, 0.1);
+  border-radius: 14px;
+  color: rgba(38, 59, 48, 0.56);
+  display: grid;
+  font-size: 0.68rem;
+  font-weight: 820;
+  gap: 0.22rem;
+  letter-spacing: 0.07em;
+  min-width: 0;
+  padding: 0.62rem 0.68rem;
+  text-transform: uppercase;
+}
+
+.scenario-agent-review__metrics strong {
+  color: #17251e;
+  display: block;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 540;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
 .scenario-agent-review__grid {
   display: grid;
   gap: 0.7rem;
@@ -558,6 +594,7 @@
   .scenario-workbench,
   .scenario-slots,
   .scenario-comparison,
+  .scenario-agent-review__metrics,
   .scenario-agent-review__grid {
     grid-template-columns: 1fr;
   }

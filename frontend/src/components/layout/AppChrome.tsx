@@ -276,14 +276,21 @@ export function AppChrome({
                 {memoryResults.length > 0 ? (
                   memoryResults.map((result) => (
                     <button
+                      className="memory-search-result"
                       type="button"
                       key={`${result.type}-${result.nodeId ?? 'markdown'}-${result.title}`}
                       role="option"
                       onClick={() => openMemoryResult(result)}
                     >
-                      <span className="memory-search-popover__kind">{result.type}</span>
-                      <strong>{result.title}</strong>
-                      <small>{result.snippet}</small>
+                      <span className="memory-search-result__badge" aria-hidden>
+                        {result.type.slice(0, 1)}
+                      </span>
+                      <span className="memory-search-result__copy">
+                        <span className="memory-search-popover__kind">{result.type}</span>
+                        <strong>{result.title}</strong>
+                        <small>{result.snippet}</small>
+                      </span>
+                      <CaretRight className="memory-search-result__arrow" size={16} weight="bold" aria-hidden />
                     </button>
                   ))
                 ) : (

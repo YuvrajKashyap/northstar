@@ -35,6 +35,7 @@ type ScenarioPreset = ScenarioDraft & {
 }
 
 type ScenarioResult = ScenarioDraft & {
+  slotIndex: number
   score: number
   liquidity: number
   goalFit: number
@@ -113,7 +114,7 @@ export function ScenarioCanvasPage(props: ScreenProps) {
   const [scenarios, setScenarios] = useState<ScenarioDraft[]>(initialScenarios)
   const [selectedSlot, setSelectedSlot] = useState(0)
 
-  const results = useMemo(() => scenarios.map(scoreScenario), [scenarios])
+  const results = useMemo(() => scenarios.map((scenario, index) => scoreScenario(scenario, index)), [scenarios])
   const best = useMemo(() => chooseBest(results), [results])
 
   function updateScenario(index: number, patch: Partial<ScenarioDraft>) {
@@ -280,25 +281,54 @@ export function ScenarioCanvasPage(props: ScreenProps) {
           ))}
         </section>
 
-        <section className="scenario-agent-review" aria-label="Agent review">
+        <section className="scenario-agent-review" aria-label="Agent review" aria-live="polite">
           <div className="scenario-agent-review__mark">
             <Lightning size={24} weight="fill" />
           </div>
           <div>
             <span className="scenario-kicker">Scenario Agent review</span>
-            <h2>{best ? `${best.title} aligns best with your Northstar.` : 'Add scenarios to compare paths.'}</h2>
+            <h2>
+              {best
+                ? `Scenario ${best.slotIndex + 1}: ${best.title || 'Untitled scenario'} aligns best with your Northstar.`
+                : 'Add scenarios to compare paths.'}
+            </h2>
             {best ? (
               <>
                 <p>
                   {best.kind === 'choice'
                     ? `This is the strongest user-controlled path because it has the best blend of goal fit, liquidity, and emotional risk. Northstar would still require approval before any financial action.`
-                    : `This is not something to choose or avoid. It is the outside event where Northstar has the clearest response plan: protect liquidity first, slow down reactive selling, and revisit risk only after the shock is measured.`}
+                    : eventReviewFor(best)}
                 </p>
+                <div className="scenario-agent-review__metrics" aria-label="Current winning scenario metrics">
+                  <span>
+                    <strong>{best.score}</strong>
+                    Fit
+                  </span>
+                  <span>
+                    <strong>{best.liquidity}%</strong>
+                    Liquidity
+                  </span>
+                  <span>
+                    <strong>{best.stress}%</strong>
+                    Stress
+                  </span>
+                  <span>
+                    <strong>{best.horizon}</strong>
+                    Horizon
+                  </span>
+                </div>
                 <div className="scenario-agent-review__grid">
                   {results.map((result) => (
-                    <div className={result.id === best.id ? 'is-best' : ''} key={`review-${result.id}`}>
-                      {result.id === best.id ? <CheckCircle size={18} weight="fill" /> : <WarningCircle size={18} />}
-                      <strong>{result.title}</strong>
+                    <div
+                      className={result.slotIndex === best.slotIndex ? 'is-best' : ''}
+                      key={`review-slot-${result.slotIndex}`}
+                    >
+                      {result.slotIndex === best.slotIndex ? (
+                        <CheckCircle size={18} weight="fill" />
+                      ) : (
+                        <WarningCircle size={18} />
+                      )}
+                      <strong>Scenario {result.slotIndex + 1}: {result.title || 'Untitled'}</strong>
                       <span>{result.tradeoff}</span>
                     </div>
                   ))}
@@ -328,7 +358,7 @@ function toScenarioDraft({ id, title, kind, text, horizon }: ScenarioPreset): Sc
   return { id, title, kind, text, horizon }
 }
 
-function scoreScenario(scenario: ScenarioDraft): ScenarioResult {
+function scoreScenario(scenario: ScenarioDraft, slotIndex: number): ScenarioResult {
   const text = `${scenario.title} ${scenario.text}`.toLowerCase()
   const isChoice = scenario.kind === 'choice'
   const riskSignals = countSignals(text, ['drop', 'crash', 'loss', 'aggressive', 'growth', 'stock', 'risk'])
@@ -345,6 +375,7 @@ function scoreScenario(scenario: ScenarioDraft): ScenarioResult {
 
   return {
     ...scenario,
+    slotIndex,
     score,
     liquidity,
     goalFit,
@@ -368,12 +399,12 @@ function forecastFor(
 ) {
   if (scenario.kind === 'event') {
     if (signals.riskSignals > signals.cashSignals) {
-      return 'Portfolio value would likely fall before goals change, so behavior risk matters as much as market risk.'
+      return 'Forecast: portfolio value would likely fall before goals change, so the first risk is a reactive decision during volatility.'
     }
     if (signals.cashSignals > 0) {
-      return 'Liquidity becomes the binding constraint. Long-term plan quality depends on avoiding forced selling.'
+      return 'Forecast: liquidity becomes the binding constraint, and long-term plan quality depends on avoiding forced selling.'
     }
-    return 'The event would stress the plan, but the right response depends on cash runway and goal timing.'
+    return 'Forecast: the event would stress the plan, with the largest impact coming from cash runway, goal timing, and how quickly decisions are made.'
   }
   if (signals.goalSignals > 0) {
     return 'This could improve goal alignment if the timeline and cash buffer remain realistic.'
@@ -387,9 +418,12 @@ function forecastFor(
 function strategyFor(scenario: ScenarioDraft, metrics: { score: number; liquidity: number; stress: number }) {
   if (scenario.kind === 'event') {
     if (metrics.liquidity < 52) {
-      return 'Build the response around cash first: pause nonessential risk, identify least disruptive funding, and avoid selling purely from panic.'
+      return 'Prepare now: rank funding sources, preserve near-term cash, pause nonessential risk, and define what would trigger action before the event forces a decision.'
     }
-    return 'Pre-commit the response now: protect goal cash, rebalance only if thresholds are hit, and wait for confirmation before acting.'
+    if (metrics.stress > 64) {
+      return 'Prepare now: write the response plan before stress hits, protect goal cash, set rebalance thresholds, and delay major allocation changes until the shock is measured.'
+    }
+    return 'Prepare now: protect goal cash, set a calm review cadence, rebalance only if thresholds are hit, and require confirmation before acting.'
   }
   if (metrics.score >= 70) {
     return 'Worth considering, but only after checking tax impact, cash runway, and whether the move still needs explicit approval.'
@@ -405,13 +439,23 @@ function tradeoffFor(
   metrics: { score: number; liquidity: number; stress: number; goalFit: number },
 ) {
   if (scenario.kind === 'event') {
-    return metrics.liquidity < 55
-      ? 'Main risk: being forced to use investments at a bad time.'
-      : 'Main value: having a calm response before the event happens.'
+    if (metrics.liquidity < 55) return 'Prepare for the cash gap first so investments are not sold at the worst moment.'
+    if (metrics.stress > 64) return 'Pre-commit the response so stress does not become the decision-maker.'
+    return 'Best preparation is a calm playbook: know what to protect, what to watch, and when to act.'
   }
   if (metrics.score >= 70) return 'Best fit because it improves the plan without overwhelming cash flexibility.'
   if (metrics.stress > metrics.goalFit) return 'Falls behind because stress rises faster than goal progress.'
   return 'Useful, but it needs sharper numbers before Northstar can recommend it.'
+}
+
+function eventReviewFor(result: ScenarioResult) {
+  if (result.liquidity < 55) {
+    return `This outside event needs a preparation plan, not a yes-or-no decision. The forecast points to liquidity pressure, so the best response is to protect cash, choose funding sources in advance, and avoid forced selling if ${result.title || 'this event'} happens.`
+  }
+  if (result.stress > 64) {
+    return `This outside event is mainly a stress-management test. The forecast says the plan can absorb more if decisions are pre-committed, so prepare by setting review thresholds, protecting goal cash, and delaying big changes until the shock is measurable.`
+  }
+  return `This outside event has a clearer response path than the other slots. The forecast is manageable if you prepare in advance: protect goal cash, define what would trigger action, and use the plan instead of reacting in the moment.`
 }
 
 function countSignals(text: string, words: string[]) {

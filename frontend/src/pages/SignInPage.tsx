@@ -12,9 +12,9 @@ import {
 import appleLogo from '../assets/apple-logo.svg'
 import googleLogo from '../assets/google-g-logo.svg'
 import northstarLogo from '../assets/northstar-logo.svg'
-import { apiJson, postJson } from '../lib/api'
+import { postJson } from '../lib/api'
 import type { Screen } from '../types/screens'
-import type { AuthRecoverResponse, AuthUserSession, MemoryStatusResponse } from '@calmvest/shared'
+import type { AuthRecoverResponse, AuthUserSession } from '@calmvest/shared'
 
 type AuthMode = 'register' | 'login'
 
@@ -93,17 +93,7 @@ export function SignInPage({
     localStorage.setItem('northstar.activeUserName', session.name)
     if (session.accessToken) localStorage.setItem('northstar.accessToken', session.accessToken)
     window.dispatchEvent(new Event('northstar-auth'))
-    if (isRegister) {
-      setScreen('workspace')
-      return
-    }
-
-    try {
-      const status = await apiJson<MemoryStatusResponse>(`/api/memory/status?userId=${encodeURIComponent(session.userId)}`)
-      setScreen(status.hasMemory ? 'dashboard' : 'workspace')
-    } catch {
-      setScreen('workspace')
-    }
+    setScreen('dashboard')
   }
 
   function readableError(caught: unknown) {

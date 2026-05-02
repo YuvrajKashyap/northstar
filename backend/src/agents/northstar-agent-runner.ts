@@ -76,12 +76,50 @@ export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncG
     return;
   }
 
+  if ((request.mode ?? 'general') === 'general') {
+    const quickState = { finalAnswer: '' };
+    const quickTake = quickGeneralAnswer(request, runContext);
+    if (quickTake) {
+      quickState.finalAnswer = quickTake;
+      yield emit(runId, 'message_delta', DEFAULT_AGENT, 'Immediate Northstar response', {
+        userId: request.userId,
+        delta: quickTake,
+        immediate: true,
+      });
+    }
+    for await (const event of streamWithChatCompletions(request, toolContext, runContext, quickState, false)) {
+      yield event;
+    }
+    if (!quickState.finalAnswer.trim()) {
+      quickState.finalAnswer = deterministicNorthAnswer(request, runContext);
+      yield emit(runId, 'message_delta', DEFAULT_AGENT, 'Assistant response delta', {
+        userId: request.userId,
+        delta: quickState.finalAnswer,
+        fallback: 'empty_general_chat_output',
+      });
+    }
+    yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
+      userId: request.userId,
+      finalAnswer: quickState.finalAnswer,
+      runner: 'openai-chat-completions-fast',
+    });
+    return;
+  }
+
   const sdkState = { finalAnswer: '' };
   let sdkEmitted = false;
   try {
     for await (const event of runWithAgentsSdk(request, toolContext, runContext, sdkState)) {
       sdkEmitted = true;
       yield event;
+    }
+    if (!sdkState.finalAnswer.trim()) {
+      sdkState.finalAnswer = deterministicNorthAnswer(request, runContext);
+      yield emit(runId, 'message_delta', DEFAULT_AGENT, 'Assistant response delta', {
+        userId: request.userId,
+        delta: sdkState.finalAnswer,
+        fallback: 'empty_agents_sdk_output',
+      });
     }
     yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
       userId: request.userId,
@@ -108,6 +146,15 @@ export async function* streamNorthstarAgentRun(request: AgentRunRequest): AsyncG
   const fallbackState = { finalAnswer: '' };
   for await (const event of streamWithChatCompletions(request, toolContext, runContext, fallbackState)) {
     yield event;
+  }
+
+  if (!fallbackState.finalAnswer.trim()) {
+    fallbackState.finalAnswer = deterministicNorthAnswer(request, runContext);
+    yield emit(runId, 'message_delta', DEFAULT_AGENT, 'Assistant response delta', {
+      userId: request.userId,
+      delta: fallbackState.finalAnswer,
+      fallback: 'empty_chat_completions_output',
+    });
   }
 
   yield emit(runId, 'run_completed', DEFAULT_AGENT, 'North run complete', {
@@ -161,7 +208,7 @@ async function* runWithAgentsSdk(
     model: DEFAULT_MODEL,
   });
 
-  const result = await runner.run(agent, request.message, {
+  const result = await runner.run(agent, buildUserMessage(request, runContext), {
     stream: true,
     maxTurns: 8,
     context: toolContext,
@@ -189,6 +236,7 @@ async function* streamWithChatCompletions(
   toolContext: NorthstarToolContext,
   runContext: NorthRunContext,
   state: { finalAnswer: string },
+  allowTools = true,
 ): AsyncGenerator<AgentTraceEvent> {
   const client = createOpenRouterClient();
   if (!client) {
@@ -196,26 +244,30 @@ async function* streamWithChatCompletions(
   }
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
     { role: 'system', content: buildAgentInstructions(request.userId, runContext) },
-    { role: 'user', content: request.message },
+    { role: 'user', content: buildUserMessage(request, runContext) },
   ];
 
   for (let turn = 0; turn < 8; turn += 1) {
-    const stream = (await client.chat.completions.create({
+    const requestBody: Record<string, unknown> = {
       model: DEFAULT_MODEL,
       messages,
       stream: true,
-      tools: northstarTools.map((definition) => ({
+      reasoning: appConfig.openRouter.reasoning,
+    };
+    if (allowTools) {
+      requestBody.tools = northstarTools.map((definition) => ({
         type: 'function',
         function: {
           name: definition.name,
           description: definition.description,
           parameters: definition.jsonSchema,
         },
-      })),
-      tool_choice: 'auto',
-      parallel_tool_calls: false,
-      reasoning: appConfig.openRouter.reasoning,
-    } as never)) as unknown as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
+      }));
+      requestBody.tool_choice = 'auto';
+      requestBody.parallel_tool_calls = false;
+    }
+
+    const stream = (await client.chat.completions.create(requestBody as never)) as unknown as AsyncIterable<OpenAI.Chat.Completions.ChatCompletionChunk>;
 
     let assistantContent = '';
     const pendingToolCalls = new Map<
@@ -380,6 +432,7 @@ async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
   const [
     { data: memory, error: memoryError },
     { data: packet, error: packetError },
+    { data: profile, error: profileError },
     { data: accounts, error: accountsError },
     { data: holdings, error: holdingsError },
     { data: taxLots, error: taxLotsError },
@@ -387,6 +440,7 @@ async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
   ] = await Promise.all([
     supabase.from('memory_documents').select('content, updated_at').eq('user_id', userId).maybeSingle(),
     supabase.from('context_packets').select('packet, updated_at').eq('user_id', userId).maybeSingle(),
+    supabase.from('demo_auth_users').select('name, email').eq('user_id', userId).maybeSingle(),
     supabase.from('accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
     supabase.from('holdings').select('*').eq('user_id', userId).order('value', { ascending: false }),
     supabase.from('tax_lots').select('*').eq('user_id', userId).order('acquired_at', { ascending: true }),
@@ -399,6 +453,19 @@ async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
   ]);
 
   const hasDatabaseMemory = !memoryError && !packetError && (memory?.content || packet?.packet);
+  const profileName = !profileError && typeof profile?.name === 'string' && profile.name.trim()
+    ? profile.name.trim()
+    : userId === seed.user.id
+      ? seed.user.name
+      : 'Northstar user';
+  const fallbackContext = userId === seed.user.id ? seed.contextPacket : emptyRunContextPacket(userId, profileName);
+  const contextPacket = (packet?.packet as ContextPacket | undefined) ?? fallbackContext;
+  const memoryMarkdown =
+    typeof memory?.content === 'string'
+      ? memory.content
+      : userId === seed.user.id
+        ? seed.memoryTemplate
+        : emptyRunMemoryMarkdown(contextPacket);
   const hasDatabasePortfolio =
     !accountsError &&
     !holdingsError &&
@@ -407,8 +474,8 @@ async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
     Boolean((accounts?.length ?? 0) + (holdings?.length ?? 0) + (taxLots?.length ?? 0) + (transactions?.length ?? 0));
 
   return {
-    memoryMarkdown: typeof memory?.content === 'string' ? memory.content : seed.memoryTemplate,
-    contextPacket: (packet?.packet as ContextPacket | undefined) ?? seed.contextPacket,
+    memoryMarkdown,
+    contextPacket,
     portfolio: hasDatabasePortfolio
       ? {
           accounts: accounts ?? [],
@@ -416,13 +483,20 @@ async function loadNorthRunContext(userId: string): Promise<NorthRunContext> {
           taxLots: taxLots ?? [],
           recentTransactions: transactions ?? [],
         }
-      : {
+      : userId === seed.user.id
+        ? {
           accounts: seed.accounts,
           holdings: seed.holdings,
           taxLots: seed.taxLots,
           recentTransactions: seed.transactions.slice(0, 20),
+        }
+        : {
+          accounts: [],
+          holdings: [],
+          taxLots: [],
+          recentTransactions: [],
         },
-    source: hasDatabaseMemory && hasDatabasePortfolio ? 'database' : hasDatabaseMemory || hasDatabasePortfolio ? 'mixed' : 'seed',
+    source: hasDatabaseMemory && hasDatabasePortfolio ? 'database' : hasDatabaseMemory || hasDatabasePortfolio || userId !== seed.user.id ? 'mixed' : 'seed',
   };
 }
 
@@ -440,6 +514,10 @@ function mapHoldings(rows: Array<Record<string, unknown>>): Holding[] {
 }
 
 function deterministicNorthAnswer(request: AgentRunRequest, context: NorthRunContext): string {
+  const userName = displayUserName(context.contextPacket);
+  const northStar = inferNorthStar(context);
+  const risk = cleanContextText(context.contextPacket.risk_profile.risk_comfort) || 'risk comfort not fully captured';
+  const liquidity = cleanContextText(context.contextPacket.risk_profile.liquidity_need) || 'liquidity needs still need confirmation';
   const goals = context.contextPacket.goals
     .map((goal) => `${goal.type.replace(/_/g, ' ')} (${money(goal.target_amount)} by ${goal.target_date})`)
     .join(', ');
@@ -451,10 +529,37 @@ function deterministicNorthAnswer(request: AgentRunRequest, context: NorthRunCon
   return [
     modeLine,
     '',
-    `Memory loaded for ${context.contextPacket.user.name}. Primary goals: ${goals || 'not captured yet'}.`,
-    `Portfolio snapshot: ${money(context.contextPacket.accounts_summary.portfolio_value)} total, ${money(context.contextPacket.accounts_summary.cash_available)} cash, top holding ${topHolding?.symbol ?? 'unknown'}.`,
-    'What matters: keep near-term goal money liquid, avoid tax-sensitive moves without approval, and review concentration before reacting to market news.',
+    `${firstName(userName)}, based on your Northstar memory, I would optimize this around: ${northStar}.`,
+    `Your saved context says risk comfort is ${risk}, liquidity context is ${liquidity}, and primary goals are: ${goals || 'not captured yet'}.`,
+    `Portfolio snapshot available to North: ${money(context.contextPacket.accounts_summary.portfolio_value)} total, ${money(context.contextPacket.accounts_summary.cash_available)} cash${topHolding ? `, top holding ${topHolding.symbol}` : ''}.`,
+    deterministicDecisionLine(request.message, northStar),
   ].join('\n');
+}
+
+function deterministicDecisionLine(message: string, northStar: string) {
+  const vacation = message.match(/\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k|thousand)?\s+(?:vacation|trip)/i);
+  if (vacation) {
+    const raw = Number(vacation[1].replace(/,/g, ''));
+    const amount = raw * (/^(k|thousand)$/i.test(vacation[2] ?? '') ? 1000 : 1);
+    return `For the ${money(amount)} vacation question: I would not call it smart by default until the Porsche 911 timeline, emergency fund, and cash runway are protected. Treat it as approval-ready only if it does not slow ${northStar}; otherwise cap it, delay it, or fund it from money already reserved for discretionary spending.`;
+  }
+  return `For your question "${message}", the personalized default is: protect near-term cash first, avoid tax-sensitive moves without approval, and only say yes to spending or investing decisions that do not weaken ${northStar}.`;
+}
+
+function quickGeneralAnswer(request: AgentRunRequest, context: NorthRunContext) {
+  const message = request.message;
+  const northStar = inferNorthStar(context);
+  const userName = firstName(displayUserName(context.contextPacket));
+  const vacation = message.match(/\$?\s*(\d[\d,]*(?:\.\d+)?)\s*(k|thousand)?\s+(?:vacation|trip)/i);
+  if (vacation) {
+    const raw = Number(vacation[1].replace(/,/g, ''));
+    const amount = raw * (/^(k|thousand)$/i.test(vacation[2] ?? '') ? 1000 : 1);
+    return `${userName}, quick take: I would not treat a ${money(amount)} vacation as smart right now unless it is already funded from surplus discretionary cash and does not slow ${northStar}. I am checking the fuller context now.\n\n`;
+  }
+  if (/\b(can i|should i|is it smart|would it be smart|buy|spend|vacation|trip)\b/i.test(message)) {
+    return `${userName}, quick take: I will judge this against your saved goals, cash flexibility, and approval boundaries first. I am checking the fuller context now.\n\n`;
+  }
+  return '';
 }
 
 function money(value: number): string {
@@ -462,6 +567,9 @@ function money(value: number): string {
 }
 
 function buildAgentInstructions(userId: string, context: NorthRunContext): string {
+  const userName = displayUserName(context.contextPacket);
+  const userFirstName = firstName(userName);
+  const northStar = inferNorthStar(context);
   const contextJson = JSON.stringify(
     {
       contextPacket: context.contextPacket,
@@ -478,6 +586,8 @@ function buildAgentInstructions(userId: string, context: NorthRunContext): strin
   return [
     'You are North, the single local financial guidance agent running inside the Northstar backend.',
     `Active userId: ${userId}. Do not use fallback personas when this userId is present.`,
+    `Active user name: ${userName}. Preferred first-name address: ${userFirstName}.`,
+    `This user's North Star: ${northStar}. Every answer must be optimized toward this North Star.`,
     '',
     'Always-loaded memory.md:',
     context.memoryMarkdown,
@@ -485,15 +595,117 @@ function buildAgentInstructions(userId: string, context: NorthRunContext): strin
     'Always-loaded context_packet.json and portfolio snapshot:',
     contextJson,
     '',
+    'Personalization contract:',
+    '- Every answer must use the loaded memory.md and context_packet.json before answering. Never give a generic answer when memory exists.',
+    `- Address the user naturally by name when it fits, especially for personal decisions. The user is ${userName}, not Maya unless that is the active context name.`,
+    '- Tie recommendations to the user-specific goals, cash/liquidity, risk comfort, tax constraints, values, and approval boundaries.',
+    '- If the user asks “Can I buy X?”, “Should I do Y?”, or any broad life/financial question, evaluate it against their goals, liquidity, risk capacity, timeline, and North Star.',
+    '- If exact data is missing, say what is missing and give a conditional answer using the known memory. Do not invent account values, goals, dates, income, or preferences.',
+    '- Finish with the best next step for this specific user, not a generic checklist.',
+    '',
     'Operating rules:',
-    '- Memory, context_packet.json, and portfolio context are already loaded. Use get_memory_context or get_portfolio_context only when you need to verify persisted data.',
+    '- Memory, context_packet.json, and portfolio context are already loaded in this prompt. Use get_memory_context or get_portfolio_context when you need to verify persisted data or retrieve fuller rows.',
     '- Use get_market_data, get_financials, and read_filings for market/company/filing facts when needed.',
     '- Use web_search for current web research that Financial Datasets does not cover. Keep live search/news calls to at most 3 per run.',
     '- If a tool reports unavailable, missing, stale, or partial data, say that plainly and continue with what is known.',
-    '- Separate education or recommendations from execution.',
+    '- If the user asks to add or update a saved goal, acknowledge the requested memory change plainly. The app may apply saved-goal memory edits after this response.',
+    '- Separate education or recommendations from financial execution.',
     '- Never claim you placed trades, moved money, filed taxes, changed accounts, or contacted institutions.',
     '- Do not expose hidden chain-of-thought. Provide concise user-visible rationale and next steps only.',
   ].join('\n');
+}
+
+function buildUserMessage(request: AgentRunRequest, context: NorthRunContext): string {
+  const modeInstruction =
+    request.mode === 'fresh_check'
+      ? freshCheckPrompt
+      : request.mode === 'demo_scenario'
+        ? 'Run this as a scenario-style planning question, using the user memory and requiring approval before any action.'
+        : 'Answer this as a personalized Northstar chat message.';
+  return [
+    modeInstruction,
+    `User name: ${displayUserName(context.contextPacket)}`,
+    `North Star to optimize for: ${inferNorthStar(context)}`,
+    `User message: ${request.message}`,
+  ].join('\n');
+}
+
+function emptyRunContextPacket(userId: string, name: string): ContextPacket {
+  return {
+    user: {
+      id: userId,
+      name,
+      age: 0,
+      investor_level: '',
+      communication_style: 'Plain English with clear next steps',
+    },
+    goals: [],
+    risk_profile: {
+      risk_comfort: '',
+      panic_response: '',
+      liquidity_need: '',
+    },
+    accounts_summary: {
+      taxable: false,
+      brokerage_count: 0,
+      cash_available: 0,
+      portfolio_value: 0,
+    },
+    portfolio_features: {
+      top3_concentration: 0,
+      equity_weight: 0,
+      cash_weight: 0,
+      growth_tech_overlap: '',
+      liquidity_coverage: 0,
+    },
+    constraints: {
+      no_auto_trade: true,
+      prefer_tax_aware: false,
+      explain_costs: true,
+    },
+  };
+}
+
+function emptyRunMemoryMarkdown(contextPacket: ContextPacket) {
+  return [
+    `# Northstar Memory: ${displayUserName(contextPacket)}`,
+    '',
+    '## Status',
+    '- No committed memory questionnaire has been found for this user yet.',
+    '- North must ask for missing details instead of using sample or demo memory.',
+    '',
+    '## North Usage',
+    '- North must keep answers scoped to this signed-in user id.',
+    '- North must not borrow goals, risk profile, or account facts from another person.',
+  ].join('\n');
+}
+
+function displayUserName(contextPacket: ContextPacket) {
+  return cleanContextText(contextPacket.user.name) || 'Northstar user';
+}
+
+function firstName(name: string) {
+  return name.trim().split(/\s+/)[0] || 'there';
+}
+
+function inferNorthStar(context: NorthRunContext) {
+  const goals = context.contextPacket.goals.filter((goal) => cleanContextText(goal.type));
+  const primaryGoal = goals.find((goal) => goal.priority === 'high') ?? goals[0];
+  const goalText = primaryGoal
+    ? `${cleanContextText(primaryGoal.type).replace(/_/g, ' ')}${primaryGoal.target_amount > 0 ? ` (${money(primaryGoal.target_amount)})` : ''}`
+    : '';
+  const memoryGoal = context.memoryMarkdown.match(/(?:most important goal|primary goal|north star|financial flexibility)[^\n.]*/i)?.[0];
+  const liquidity = cleanContextText(context.contextPacket.risk_profile.liquidity_need);
+  if (memoryGoal) return memoryGoal.replace(/^[-*\s]+/, '').trim();
+  if (goalText && liquidity) return `${goalText} while preserving ${liquidity.replace(/_/g, ' ')}`;
+  if (goalText) return goalText;
+  return 'building durable financial flexibility without losing control or taking actions without approval';
+}
+
+function cleanContextText(value: string | undefined) {
+  if (!value) return '';
+  const clean = value.replace(/_/g, ' ').trim();
+  return /^(unknown|not filled in yet|null|undefined)$/i.test(clean) ? '' : clean;
 }
 
 async function emit(

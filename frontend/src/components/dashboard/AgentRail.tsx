@@ -76,10 +76,10 @@ export function AgentRail({
     ) : null
 
   const answerBlock =
-    answer ? (
+    answer || busy ? (
       <article className="agent-answer">
         <span>Northstar response</span>
-        <p>{answer}</p>
+        <p>{answer || 'Reading your memory and preparing a response...'}</p>
       </article>
     ) : null
 
@@ -107,12 +107,12 @@ export function AgentRail({
       {panel ? (
         <>
           {runner}
-          <DecisionInboxCard scenario={scenario} />
-          <ScenarioCanvasCard scenario={scenario} />
-          <TrustReceiptCard scenario={scenario} />
           {answerBlock}
           {traceBlock}
           {scenarioBlock}
+          <DecisionInboxCard scenario={scenario} />
+          <ScenarioCanvasCard scenario={scenario} />
+          <TrustReceiptCard scenario={scenario} />
           <div className="agent-rail__panel-agents">
             <span className="agent-rail__panel-agents-label">Specialists on call</span>
             {cardsBlock}
@@ -165,7 +165,7 @@ function DecisionInboxCard({ scenario }: { scenario: ScenarioSummary }) {
         Needs approval
       </div>
       <h3>Scenario worth reviewing</h3>
-      <p>Market drop + withdrawal need may affect Maya's house goal.</p>
+      <p>Market drop + withdrawal need may affect your saved goal plan.</p>
       <div className="demo-decision-meta">
         <span>{hasRun ? 'Trace ready' : 'Waiting for fresh check'}</span>
         <span>Approval required</span>
@@ -214,7 +214,7 @@ function TrustReceiptCard({ scenario }: { scenario: ScenarioSummary }) {
       <h3>Human control: {String(receipt?.humanControl ?? 'approval_required').replace(/_/g, ' ')}</h3>
       <div className="receipt-grid">
         <span>Why</span>
-        <p>{String(receipt?.why ?? 'Maya may need cash soon and is worried about a sharp drawdown.')}</p>
+        <p>{String(receipt?.why ?? 'Your memory may include near-term cash needs and drawdown concerns.')}</p>
         <span>Cost</span>
         <p>{String(receipt?.cost ?? 'low')}</p>
         <span>Tax</span>

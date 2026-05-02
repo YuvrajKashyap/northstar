@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import type { AgentTraceEvent, GoalMemoryUpdateResponse, MemoryGraph, OnboardingAnswers, PlaidLinkResult } from '@calmvest/shared'
 import { defaultAnswers, userId } from '../data/workspaceContent'
 import { apiJson, postJson, streamAgentRun, streamScenarioTrace } from '../lib/api'
+import { extractGoalActionInstruction } from '../lib/agentGoalActions'
 import type { HealthResponse, Screen } from '../types/screens'
 
 const activeUserKey = 'northstar.activeUserId'
@@ -253,6 +254,29 @@ export function useCalmVestWorkspace() {
     setBusyStep('scenario')
     try {
       await streamAgentRun({ userId: currentUserId, message, mode }, handleAgentEvent)
+      const goalInstruction = extractGoalActionInstruction(message)
+      if (goalInstruction) {
+        try {
+          const result = await postJson<GoalMemoryUpdateResponse & { action?: 'added' | 'updated' }>('/api/memory/goals/apply', {
+            userId: currentUserId,
+            description: goalInstruction,
+          })
+          const resolvedGraph = graphOrFallback(result.graph, currentUserId)
+          setGraph(resolvedGraph)
+          setSelectedNodeId('goals')
+          setAgentAnswer((previous) => {
+            const target = result.goal.target_amount > 0 ? formatAgentMoney(result.goal.target_amount) : 'target amount TBD'
+            const date = result.goal.target_date && result.goal.target_date !== 'unknown' ? result.goal.target_date : 'timeline TBD'
+            const summary = `\n\nAction completed: ${result.action === 'updated' ? 'updated' : 'added'} ${result.goal.type} with ${target} by ${date}. It now appears in Goals.`
+            return previous ? `${previous}${summary}` : summary.trim()
+          })
+        } catch (caught) {
+          setAgentAnswer((previous) => {
+            const summary = `\n\nAction not saved: ${caught instanceof Error ? caught.message : 'Could not update goals.'}`
+            return previous ? `${previous}${summary}` : summary.trim()
+          })
+        }
+      }
     } finally {
       setBusyStep(null)
     }
@@ -304,6 +328,7 @@ export function useCalmVestWorkspace() {
     setScreen,
     error,
     screenProps: {
+      currentUserId,
       health,
       plaid,
       answers,
@@ -322,4 +347,12 @@ export function useCalmVestWorkspace() {
       setScreen,
     },
   }
+}
+
+function formatAgentMoney(value: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value)
 }

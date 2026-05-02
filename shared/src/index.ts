@@ -71,6 +71,94 @@ export interface ContextPacket {
   };
 }
 
+export type PlanStatus = 'active' | 'archived' | 'draft';
+export type PlanApprovalStatus = 'not_required' | 'approval_required' | 'approved' | 'rejected';
+export type PlanStepCategory = 'protect_cash' | 'fund_goals' | 'reduce_risk' | 'tax_review';
+export type PlanStepTiming = 'now' | 'next_30_days' | 'next_90_days' | 'longer_term';
+
+export interface PlanConfidence {
+  liquidityMath: 'high' | 'medium' | 'low';
+  goalPace: 'high' | 'medium' | 'low';
+  marketAssumptions: 'high' | 'medium' | 'low';
+  taxSpecificity: 'high' | 'medium' | 'low';
+}
+
+export interface PlanImpact {
+  liquidity: number;
+  goalFit: number;
+  riskReduction: number;
+  taxAwareness: number;
+}
+
+export interface PlanStep {
+  id: string;
+  planId: string;
+  position: number;
+  category: PlanStepCategory;
+  timing: PlanStepTiming;
+  title: string;
+  description: string;
+  rationale: string;
+  memoryDrivers: string[];
+  impact: PlanImpact;
+  approvalRequired: boolean;
+  approvalStatus: PlanApprovalStatus;
+  trustReceiptId: string | null;
+  changesIf: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Plan {
+  id: string;
+  userId: string;
+  title: string;
+  summary: string;
+  status: PlanStatus;
+  horizon: string;
+  targetDate: string | null;
+  score: number;
+  confidence: PlanConfidence;
+  sourceMetadata: {
+    memoryUpdatedAt: string | null;
+    contextUpdatedAt: string | null;
+    accounts: number;
+    holdings: number;
+    taxLots: number;
+    trustReceipts: number;
+    generatedAt: string;
+  };
+  content: {
+    primaryGoal: string;
+    riskPosture: string;
+    liquidityCoverage: number;
+    approvalSummary: string;
+    missingInputs: string[];
+    toolsUsed: string[];
+  };
+  steps: PlanStep[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlansResponse {
+  ok: boolean;
+  userId: string;
+  plans: Plan[];
+}
+
+export interface PlanGenerateResponse {
+  ok: boolean;
+  userId: string;
+  plan: Plan;
+}
+
+export interface PlanApprovalResponse {
+  ok: boolean;
+  userId: string;
+  plan: Plan;
+}
+
 export interface Holding {
   symbol: string;
   name: string;

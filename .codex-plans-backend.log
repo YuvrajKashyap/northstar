@@ -1,0 +1,5 @@
+
+> @calmvest/backend@0.1.0 dev
+> tsx watch src/index.ts
+
+CalmVest API listening on http://localhost:8787

@@ -40,7 +40,7 @@ export function GoalCard({ goal }: { goal: GoalCardModel }) {
       <div className={`confidence ${goal.tone}`}>
         <TrendUp size={20} weight="duotone" />
         <strong>{goal.confidence}</strong>
-        <span>Agent ready</span>
+        <span>{goal.status === 'completed' ? 'Complete' : goal.status === 'at-risk' ? 'Needs context' : 'Agent ready'}</span>
       </div>
       <button className="goal-card__open" type="button" aria-label={`Open ${goal.title}`}>
         <ArrowRight size={18} />

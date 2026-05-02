@@ -7,6 +7,7 @@ import { agentRouter } from './routes/agent.js';
 import { onboardingRouter } from './routes/onboarding.js';
 import { memoryRouter } from './routes/memory.js';
 import { authRouter } from './routes/auth.js';
+import { plansRouter } from './routes/plans.js';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/agent', agentRouter);
 app.use('/api/onboarding', onboardingRouter);
 app.use('/api/memory', memoryRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/plans', plansRouter);
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   const message =
