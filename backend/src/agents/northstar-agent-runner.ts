@@ -16,6 +16,7 @@ import {
 
 const DEFAULT_AGENT = 'North';
 const DEFAULT_MODEL = appConfig.openRouter.models.default;
+const EXTERNAL_RESEARCH_TOOLS = new Set(['web_search', 'get_market_data', 'get_financials', 'read_filings']);
 
 type NorthRunContext = {
   memoryMarkdown: string;
@@ -198,6 +199,7 @@ async function* streamWithChatCompletions(
     { role: 'system', content: buildAgentInstructions(request.userId, runContext) },
     { role: 'user', content: request.message },
   ];
+  let externalResearchCallCount = 0;
 
   for (let turn = 0; turn < 8; turn += 1) {
     const stream = (await client.chat.completions.create({
@@ -264,12 +266,38 @@ async function* streamWithChatCompletions(
 
     for (const call of toolCalls) {
       const args = parseToolArguments(call.arguments);
+      const isExternalResearchTool = EXTERNAL_RESEARCH_TOOLS.has(call.name);
+      if (isExternalResearchTool && externalResearchCallCount >= 3) {
+        const cappedResult = {
+          status: 'fallback',
+          tool: call.name,
+          reason: 'Demo live-data cap reached. North limits external research tools to 3 calls per run.',
+        };
+        yield emit(toolContext.runId, 'tool_warning', DEFAULT_AGENT, `${call.name} capped`, {
+          userId: request.userId,
+          warning: cappedResult.reason,
+        });
+        yield emit(toolContext.runId, 'tool_result', DEFAULT_AGENT, `${call.name} capped`, {
+          userId: request.userId,
+          toolName: call.name,
+          result: cappedResult,
+          visibleToUser: true,
+        });
+        messages.push({
+          role: 'tool',
+          tool_call_id: call.id,
+          content: JSON.stringify(cappedResult),
+        });
+        continue;
+      }
+
       yield emit(toolContext.runId, 'tool_call', DEFAULT_AGENT, call.name, {
         userId: request.userId,
         args,
         visibleToUser: true,
       });
 
+      if (isExternalResearchTool) externalResearchCallCount += 1;
       const result = await executeNorthstarTool(call.name, args, toolContext);
       if (result.warning) {
         yield emit(toolContext.runId, 'tool_warning', DEFAULT_AGENT, `${call.name} warning`, {
@@ -488,7 +516,7 @@ function buildAgentInstructions(userId: string, context: NorthRunContext): strin
     'Operating rules:',
     '- Memory, context_packet.json, and portfolio context are already loaded. Use get_memory_context or get_portfolio_context only when you need to verify persisted data.',
     '- Use get_market_data, get_financials, and read_filings for market/company/filing facts when needed.',
-    '- Use web_search for current web research that Financial Datasets does not cover. Keep live search/news calls to at most 3 per run.',
+    '- Use web_search for current web research that Financial Datasets does not cover. Keep external market/search/filing/financial tool calls to at most 3 total per run, then answer from the gathered context.',
     '- If a tool reports unavailable, missing, stale, or partial data, say that plainly and continue with what is known.',
     '- Separate education or recommendations from execution.',
     '- Never claim you placed trades, moved money, filed taxes, changed accounts, or contacted institutions.',

@@ -23,6 +23,7 @@ export type Screen =
   | 'scenarios'
   | 'insights'
   | 'dashboard'
+  | 'north'
 
 export type HealthResponse = {
   ok: boolean

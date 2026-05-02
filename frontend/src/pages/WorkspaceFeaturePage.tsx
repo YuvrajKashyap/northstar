@@ -115,7 +115,7 @@ export function WorkspaceFeaturePage({
               </div>
             </div>
             {agentCards.slice(0, 2).map((card) => (
-              <AgentUsageCard card={card} key={card.agent} />
+              <AgentUsageCard card={card} key={card.title} />
             ))}
           </aside>
         </div>

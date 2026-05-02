@@ -12,6 +12,7 @@ import {
 import type { AgentTraceEvent, RawMemoryDocument } from '@calmvest/shared'
 import type { ScreenProps } from '../types/screens'
 import { AppChrome } from '../components/layout/AppChrome'
+import { MarkdownRenderer } from '../components/common/MarkdownRenderer'
 import { getRawMemory } from '../lib/api'
 
 const freshCheckMessage =
@@ -88,7 +89,7 @@ export function DashboardPage(props: ScreenProps) {
 
   return (
     <AppChrome
-      active="dashboard"
+      active="north"
       setScreen={props.setScreen}
       graph={props.graph}
       agentAnswer={props.agentAnswer}
@@ -135,7 +136,7 @@ export function DashboardPage(props: ScreenProps) {
             {messages.map((message, index) => (
               <article className={`north-message north-message--${message.role}`} key={`${message.role}-${index}`}>
                 <div className="north-message__avatar">{message.role === 'assistant' ? 'N' : 'You'}</div>
-                <p>{message.body}</p>
+                <MarkdownRenderer className="north-message__content">{message.body}</MarkdownRenderer>
               </article>
             ))}
             {!props.agentAnswer && (
@@ -218,11 +219,13 @@ export function DashboardPage(props: ScreenProps) {
                   <Database size={16} /> context packet
                 </button>
               </div>
-              <pre>
-                {memoryTab === 'memory'
-                  ? rawMemory?.memoryMarkdown ?? props.graph?.memoryMarkdown ?? 'No memory loaded yet.'
-                  : JSON.stringify(rawMemory?.contextPacket ?? props.graph?.contextPacket ?? {}, null, 2)}
-              </pre>
+              {memoryTab === 'memory' ? (
+                <MarkdownRenderer className="north-memory-markdown">
+                  {rawMemory?.memoryMarkdown ?? props.graph?.memoryMarkdown ?? 'No memory loaded yet.'}
+                </MarkdownRenderer>
+              ) : (
+                <pre>{JSON.stringify(rawMemory?.contextPacket ?? props.graph?.contextPacket ?? {}, null, 2)}</pre>
+              )}
             </div>
           </div>
         ) : null}

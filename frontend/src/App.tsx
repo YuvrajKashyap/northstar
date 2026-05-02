@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
 import { DashboardPage } from './pages/DashboardPage'
 import { GoalsPage } from './pages/GoalsPage'
+import { HomePage } from './pages/HomePage'
 import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
 import { MemoryPage } from './pages/MemoryPage'
@@ -32,6 +33,7 @@ const screenRoutes = {
   scenarios: '/scenarios',
   insights: '/insights',
   dashboard: '/dashboard',
+  north: '/north',
 } as const
 
 const pathScreens = Object.fromEntries(
@@ -83,7 +85,7 @@ function App() {
   }, [path, screen, setScreen])
 
   useEffect(() => {
-    if (!['/dashboard', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights'].includes(path)) return
+    if (!['/dashboard', '/north', '/profile', '/memory', '/goals', '/agents/workspace', '/plans', '/scenarios', '/insights'].includes(path)) return
     const activeUserId = localStorage.getItem(activeUserKey)
     if (!activeUserId || activeUserId === demoUserId) return
 
@@ -138,7 +140,8 @@ function App() {
       {screen === 'plans' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="plans" /> : null}
       {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
       {screen === 'insights' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="insights" /> : null}
-      {screen === 'dashboard' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'dashboard' ? <HomePage {...screenProps} setScreen={navigateTo} /> : null}
+      {screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
     </main>
   )
 }
