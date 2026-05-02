@@ -383,14 +383,27 @@ ML / quant:
 
 Agent memory:
 
-* Store durable product data in Supabase Postgres when needed
-* Store `context_packet.json` as a local JSON file during the hackathon
-* Store user-readable `memory.md` locally and render it in Memory Graph Studio
-* Store seed accounts, seeded holdings, saved scenarios, and daily run snapshots as local JSON files first
-* Store agent traces and trust receipts as JSONL/JSON locally first, then move to Postgres if time allows
+* Store durable product data in Supabase Postgres
+* Mirror `context_packet.json` locally during the hackathon for resilience and inspection
+* Mirror user-readable `memory.md` locally and render it in Memory Graph Studio
+* Mirror seed accounts, seeded holdings, saved scenarios, and daily run snapshots as local JSON files
+* Store agent traces and trust receipts in Supabase, with local JSONL/JSON mirrors for demo safety
 * Use vector search later if needed, but for the hackathon, structured memory is enough
 
-OpenRouter's API is OpenAI-compatible, supports streaming, tool calling, structured outputs, and a normalized `reasoning` parameter, so the backend should keep one LLM adapter that always sends `reasoning: { effort: "medium" }` unless a specific call opts down. The Agents SDK session model supports persistent memory by fetching stored conversation items, prepending them to future turns, and persisting new user/assistant outputs after each run; it can also be backed by custom stores like Redis, DynamoDB, or SQLite. ([OpenAI][10]) Tracing is also built into the SDK and records LLM generations, tool calls, handoffs, guardrails, and custom events, which maps directly to our trust receipt / agent trace UI. ([OpenAI][11]) Agent Trace Replay should be on by default: every run stores prompt/context summary, streamed output chunks, tool calls, handoffs, outputs, final decision, and receipt.
+OpenRouter's API is OpenAI-compatible, supports streaming, tool calling, structured outputs, and a normalized `reasoning` parameter, so the backend should keep one LLM adapter that always sends `reasoning: { effort: "medium" }` unless a specific call opts down. Model IDs, OpenRouter site metadata, and reasoning defaults live in backend code config, not `.env`. The Agents SDK session model supports persistent memory by fetching stored conversation items, prepending them to future turns, and persisting new user/assistant outputs after each run; it can also be backed by custom stores like Redis, DynamoDB, or SQLite. ([OpenAI][10]) Tracing is also built into the SDK and records LLM generations, tool calls, handoffs, guardrails, and custom events, which maps directly to our trust receipt / agent trace UI. ([OpenAI][11]) Agent Trace Replay should be on by default: every run stores prompt/context summary, streamed output chunks, tool calls, handoffs, outputs, final decision, and receipt.
+
+Environment files:
+
+* `backend/.env.example`
+* `frontend/.env.example`
+* No root `.env.example`
+* Backend env only includes `PORT`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `OPENROUTER_API_KEY`, `FINANCIAL_DATASETS_API_KEY`, and `EXASEARCH_API_KEY`
+* Frontend env only includes `VITE_API_BASE_URL`
+
+Dexter reuse:
+
+* Use Dexter as a pattern reference for OpenRouter, tool events, JSONL traces, Financial Datasets, Exa, and simple cron shape
+* Do not copy Dexter's TUI, WhatsApp gateway, full LangChain loop, filesystem/browser tools, multi-provider routing, Ollama, or non-OpenRouter provider keys
 
 ---
 

@@ -27,8 +27,10 @@ Click:
 Then:
 
 > Simulated brokerage linked
-> 2 accounts found
+> 3 accounts found
 > 7 holdings imported
+> 6 tax lots imported
+> 16 transactions imported
 > Taxable account detected
 
 This establishes technical feasibility without real Plaid.
@@ -125,11 +127,11 @@ Show:
 * Tax Agent checks lots
 * Rebalance Agent drafts plan
 
-Old demo numbers still work:
+Current demo numbers:
 
-* Portfolio: $25,000 → $19,400
+* Portfolio: about $60,688 → about $47,094
 * Stress loss: -22.4%
-* Liquidity gap: $3,000
+* Liquidity gap: about $9,988
 * Goal delay: +11 months
 
 The previous demo flow already nailed this scenario as the central winning interaction. 

@@ -36,10 +36,28 @@ npx supabase db push
 
 ## Environment
 
-Copy `.env.example` to `.env` and fill in:
+There are exactly two env example files:
+
+- `backend/.env.example`
+- `frontend/.env.example`
+
+Copy each one to `.env` in the same folder.
+
+Backend env is only for runtime values and secrets:
 
 ```bash
+PORT=8787
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
 OPENROUTER_API_KEY=
+FINANCIAL_DATASETS_API_KEY=
+EXASEARCH_API_KEY=
 ```
 
-The Supabase project URL and publishable key are already included for local hackathon development.
+Frontend env is only:
+
+```bash
+VITE_API_BASE_URL=http://localhost:8787
+```
+
+Model IDs, OpenRouter site metadata, and reasoning effort live in backend code config, not env.

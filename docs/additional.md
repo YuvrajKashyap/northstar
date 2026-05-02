@@ -137,6 +137,15 @@ Cut anything else if time gets tight. The winning proof is:
 
 > **User context becomes memory. Memory powers agents. Agents produce transparent decisions.**
 
+Current implementation notes:
+
+* The first three items are implemented as the current demo slice.
+* Frontend calls Express only; Express owns Supabase reads/writes.
+* Supabase is the durable source of truth, with local `memory.md`, `context_packet.json`, seed JSON, and trace JSONL mirrors.
+* There are exactly two env examples: `backend/.env.example` and `frontend/.env.example`.
+* OpenRouter is the only LLM gateway; model IDs and reasoning defaults live in backend code config.
+* Dexter is a reference for OpenRouter/tool events/traces/Financial Datasets/Exa/cron shape, not a codebase to copy wholesale.
+
 [1]: https://platform.openai.com/docs/guides/agents-sdk/?utm_source=chatgpt.com "Agents SDK | OpenAI API"
 [2]: https://openclawdoc.com/docs/agents/overview/?utm_source=chatgpt.com "What Are Agents? | OpenClaw"
 [3]: https://plaid.com/docs/sandbox/?utm_source=chatgpt.com "Sandbox - Overview | Plaid Docs"
