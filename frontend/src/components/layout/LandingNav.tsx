@@ -13,7 +13,7 @@ export function LandingNav({ setScreen }: { setScreen: (screen: Screen) => void 
       </div>
       <div className="landing-actions">
         <button type="button" onClick={() => setScreen('signin')}>Sign in</button>
-        <button className="primary-action" type="button" onClick={() => setScreen('onboarding')}>
+        <button className="primary-action" type="button" onClick={() => setScreen('signin')}>
           Get started <ArrowRight size={18} />
         </button>
       </div>

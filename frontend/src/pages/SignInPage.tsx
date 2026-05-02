@@ -90,8 +90,9 @@ export function SignInPage({
   function activateSession(session: AuthUserSession) {
     localStorage.setItem('northstar.activeUserId', session.userId)
     localStorage.setItem('northstar.activeUserEmail', session.email)
+    if (session.accessToken) localStorage.setItem('northstar.accessToken', session.accessToken)
     window.dispatchEvent(new Event('northstar-auth'))
-    setScreen('dashboard')
+    setScreen(isRegister ? 'workspace' : 'dashboard')
   }
 
   function readableError(caught: unknown) {

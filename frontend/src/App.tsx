@@ -5,11 +5,30 @@ import { GoalsPage } from './pages/GoalsPage'
 import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
 import { MemoryPage } from './pages/MemoryPage'
-import { OnboardingPage } from './pages/OnboardingPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { SignInPage } from './pages/SignInPage'
 import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
+import type { Screen } from './types/screens'
 import './styles/index.css'
+
+const screenRoutes = {
+  landing: '/landing',
+  'how-it-works': '/how-it-works',
+  beginners: '/beginners',
+  agents: '/agents',
+  safety: '/safety',
+  pricing: '/pricing',
+  signin: '/login',
+  workspace: '/workspace/connect',
+  profile: '/profile',
+  memory: '/memory',
+  goals: '/goals',
+  dashboard: '/dashboard',
+} as const
+
+const pathScreens = Object.fromEntries(
+  Object.entries(screenRoutes).map(([screen, route]) => [route, screen]),
+) as Record<string, keyof typeof screenRoutes>
 
 function App() {
   const { screen, setScreen, error, screenProps } = useCalmVestWorkspace()
@@ -30,40 +49,52 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const routedScreen = pathScreens[path]
+    if (routedScreen && routedScreen !== screen) {
+      setScreen(routedScreen)
+    }
+    if (path === '/' && screen !== 'landing') {
+      setScreen('landing')
+    }
+  }, [path, screen, setScreen])
+
   function openAuth(mode: 'register' | 'login') {
     setAuthMode(mode)
-    window.history.pushState({}, '', '/login')
-    setPath('/login')
-    setScreen('signin')
+    navigateTo('signin')
   }
 
-  function navigateFromRoute(nextScreen: Parameters<typeof setScreen>[0]) {
-    if (path === '/login' || path === '/auth') {
-      window.history.pushState({}, '', '/')
-      setPath('/')
-    }
+  function navigateTo(nextScreen: Screen) {
+    const nextPath = screenRoutes[nextScreen] ?? '/'
+    window.history.pushState({}, '', nextPath)
+    setPath(nextPath)
     setScreen(nextScreen)
   }
 
-  if (hash === '#workspace' || hash.startsWith('#workspace/')) {
+  if (
+    path === '/onboarding' ||
+    path === '/workspace' ||
+    path.startsWith('/workspace/') ||
+    hash === '#workspace' ||
+    hash.startsWith('#workspace/')
+  ) {
     return <WealthWorkspacePage />
   }
 
   if (path === '/login' || path === '/auth') {
-    return <SignInPage setScreen={navigateFromRoute} initialMode={authMode} />
+    return <SignInPage setScreen={navigateTo} initialMode={authMode} />
   }
 
   return (
     <main className="calmvest-root">
       {error ? <div className="error-toast">{error}</div> : null}
-      {screen === 'landing' ? <LandingPage setScreen={setScreen} openAuth={openAuth} graph={screenProps.graph} /> : null}
-      {screen === 'how-it-works' ? <MarketingPage page="how-it-works" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'beginners' ? <MarketingPage page="beginners" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'agents' ? <MarketingPage page="agents" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'safety' ? <MarketingPage page="safety" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={setScreen} openAuth={openAuth} /> : null}
-      {screen === 'signin' ? <SignInPage setScreen={setScreen} initialMode={authMode} /> : null}
-      {screen === 'onboarding' ? <OnboardingPage {...screenProps} /> : null}
+      {screen === 'landing' ? <LandingPage setScreen={navigateTo} openAuth={openAuth} graph={screenProps.graph} /> : null}
+      {screen === 'how-it-works' ? <MarketingPage page="how-it-works" setScreen={navigateTo} openAuth={openAuth} /> : null}
+      {screen === 'beginners' ? <MarketingPage page="beginners" setScreen={navigateTo} openAuth={openAuth} /> : null}
+      {screen === 'agents' ? <MarketingPage page="agents" setScreen={navigateTo} openAuth={openAuth} /> : null}
+      {screen === 'safety' ? <MarketingPage page="safety" setScreen={navigateTo} openAuth={openAuth} /> : null}
+      {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={navigateTo} openAuth={openAuth} /> : null}
+      {screen === 'signin' ? <SignInPage setScreen={navigateTo} initialMode={authMode} /> : null}
       {screen === 'profile' ? <ProfilePage {...screenProps} /> : null}
       {screen === 'memory' ? <MemoryPage {...screenProps} /> : null}
       {screen === 'goals' ? <GoalsPage {...screenProps} /> : null}

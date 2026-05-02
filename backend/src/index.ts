@@ -21,7 +21,12 @@ app.use('/api/memory', memoryRouter);
 app.use('/api/auth', authRouter);
 
 app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  const message = error instanceof Error ? error.message : 'Unknown server error';
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' && error !== null && 'message' in error && typeof error.message === 'string'
+        ? error.message
+        : 'Unknown server error';
   res.status(500).json({ ok: false, error: message });
 });
 

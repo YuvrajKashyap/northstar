@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import gsap from 'gsap'
-import type {
-  AgentTraceEvent,
-  MemoryDiffItem,
-  MemoryGraph,
-  OnboardingAnswers,
-  PlaidLinkResult,
-} from '@calmvest/shared'
+import type { AgentTraceEvent, MemoryGraph, OnboardingAnswers, PlaidLinkResult } from '@calmvest/shared'
 import { defaultAnswers, userId } from '../data/workspaceContent'
 import { apiJson, postJson, streamScenarioTrace } from '../lib/api'
 import type { HealthResponse, Screen } from '../types/screens'
@@ -19,9 +13,6 @@ export function useCalmVestWorkspace() {
   const [health, setHealth] = useState<HealthResponse | null>(null)
   const [plaid, setPlaid] = useState<PlaidLinkResult | null>(null)
   const [answers, setAnswers] = useState<OnboardingAnswers>(defaultAnswers)
-  const [activeOnboardingStep, setActiveOnboardingStep] = useState(0)
-  const [memoryDiff, setMemoryDiff] = useState<MemoryDiffItem[]>([])
-  const [onboardingTrace, setOnboardingTrace] = useState<AgentTraceEvent[]>([])
   const [graph, setGraph] = useState<MemoryGraph | null>(null)
   const [selectedNodeId, setSelectedNodeId] = useState('maya')
   const [scenarioTrace, setScenarioTrace] = useState<AgentTraceEvent[]>([])
@@ -85,7 +76,7 @@ export function useCalmVestWorkspace() {
       )
     })
     return () => context.revert()
-  }, [screen, graph, plaid, memoryDiff.length])
+  }, [screen, graph, plaid])
 
   async function simulatePlaidLink() {
     setError(null)
@@ -96,24 +87,6 @@ export function useCalmVestWorkspace() {
       await refreshGraph()
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Could not seed simulated accounts')
-    } finally {
-      setBusyStep(null)
-    }
-  }
-
-  async function commitOnboarding() {
-    setError(null)
-    setBusyStep('onboarding')
-    try {
-      const result = await postJson<{ diff: MemoryDiffItem[]; trace: AgentTraceEvent[] }>(
-        '/api/onboarding/commit',
-        answers,
-      )
-      setMemoryDiff(result.diff)
-      setOnboardingTrace(result.trace)
-      await refreshGraph()
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Could not commit onboarding memory')
     } finally {
       setBusyStep(null)
     }
@@ -138,10 +111,6 @@ export function useCalmVestWorkspace() {
       plaid,
       answers,
       setAnswers,
-      activeOnboardingStep,
-      setActiveOnboardingStep,
-      memoryDiff,
-      onboardingTrace,
       graph,
       selectedNode,
       selectedNodeId,
@@ -149,7 +118,6 @@ export function useCalmVestWorkspace() {
       scenarioTrace,
       busyStep,
       simulatePlaidLink,
-      commitOnboarding,
       runScenario,
       setScreen,
     },

@@ -37,7 +37,7 @@ import {
 import landingBackground from '../assets/northstar-landing-bg.png'
 import northstarLogo from '../assets/northstar-logo.svg'
 
-const mayaUserId = 'maya-patel-demo'
+const fallbackUserId = 'maya-patel-demo'
 
 const defaultProfileText = `Maya Patel is 24 and a beginner investor. She wants CalmVest to explain decisions in plain English with clear tradeoffs and no jargon.
 
@@ -48,7 +48,7 @@ She is very worried about a 20% market drop and wants help staying calm instead 
 Her values are simplicity, control, transparency, and avoiding unnecessary complexity. She wants to see why an agent recommends something, what data it used, what the cost might be, and whether she needs to approve it.`
 
 const defaultAnswers: OnboardingAnswers = {
-  userId: mayaUserId,
+  userId: fallbackUserId,
   profileText: defaultProfileText,
   goal: 'Home down payment',
   targetAmount: 80000,
@@ -87,8 +87,9 @@ const routeMeta: Record<WorkspaceRoute, { label: string; eyebrow: string; title:
 }
 
 export function WealthWorkspacePage() {
+  const activeUserId = localStorage.getItem('northstar.activeUserId') ?? fallbackUserId
   const [route, setRoute] = useState<WorkspaceRoute>(() => getWorkspaceRoute())
-  const [answers] = useState<OnboardingAnswers>(defaultAnswers)
+  const [answers] = useState<OnboardingAnswers>({ ...defaultAnswers, userId: activeUserId })
   const [plaid, setPlaid] = useState<PlaidLinkResult | null>(null)
   const [enabledAccounts, setEnabledAccounts] = useState<Record<string, boolean>>({})
   const [visibleTransactions, setVisibleTransactions] = useState<Record<string, boolean>>({})
@@ -108,7 +109,11 @@ export function WealthWorkspacePage() {
   useEffect(() => {
     const syncRoute = () => setRoute(getWorkspaceRoute())
     window.addEventListener('hashchange', syncRoute)
-    return () => window.removeEventListener('hashchange', syncRoute)
+    window.addEventListener('popstate', syncRoute)
+    return () => {
+      window.removeEventListener('hashchange', syncRoute)
+      window.removeEventListener('popstate', syncRoute)
+    }
   }, [])
 
   useEffect(() => {
@@ -116,7 +121,7 @@ export function WealthWorkspacePage() {
   }, [])
 
   async function refreshGraph() {
-    const nextGraph = await getMemoryGraph(mayaUserId)
+    const nextGraph = await getMemoryGraph(activeUserId)
     setGraph(nextGraph)
     setSelectedNodeId((current) =>
       nextGraph.nodes.some((node) => node.id === current) ? current : nextGraph.nodes[0]?.id ?? 'maya',
@@ -124,7 +129,8 @@ export function WealthWorkspacePage() {
   }
 
   function go(nextRoute: WorkspaceRoute) {
-    window.location.hash = `workspace/${nextRoute}`
+    window.history.pushState({}, '', `/workspace/${nextRoute}`)
+    setRoute(nextRoute)
   }
 
   const enabledAccountCount = Object.values(enabledAccounts).filter(Boolean).length
@@ -134,7 +140,7 @@ export function WealthWorkspacePage() {
     setError('')
     setBusy('connect')
     try {
-      const result = await linkAccounts()
+      const result = await linkAccounts(activeUserId)
       setPlaid(result)
       setEnabledAccounts(Object.fromEntries(result.accounts.map((account) => [account.id, true])))
       setVisibleTransactions(Object.fromEntries(result.transactions.map((transaction) => [transaction.id, true])))
@@ -685,6 +691,11 @@ function NodeIcon({ kind }: { kind: MemoryGraphNode['kind'] }) {
 }
 
 function getWorkspaceRoute(): WorkspaceRoute {
+  const path = window.location.pathname
+  if (path === '/workspace/memory') return 'memory'
+  if (path === '/workspace/home') return 'home'
+  if (path === '/workspace/connect' || path === '/workspace') return 'connect'
+
   const hash = window.location.hash.replace(/^#\/?/, '')
   if (hash === 'workspace/memory') return 'memory'
   if (hash === 'workspace/home') return 'home'

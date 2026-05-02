@@ -16,6 +16,7 @@ export async function persistDemoSeed(seed: DemoSeed) {
     seed.accounts.map((account) => ({
       id: account.id,
       user_id: seed.user.id,
+      institution: account.institution ?? null,
       name: account.name,
       account_type: account.type,
       taxable: account.taxable,

@@ -22,8 +22,11 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
-export function linkAccounts() {
-  return requestJson<PlaidLinkResult>('/api/demo/simulate-plaid-link', { method: 'POST' })
+export function linkAccounts(userId?: string) {
+  return requestJson<PlaidLinkResult>('/api/demo/simulate-plaid-link', {
+    method: 'POST',
+    body: JSON.stringify({ userId }),
+  })
 }
 
 export function commitOnboarding(answers: OnboardingAnswers) {

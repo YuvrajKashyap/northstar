@@ -1,6 +1,5 @@
 import type {
   AgentTraceEvent,
-  MemoryDiffItem,
   MemoryGraph,
   MemoryGraphNode,
   OnboardingAnswers,
@@ -15,7 +14,7 @@ export type Screen =
   | 'safety'
   | 'pricing'
   | 'signin'
-  | 'onboarding'
+  | 'workspace'
   | 'profile'
   | 'memory'
   | 'goals'
@@ -28,21 +27,11 @@ export type HealthResponse = {
   openrouter: { configured: boolean }
 }
 
-export type OnboardingStep = {
-  id: keyof OnboardingAnswers | 'review'
-  label: string
-  helper: string
-}
-
 export type ScreenProps = {
   health: HealthResponse | null
   plaid: PlaidLinkResult | null
   answers: OnboardingAnswers
   setAnswers: (answers: OnboardingAnswers) => void
-  activeOnboardingStep: number
-  setActiveOnboardingStep: (step: number) => void
-  memoryDiff: MemoryDiffItem[]
-  onboardingTrace: AgentTraceEvent[]
   graph: MemoryGraph | null
   selectedNode: MemoryGraphNode | null
   selectedNodeId: string
@@ -50,7 +39,6 @@ export type ScreenProps = {
   scenarioTrace: AgentTraceEvent[]
   busyStep: string | null
   simulatePlaidLink: () => void
-  commitOnboarding: () => void
   runScenario: () => void
   setScreen: (screen: Screen) => void
 }

@@ -29,7 +29,7 @@
     },
     "accounts_summary": {
       "taxable": true,
-      "brokerage_count": 2,
+      "brokerage_count": 4,
       "cash_available": 2150,
       "portfolio_value": 60687.96
     },
@@ -49,15 +49,15 @@
   "memoryTemplate": "# Northstar Memory: Maya Patel\n\n## Identity\n- Beginner investor\n- Prefers plain-English explanations\n\n## Goals\n- House down payment goal: $80,000 target by 2029-05\n\n## Risk and Liquidity\n- moderate-cautious risk comfort\n- Very worried by a 20% market drop\n- May need to withdraw 20% next year\n\n## Tax and Constraints\n- Taxable brokerage accounts\n- No automatic trading\n- Explain cost, tax, confidence, and approval status for recommendations\n\n## Open Questions\n- Confirm income stability\n- Confirm exact house purchase timing\n- Confirm whether sustainability preferences matter\n",
   "accounts": [
     {
-      "id": "acct-chase-checking",
+      "id": "maya-patel-demo-acct-chase-checking",
       "institution": "Chase",
-      "name": "Everyday Checking",
+      "name": "Maya's Everyday Checking",
       "type": "checking",
       "taxable": false,
       "balance": 4260.44
     },
     {
-      "id": "acct-bankofamerica-savings",
+      "id": "maya-patel-demo-acct-bankofamerica-savings",
       "institution": "Bank of America",
       "name": "Advantage Savings",
       "type": "savings",
@@ -65,7 +65,15 @@
       "balance": 12840.12
     },
     {
-      "id": "acct-amex-card",
+      "id": "maya-patel-demo-acct-capitalone-hysa",
+      "institution": "Capital One",
+      "name": "Performance Savings",
+      "type": "savings",
+      "taxable": false,
+      "balance": 6840.55
+    },
+    {
+      "id": "maya-patel-demo-acct-amex-card",
       "institution": "American Express",
       "name": "Blue Cash Preferred",
       "type": "credit",
@@ -73,23 +81,23 @@
       "balance": -742.66
     },
     {
-      "id": "acct-taxable-brokerage",
+      "id": "maya-patel-demo-acct-taxable-brokerage",
       "institution": "Fidelity",
       "name": "Maya Taxable Brokerage",
       "type": "brokerage",
       "taxable": true,
-      "balance": 33378.38
+      "balance": 24275.18
     },
     {
-      "id": "acct-schwab-brokerage",
+      "id": "maya-patel-demo-acct-schwab-brokerage",
       "institution": "Charles Schwab",
       "name": "Schwab One Brokerage",
       "type": "brokerage",
       "taxable": true,
-      "balance": 14565.11
+      "balance": 13351.35
     },
     {
-      "id": "acct-robinhood-brokerage",
+      "id": "maya-patel-demo-acct-robinhood-brokerage",
       "institution": "Robinhood",
       "name": "Investing Account",
       "type": "brokerage",
@@ -97,7 +105,15 @@
       "balance": 7282.56
     },
     {
-      "id": "acct-mutual-fund",
+      "id": "maya-patel-demo-acct-etrade-brokerage",
+      "institution": "E*TRADE",
+      "name": "Core Brokerage",
+      "type": "brokerage",
+      "taxable": true,
+      "balance": 6068.8
+    },
+    {
+      "id": "maya-patel-demo-acct-mutual-fund",
       "institution": "Vanguard",
       "name": "Vanguard Mutual Fund Account",
       "type": "mutual_fund",
@@ -105,7 +121,7 @@
       "balance": 3823.34
     },
     {
-      "id": "acct-fidelity-mutual-fund",
+      "id": "maya-patel-demo-acct-fidelity-mutual-fund",
       "institution": "Fidelity",
       "name": "Fidelity Mutual Fund Account",
       "type": "mutual_fund",
@@ -113,7 +129,7 @@
       "balance": 5810.28
     },
     {
-      "id": "acct-trowe-mutual-fund",
+      "id": "maya-patel-demo-acct-trowe-mutual-fund",
       "institution": "T. Rowe Price",
       "name": "T. Rowe Price Growth Fund",
       "type": "mutual_fund",
@@ -121,7 +137,15 @@
       "balance": 4440.92
     },
     {
-      "id": "acct-cash",
+      "id": "maya-patel-demo-acct-blackrock-mutual-fund",
+      "institution": "BlackRock",
+      "name": "BlackRock Allocation Fund",
+      "type": "mutual_fund",
+      "taxable": true,
+      "balance": 3950.18
+    },
+    {
+      "id": "maya-patel-demo-acct-cash",
       "institution": "Fidelity",
       "name": "Brokerage Sweep Cash",
       "type": "cash",
@@ -203,42 +227,42 @@
   ],
   "taxLots": [
     {
-      "id": "lot-voo-1",
+      "id": "maya-patel-demo-lot-voo-1",
       "symbol": "VOO",
       "acquiredAt": "2025-10-07",
       "quantity": 72.44,
       "costBasis": 33120
     },
     {
-      "id": "lot-qqq-2",
+      "id": "maya-patel-demo-lot-qqq-2",
       "symbol": "QQQ",
       "acquiredAt": "2025-11-01",
       "quantity": 18.75,
       "costBasis": 6900
     },
     {
-      "id": "lot-aapl-3",
+      "id": "maya-patel-demo-lot-aapl-3",
       "symbol": "AAPL",
       "acquiredAt": "2024-09-16",
       "quantity": 16,
       "costBasis": 2410
     },
     {
-      "id": "lot-msft-4",
+      "id": "maya-patel-demo-lot-msft-4",
       "symbol": "MSFT",
       "acquiredAt": "2025-03-24",
       "quantity": 8,
       "costBasis": 2710
     },
     {
-      "id": "lot-vtiax-5",
+      "id": "maya-patel-demo-lot-vtiax-5",
       "symbol": "VTIAX",
       "acquiredAt": "2025-04-24",
       "quantity": 120,
       "costBasis": 3400
     },
     {
-      "id": "lot-bnd-6",
+      "id": "maya-patel-demo-lot-bnd-6",
       "symbol": "BND",
       "acquiredAt": "2024-08-24",
       "quantity": 42,
@@ -247,292 +271,580 @@
   ],
   "transactions": [
     {
-      "id": "txn-001",
+      "id": "maya-patel-demo-txn-001",
       "postedAt": "2026-05-02",
-      "accountId": "acct-robinhood-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-002",
-      "postedAt": "2026-04-21",
-      "accountId": "acct-chase-checking",
-      "description": "Grocery purchase",
-      "amount": -86.42,
-      "type": "spending"
-    },
-    {
-      "id": "txn-003",
-      "postedAt": "2026-04-02",
-      "accountId": "acct-taxable-brokerage",
-      "description": "ETF purchase",
-      "amount": -300,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-004",
-      "postedAt": "2026-03-24",
-      "accountId": "acct-fidelity-mutual-fund",
-      "description": "Mutual fund purchase",
-      "amount": -250,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-005",
-      "postedAt": "2026-03-07",
-      "accountId": "acct-chase-checking",
-      "description": "Rent payment",
-      "amount": -1325,
-      "type": "housing"
-    },
-    {
-      "id": "txn-006",
-      "postedAt": "2026-02-06",
-      "accountId": "acct-mutual-fund",
-      "description": "Automatic investment",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-007",
-      "postedAt": "2025-12-27",
-      "accountId": "acct-schwab-brokerage",
-      "description": "Monthly contribution",
-      "amount": 250,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-008",
-      "postedAt": "2025-12-06",
-      "accountId": "acct-cash",
-      "description": "Sweep interest",
-      "amount": 5.18,
-      "type": "interest"
-    },
-    {
-      "id": "txn-009",
-      "postedAt": "2025-11-15",
-      "accountId": "acct-trowe-mutual-fund",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
       "description": "Capital gains distribution",
       "amount": 76.4,
       "type": "investment_activity"
     },
     {
-      "id": "txn-010",
-      "postedAt": "2026-01-05",
-      "accountId": "acct-fidelity-mutual-fund",
-      "description": "Capital gains distribution",
-      "amount": 76.4,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-011",
-      "postedAt": "2025-09-24",
-      "accountId": "acct-chase-checking",
+      "id": "maya-patel-demo-txn-002",
+      "postedAt": "2026-04-16",
+      "accountId": "maya-patel-demo-acct-chase-checking",
       "description": "Payroll deposit",
       "amount": 2400,
       "type": "income"
     },
     {
-      "id": "txn-012",
-      "postedAt": "2025-11-29",
-      "accountId": "acct-schwab-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
+      "id": "maya-patel-demo-txn-003",
+      "postedAt": "2026-04-02",
+      "accountId": "maya-patel-demo-acct-taxable-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
       "type": "investment_activity"
     },
     {
-      "id": "txn-013",
-      "postedAt": "2025-12-21",
-      "accountId": "acct-cash",
-      "description": "Cash transfer",
-      "amount": 300,
+      "id": "maya-patel-demo-txn-004",
+      "postedAt": "2026-03-27",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Emergency fund transfer",
+      "amount": 250,
       "type": "transfer"
     },
     {
-      "id": "txn-014",
-      "postedAt": "2025-12-10",
-      "accountId": "acct-schwab-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-015",
-      "postedAt": "2025-08-09",
-      "accountId": "acct-amex-card",
-      "description": "Travel purchase",
-      "amount": -214.2,
-      "type": "spending"
-    },
-    {
-      "id": "txn-016",
-      "postedAt": "2025-10-19",
-      "accountId": "acct-fidelity-mutual-fund",
-      "description": "Automatic investment",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-017",
-      "postedAt": "2025-04-29",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
-      "amount": 250,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-018",
-      "postedAt": "2025-09-06",
-      "accountId": "acct-bankofamerica-savings",
+      "id": "maya-patel-demo-txn-005",
+      "postedAt": "2026-01-30",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
       "description": "Automatic savings transfer",
       "amount": 500,
       "type": "transfer"
     },
     {
-      "id": "txn-019",
-      "postedAt": "2025-09-28",
-      "accountId": "acct-cash",
-      "description": "Cash transfer",
-      "amount": 300,
-      "type": "transfer"
-    },
-    {
-      "id": "txn-020",
-      "postedAt": "2025-08-28",
-      "accountId": "acct-chase-checking",
-      "description": "Rent payment",
-      "amount": -1325,
-      "type": "housing"
-    },
-    {
-      "id": "txn-021",
-      "postedAt": "2025-05-07",
-      "accountId": "acct-trowe-mutual-fund",
-      "description": "Automatic investment",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-022",
-      "postedAt": "2025-04-19",
-      "accountId": "acct-taxable-brokerage",
-      "description": "ETF purchase",
-      "amount": -300,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-023",
-      "postedAt": "2025-09-02",
-      "accountId": "acct-trowe-mutual-fund",
-      "description": "Automatic investment",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-024",
-      "postedAt": "2025-05-22",
-      "accountId": "acct-taxable-brokerage",
-      "description": "ETF purchase",
-      "amount": -300,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-025",
-      "postedAt": "2025-06-24",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
-      "type": "investment_activity"
-    },
-    {
-      "id": "txn-026",
-      "postedAt": "2024-11-23",
-      "accountId": "acct-trowe-mutual-fund",
-      "description": "Automatic investment",
-      "amount": 150,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-027",
-      "postedAt": "2025-01-19",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Monthly contribution",
-      "amount": 250,
-      "type": "contribution"
-    },
-    {
-      "id": "txn-028",
-      "postedAt": "2024-10-12",
-      "accountId": "acct-mutual-fund",
+      "id": "maya-patel-demo-txn-006",
+      "postedAt": "2026-03-08",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
       "description": "Mutual fund purchase",
       "amount": -250,
       "type": "investment_activity"
     },
     {
-      "id": "txn-029",
-      "postedAt": "2025-06-28",
-      "accountId": "acct-cash",
-      "description": "Sweep interest",
-      "amount": 5.18,
-      "type": "interest"
+      "id": "maya-patel-demo-txn-007",
+      "postedAt": "2026-01-20",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
     },
     {
-      "id": "txn-030",
-      "postedAt": "2025-04-20",
-      "accountId": "acct-cash",
-      "description": "Cash transfer",
-      "amount": 300,
+      "id": "maya-patel-demo-txn-008",
+      "postedAt": "2025-12-06",
+      "accountId": "maya-patel-demo-acct-taxable-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-009",
+      "postedAt": "2025-11-15",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-010",
+      "postedAt": "2026-01-05",
+      "accountId": "maya-patel-demo-acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-011",
+      "postedAt": "2025-11-03",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Emergency fund transfer",
+      "amount": 250,
       "type": "transfer"
     },
     {
-      "id": "txn-031",
-      "postedAt": "2024-07-11",
-      "accountId": "acct-taxable-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
+      "id": "maya-patel-demo-txn-012",
+      "postedAt": "2025-10-16",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
       "type": "investment_activity"
     },
     {
-      "id": "txn-032",
-      "postedAt": "2024-12-22",
-      "accountId": "acct-robinhood-brokerage",
-      "description": "Dividend received",
-      "amount": 42.5,
+      "id": "maya-patel-demo-txn-013",
+      "postedAt": "2025-09-16",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-014",
+      "postedAt": "2025-10-19",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
       "type": "investment_activity"
     },
     {
-      "id": "txn-033",
-      "postedAt": "2025-01-07",
-      "accountId": "acct-amex-card",
-      "description": "Restaurant",
-      "amount": -48.6,
-      "type": "spending"
+      "id": "maya-patel-demo-txn-015",
+      "postedAt": "2025-07-26",
+      "accountId": "maya-patel-demo-acct-schwab-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
     },
     {
-      "id": "txn-034",
-      "postedAt": "2024-10-18",
-      "accountId": "acct-cash",
-      "description": "Sweep interest",
-      "amount": 5.18,
+      "id": "maya-patel-demo-txn-016",
+      "postedAt": "2025-09-19",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-017",
+      "postedAt": "2025-10-06",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-018",
+      "postedAt": "2025-06-30",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-019",
+      "postedAt": "2025-04-19",
+      "accountId": "maya-patel-demo-acct-amex-card",
+      "description": "Statement payment",
+      "amount": 620,
+      "type": "payment"
+    },
+    {
+      "id": "maya-patel-demo-txn-020",
+      "postedAt": "2025-10-05",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Interest paid",
+      "amount": 8.72,
       "type": "interest"
     },
     {
-      "id": "txn-035",
-      "postedAt": "2024-07-25",
-      "accountId": "acct-mutual-fund",
+      "id": "maya-patel-demo-txn-021",
+      "postedAt": "2025-07-06",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-022",
+      "postedAt": "2025-02-15",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-023",
+      "postedAt": "2024-12-12",
+      "accountId": "maya-patel-demo-acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-024",
+      "postedAt": "2025-06-14",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-025",
+      "postedAt": "2025-01-31",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
       "description": "Capital gains distribution",
       "amount": 76.4,
       "type": "investment_activity"
     },
     {
-      "id": "txn-036",
-      "postedAt": "2024-06-01",
-      "accountId": "acct-cash",
+      "id": "maya-patel-demo-txn-026",
+      "postedAt": "2025-05-17",
+      "accountId": "maya-patel-demo-acct-chase-checking",
+      "description": "Payroll deposit",
+      "amount": 2400,
+      "type": "income"
+    },
+    {
+      "id": "maya-patel-demo-txn-027",
+      "postedAt": "2024-10-07",
+      "accountId": "maya-patel-demo-acct-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-028",
+      "postedAt": "2025-03-23",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-029",
+      "postedAt": "2025-04-05",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-030",
+      "postedAt": "2024-11-26",
+      "accountId": "maya-patel-demo-acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-031",
+      "postedAt": "2024-09-09",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-032",
+      "postedAt": "2025-02-22",
+      "accountId": "maya-patel-demo-acct-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-033",
+      "postedAt": "2024-11-04",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-034",
+      "postedAt": "2024-07-11",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-035",
+      "postedAt": "2024-06-21",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-036",
+      "postedAt": "2024-12-28",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-037",
+      "postedAt": "2024-10-03",
+      "accountId": "maya-patel-demo-acct-cash",
+      "description": "Cash transfer",
+      "amount": 300,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-038",
+      "postedAt": "2024-10-24",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Interest paid",
+      "amount": 8.72,
+      "type": "interest"
+    },
+    {
+      "id": "maya-patel-demo-txn-039",
+      "postedAt": "2024-07-25",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-040",
+      "postedAt": "2024-12-11",
+      "accountId": "maya-patel-demo-acct-mutual-fund",
+      "description": "Capital gains distribution",
+      "amount": 76.4,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-041",
+      "postedAt": "2024-07-31",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-042",
+      "postedAt": "2024-02-02",
+      "accountId": "maya-patel-demo-acct-cash",
       "description": "Sweep interest",
       "amount": 5.18,
       "type": "interest"
+    },
+    {
+      "id": "maya-patel-demo-txn-043",
+      "postedAt": "2023-10-21",
+      "accountId": "maya-patel-demo-acct-taxable-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-044",
+      "postedAt": "2024-03-19",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-045",
+      "postedAt": "2024-03-01",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-046",
+      "postedAt": "2024-03-28",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-047",
+      "postedAt": "2023-10-25",
+      "accountId": "maya-patel-demo-acct-amex-card",
+      "description": "Statement payment",
+      "amount": 620,
+      "type": "payment"
+    },
+    {
+      "id": "maya-patel-demo-txn-048",
+      "postedAt": "2024-12-01",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Emergency fund transfer",
+      "amount": 250,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-049",
+      "postedAt": "2023-12-20",
+      "accountId": "maya-patel-demo-acct-schwab-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-050",
+      "postedAt": "2024-01-20",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-051",
+      "postedAt": "2024-10-29",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-052",
+      "postedAt": "2023-09-06",
+      "accountId": "maya-patel-demo-acct-taxable-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-053",
+      "postedAt": "2023-01-22",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-054",
+      "postedAt": "2023-07-30",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Capital gains distribution",
+      "amount": 76.4,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-055",
+      "postedAt": "2023-07-11",
+      "accountId": "maya-patel-demo-acct-blackrock-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-056",
+      "postedAt": "2023-06-22",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-057",
+      "postedAt": "2022-12-17",
+      "accountId": "maya-patel-demo-acct-amex-card",
+      "description": "Statement payment",
+      "amount": 620,
+      "type": "payment"
+    },
+    {
+      "id": "maya-patel-demo-txn-058",
+      "postedAt": "2024-08-13",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-059",
+      "postedAt": "2024-04-08",
+      "accountId": "maya-patel-demo-acct-chase-checking",
+      "description": "Payroll deposit",
+      "amount": 2400,
+      "type": "income"
+    },
+    {
+      "id": "maya-patel-demo-txn-060",
+      "postedAt": "2024-05-24",
+      "accountId": "maya-patel-demo-acct-trowe-mutual-fund",
+      "description": "Automatic investment",
+      "amount": 150,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-061",
+      "postedAt": "2022-11-19",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-062",
+      "postedAt": "2022-08-29",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Automatic savings transfer",
+      "amount": 500,
+      "type": "transfer"
+    },
+    {
+      "id": "maya-patel-demo-txn-063",
+      "postedAt": "2023-10-15",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "Monthly contribution",
+      "amount": 250,
+      "type": "contribution"
+    },
+    {
+      "id": "maya-patel-demo-txn-064",
+      "postedAt": "2023-09-30",
+      "accountId": "maya-patel-demo-acct-etrade-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-065",
+      "postedAt": "2024-01-21",
+      "accountId": "maya-patel-demo-acct-fidelity-mutual-fund",
+      "description": "Mutual fund purchase",
+      "amount": -250,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-066",
+      "postedAt": "2024-05-17",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Interest paid",
+      "amount": 8.72,
+      "type": "interest"
+    },
+    {
+      "id": "maya-patel-demo-txn-067",
+      "postedAt": "2023-12-26",
+      "accountId": "maya-patel-demo-acct-bankofamerica-savings",
+      "description": "Interest paid",
+      "amount": 8.72,
+      "type": "interest"
+    },
+    {
+      "id": "maya-patel-demo-txn-068",
+      "postedAt": "2022-02-11",
+      "accountId": "maya-patel-demo-acct-robinhood-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-069",
+      "postedAt": "2023-09-23",
+      "accountId": "maya-patel-demo-acct-taxable-brokerage",
+      "description": "Dividend received",
+      "amount": 42.5,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-070",
+      "postedAt": "2024-01-25",
+      "accountId": "maya-patel-demo-acct-schwab-brokerage",
+      "description": "ETF purchase",
+      "amount": -300,
+      "type": "investment_activity"
+    },
+    {
+      "id": "maya-patel-demo-txn-071",
+      "postedAt": "2021-12-04",
+      "accountId": "maya-patel-demo-acct-capitalone-hysa",
+      "description": "Interest paid",
+      "amount": 8.72,
+      "type": "interest"
+    },
+    {
+      "id": "maya-patel-demo-txn-072",
+      "postedAt": "2021-11-11",
+      "accountId": "maya-patel-demo-acct-cash",
+      "description": "Cash transfer",
+      "amount": 300,
+      "type": "transfer"
     }
   ]
 }

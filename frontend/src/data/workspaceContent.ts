@@ -12,7 +12,7 @@ import {
   Wallet,
 } from '@phosphor-icons/react'
 import type { OnboardingAnswers } from '@calmvest/shared'
-import type { OnboardingStep, Screen } from '../types/screens'
+import type { Screen } from '../types/screens'
 
 export const userId = 'maya-patel-demo'
 
@@ -36,17 +36,6 @@ export const navItems: Array<{ screen: Screen; label: string; icon: typeof Circl
   { screen: 'profile', label: 'Scenarios', icon: Briefcase },
   { screen: 'memory', label: 'Insights', icon: Pulse },
   { screen: 'profile', label: 'Vault', icon: Wallet },
-]
-
-export const onboardingSteps: OnboardingStep[] = [
-  { id: 'goal', label: 'Goal Type', helper: 'What matters most' },
-  { id: 'targetDate', label: 'Time Horizon', helper: 'When you need it' },
-  { id: 'withdrawalNeed', label: 'Liquidity Needs', helper: 'Next year withdrawals' },
-  { id: 'drawdownFeeling', label: 'Risk Comfort', helper: 'Handling market drops' },
-  { id: 'targetAmount', label: 'Income Stability', helper: 'How steady is income' },
-  { id: 'taxableAccount', label: 'Taxable Account', helper: "Where we're investing" },
-  { id: 'communicationStyle', label: 'Explanation Style', helper: 'How you like insights' },
-  { id: 'review', label: 'Review & Confirm', helper: 'Review your profile' },
 ]
 
 export const agentCards = [
@@ -131,42 +120,3 @@ export const goalRows = [
   },
 ]
 
-export function goalHelper(goal: string) {
-  const helpers: Record<string, string> = {
-    'Build wealth': 'Grow my money over time',
-    'Retire comfortably': 'Save for a comfortable retirement',
-    'Buy a home': 'Save for a down payment',
-    'Financial independence': 'Work optional, live on my terms',
-    Education: 'Save for myself or a loved one',
-    Other: 'Something else',
-  }
-  return helpers[goal] ?? 'Personalized goal'
-}
-
-export function onboardingTitle(step: OnboardingStep['id']) {
-  const titles: Record<string, string> = {
-    goal: "What's your primary financial goal right now?",
-    targetDate: 'When might you need this money?',
-    withdrawalNeed: 'Could you need liquidity next year?',
-    drawdownFeeling: 'How would a sharp drop feel?',
-    targetAmount: 'What target should agents plan around?',
-    taxableAccount: 'Are these taxable accounts?',
-    communicationStyle: 'How should agents explain tradeoffs?',
-    review: 'Review and commit your memory.',
-  }
-  return titles[step]
-}
-
-export function onboardingCopy(step: OnboardingStep['id']) {
-  const copy: Record<string, string> = {
-    goal: 'We use this to prioritize recommendations that move you closer to what matters.',
-    targetDate: 'The timeline controls how much risk is reasonable.',
-    withdrawalNeed: 'Near-term cash needs should be protected before growth bets.',
-    drawdownFeeling: 'Your emotional comfort matters because plans must be usable.',
-    targetAmount: 'A concrete target gives the Goal Agent a useful benchmark.',
-    taxableAccount: 'Knowing the account type helps the Tax Agent avoid sloppy moves.',
-    communicationStyle: 'The Communication Agent will match your preferred level of detail.',
-    review: 'This writes a human-readable memory and machine-readable context packet.',
-  }
-  return copy[step]
-}

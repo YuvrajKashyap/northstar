@@ -31,6 +31,8 @@ def build_seed(
 
     if randomize:
         name = name if name != "Maya Patel" else f"{rng.choice(FIRST_NAMES)} {rng.choice(LAST_NAMES)}"
+    account_prefix = slugify(user_id)
+    first_name = name.split()[0]
 
     holdings_catalog = [
         ("VOO", "Vanguard S&P 500 ETF", "etf", 72.44, 515.2, 33120, "Broad market"),
@@ -93,7 +95,7 @@ def build_seed(
         },
         "accounts_summary": {
             "taxable": True,
-            "brokerage_count": 2,
+            "brokerage_count": 4,
             "cash_available": 2150,
             "portfolio_value": portfolio_value,
         },
@@ -113,81 +115,105 @@ def build_seed(
 
     accounts = [
         {
-            "id": "acct-chase-checking",
+            "id": f"{account_prefix}-acct-chase-checking",
             "institution": "Chase",
-            "name": "Everyday Checking",
+            "name": f"{first_name}'s Everyday Checking",
             "type": "checking",
             "taxable": False,
             "balance": 4260.44,
         },
         {
-            "id": "acct-bankofamerica-savings",
+            "id": f"{account_prefix}-acct-bankofamerica-savings",
             "institution": "Bank of America",
-            "name": "Advantage Savings",
+            "name": f"{first_name}'s Advantage Savings",
             "type": "savings",
             "taxable": False,
             "balance": 12840.12,
         },
         {
-            "id": "acct-amex-card",
+            "id": f"{account_prefix}-acct-capitalone-hysa",
+            "institution": "Capital One",
+            "name": f"{first_name}'s Performance Savings",
+            "type": "savings",
+            "taxable": False,
+            "balance": 6840.55,
+        },
+        {
+            "id": f"{account_prefix}-acct-amex-card",
             "institution": "American Express",
-            "name": "Blue Cash Preferred",
+            "name": f"{first_name}'s Blue Cash Preferred",
             "type": "credit",
             "taxable": False,
             "balance": -742.66,
         },
         {
-            "id": "acct-taxable-brokerage",
+            "id": f"{account_prefix}-acct-taxable-brokerage",
             "institution": "Fidelity",
-            "name": f"{name.split()[0]} Taxable Brokerage",
+            "name": f"{first_name} Taxable Brokerage",
             "type": "brokerage",
             "taxable": True,
-            "balance": money(portfolio_value * 0.55),
+            "balance": money(portfolio_value * 0.4),
         },
         {
-            "id": "acct-schwab-brokerage",
+            "id": f"{account_prefix}-acct-schwab-brokerage",
             "institution": "Charles Schwab",
-            "name": "Schwab One Brokerage",
+            "name": f"{first_name}'s Schwab One Brokerage",
             "type": "brokerage",
             "taxable": True,
-            "balance": money(portfolio_value * 0.24),
+            "balance": money(portfolio_value * 0.22),
         },
         {
-            "id": "acct-robinhood-brokerage",
+            "id": f"{account_prefix}-acct-robinhood-brokerage",
             "institution": "Robinhood",
-            "name": "Investing Account",
+            "name": f"{first_name}'s Investing Account",
             "type": "brokerage",
             "taxable": True,
             "balance": money(portfolio_value * 0.12),
         },
         {
-            "id": "acct-mutual-fund",
+            "id": f"{account_prefix}-acct-etrade-brokerage",
+            "institution": "E*TRADE",
+            "name": f"{first_name}'s Core Brokerage",
+            "type": "brokerage",
+            "taxable": True,
+            "balance": money(portfolio_value * 0.1),
+        },
+        {
+            "id": f"{account_prefix}-acct-mutual-fund",
             "institution": "Vanguard",
-            "name": "Vanguard Mutual Fund Account",
+            "name": f"{first_name}'s Vanguard Mutual Fund Account",
             "type": "mutual_fund",
             "taxable": True,
             "balance": 3823.34,
         },
         {
-            "id": "acct-fidelity-mutual-fund",
+            "id": f"{account_prefix}-acct-fidelity-mutual-fund",
             "institution": "Fidelity",
-            "name": "Fidelity Mutual Fund Account",
+            "name": f"{first_name}'s Fidelity Mutual Fund Account",
             "type": "mutual_fund",
             "taxable": True,
             "balance": 5810.28,
         },
         {
-            "id": "acct-trowe-mutual-fund",
+            "id": f"{account_prefix}-acct-trowe-mutual-fund",
             "institution": "T. Rowe Price",
-            "name": "T. Rowe Price Growth Fund",
+            "name": f"{first_name}'s T. Rowe Price Growth Fund",
             "type": "mutual_fund",
             "taxable": True,
             "balance": 4440.92,
         },
         {
-            "id": "acct-cash",
+            "id": f"{account_prefix}-acct-blackrock-mutual-fund",
+            "institution": "BlackRock",
+            "name": f"{first_name}'s BlackRock Allocation Fund",
+            "type": "mutual_fund",
+            "taxable": True,
+            "balance": 3950.18,
+        },
+        {
+            "id": f"{account_prefix}-acct-cash",
             "institution": "Fidelity",
-            "name": "Brokerage Sweep Cash",
+            "name": f"{first_name}'s Brokerage Sweep Cash",
             "type": "cash",
             "taxable": True,
             "balance": 2150,
@@ -201,7 +227,7 @@ def build_seed(
             continue
         tax_lots.append(
             {
-                "id": f"lot-{holding['symbol'].lower()}-{index + 1}",
+                "id": f"{account_prefix}-lot-{holding['symbol'].lower()}-{index + 1}",
                 "symbol": holding["symbol"],
                 "acquiredAt": str(today - timedelta(days=rng.randint(120, 780))),
                 "quantity": holding["quantity"],
@@ -243,13 +269,13 @@ def build_seed(
         ],
     }
 
-    for index in range(36):
+    for index in range(72):
         posted_at = today - timedelta(days=index * rng.randint(11, 23))
         account = rng.choice(accounts)
         description, amount, txn_type = rng.choice(transaction_templates[account["type"]])
         transactions.append(
             {
-                "id": f"txn-{index + 1:03d}",
+                "id": f"{account_prefix}-txn-{index + 1:03d}",
                 "postedAt": str(posted_at),
                 "accountId": account["id"],
                 "description": description,

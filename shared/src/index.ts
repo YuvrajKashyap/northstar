@@ -185,6 +185,7 @@ export interface AuthUserSession {
   userId: string;
   email: string;
   name: string;
+  accessToken?: string;
 }
 
 export interface AuthRegisterRequest {

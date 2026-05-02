@@ -12,7 +12,7 @@ export function AppChrome({
   setScreen,
 }: {
   children: ReactNode
-  active: 'dashboard' | 'profile' | 'memory' | 'goals' | 'onboarding'
+  active: 'dashboard' | 'profile' | 'memory' | 'goals'
   setScreen: (screen: Screen) => void
 }) {
   return (
