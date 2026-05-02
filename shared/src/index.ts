@@ -179,3 +179,31 @@ export interface MemoryGraph {
   memoryMarkdown: string;
   contextPacket: ContextPacket;
 }
+
+export interface AuthUserSession {
+  ok: true;
+  userId: string;
+  email: string;
+  name: string;
+}
+
+export interface AuthRegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthLoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthRecoverRequest {
+  email: string;
+}
+
+export interface AuthRecoverResponse {
+  ok: true;
+  found: boolean;
+  message: string;
+}

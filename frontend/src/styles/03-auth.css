@@ -179,6 +179,10 @@
   margin-top: 1.22rem;
 }
 
+.auth-form {
+  display: block;
+}
+
 .auth-input {
   align-items: center;
   background:
@@ -287,6 +291,61 @@
   text-underline-offset: 0.18em;
 }
 
+.auth-message {
+  border-radius: 10px;
+  font-size: 0.81rem;
+  line-height: 1.42;
+  margin-top: 0.9rem;
+  padding: 0.72rem 0.85rem;
+}
+
+.auth-message--error {
+  background: rgba(117, 59, 43, 0.08);
+  border: 1px solid rgba(117, 59, 43, 0.16);
+  color: #6d392f;
+}
+
+.auth-message--success {
+  background: rgba(63, 93, 72, 0.1);
+  border: 1px solid rgba(63, 93, 72, 0.18);
+  color: #365846;
+}
+
+.auth-recovery {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.48), transparent 36%),
+    linear-gradient(180deg, rgba(242, 237, 229, 0.84), rgba(232, 224, 213, 0.62));
+  border: 1px solid rgba(43, 57, 49, 0.14);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 26px rgba(65, 55, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.66);
+  color: rgba(45, 58, 51, 0.78);
+  display: grid;
+  gap: 0.7rem;
+  font-size: 0.81rem;
+  line-height: 1.42;
+  margin-top: 0.78rem;
+  padding: 0.9rem;
+}
+
+.auth-recovery div {
+  display: grid;
+  gap: 0.62rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.auth-recovery button {
+  background: rgba(255, 253, 248, 0.72);
+  border: 1px solid rgba(47, 74, 62, 0.18);
+  border-radius: 9px;
+  color: #314b3f;
+  font-size: 0.8rem;
+  font-weight: 620;
+  min-height: 2.45rem;
+  padding: 0 0.72rem;
+}
+
 .auth-primary {
   background:
     radial-gradient(circle at 22% 0%, rgba(255, 255, 255, 0.16), transparent 32%),
@@ -307,6 +366,12 @@
 
 .auth-primary:hover {
   background: linear-gradient(180deg, #1b3d30 0%, #143326 100%);
+}
+
+.auth-primary:disabled,
+.auth-recovery button:disabled {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 .auth-divider {
@@ -410,7 +475,7 @@
   .auth-socials {
     grid-template-columns: 1fr;
   }
-}
+
   .auth-page-brand {
     left: 1.25rem;
     top: 1.25rem;
@@ -424,3 +489,4 @@
   .auth-page-brand span {
     font-size: 1.7rem;
   }
+}

@@ -2,6 +2,7 @@
 import argparse
 import json
 import random
+import re
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -10,9 +11,26 @@ def money(value: float) -> float:
     return round(value, 2)
 
 
-def build_seed() -> dict:
-    rng = random.Random(20260501)
-    user_id = "maya-patel-demo"
+FIRST_NAMES = ["Maya", "Avery", "Jordan", "Taylor", "Riley", "Morgan", "Casey", "Quinn"]
+LAST_NAMES = ["Patel", "Rivera", "Chen", "Morgan", "Kim", "Ellis", "Wright", "Brooks"]
+
+
+def slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "northstar-user"
+
+
+def build_seed(
+    user_id: str = "maya-patel-demo",
+    name: str = "Maya Patel",
+    email: str | None = None,
+    seed: int = 20260501,
+    randomize: bool = False,
+) -> dict:
+    rng = random.Random(seed)
+
+    if randomize:
+        name = name if name != "Maya Patel" else f"{rng.choice(FIRST_NAMES)} {rng.choice(LAST_NAMES)}"
 
     holdings_catalog = [
         ("VOO", "Vanguard S&P 500 ETF", "etf", 72.44, 515.2, 33120, "Broad market"),
@@ -25,13 +43,13 @@ def build_seed() -> dict:
     ]
 
     holdings = []
-    for symbol, name, asset_class, quantity, price, cost_basis, sector in holdings_catalog:
+    for symbol, holding_name, asset_class, quantity, price, cost_basis, sector in holdings_catalog:
         price = price * rng.uniform(0.985, 1.015)
         value = quantity * price
         holdings.append(
             {
                 "symbol": symbol,
-                "name": name,
+                "name": holding_name,
                 "assetClass": asset_class,
                 "quantity": round(quantity, 4),
                 "price": money(price),
@@ -45,24 +63,31 @@ def build_seed() -> dict:
     top3 = sorted(holdings, key=lambda h: h["value"], reverse=True)[:3]
     top3_concentration = round(sum(h["value"] for h in top3) / portfolio_value, 2)
 
+    age = 24 if not randomize else rng.randint(24, 42)
+    investor_level = "beginner" if not randomize else rng.choice(["beginner", "early_builder", "confident_beginner"])
+    risk_comfort = "moderate_cautious" if not randomize else rng.choice(["conservative", "moderate_cautious", "moderate"])
+    target_amount = 80000 if not randomize else rng.choice([45000, 65000, 80000, 120000, 175000])
+    target_year = 2029 if not randomize else rng.randint(2028, 2033)
+    target_month = "05" if not randomize else f"{rng.randint(1, 12):02d}"
+
     context_packet = {
         "user": {
             "id": user_id,
-            "name": "Maya Patel",
-            "age": 24,
-            "investor_level": "beginner",
+            "name": name,
+            "age": age,
+            "investor_level": investor_level,
             "communication_style": "plain_english",
         },
         "goals": [
             {
                 "type": "home_down_payment",
-                "target_amount": 80000,
-                "target_date": "2029-05",
+                "target_amount": target_amount,
+                "target_date": f"{target_year}-{target_month}",
                 "priority": "high",
             }
         ],
         "risk_profile": {
-            "risk_comfort": "moderate_cautious",
+            "risk_comfort": risk_comfort,
             "panic_response": "very_worried_at_20pct_drop",
             "liquidity_need": "may_withdraw_20pct_next_year",
         },
@@ -114,7 +139,7 @@ def build_seed() -> dict:
         {
             "id": "acct-taxable-brokerage",
             "institution": "Fidelity",
-            "name": "Individual Brokerage",
+            "name": f"{name.split()[0]} Taxable Brokerage",
             "type": "brokerage",
             "taxable": True,
             "balance": money(portfolio_value * 0.55),
@@ -233,17 +258,17 @@ def build_seed() -> dict:
             }
         )
 
-    memory_template = """# CalmVest Memory: Maya Patel
+    memory_template = f"""# Northstar Memory: {name}
 
 ## Identity
-- Beginner investor
+- {investor_level.replace('_', ' ').title()} investor
 - Prefers plain-English explanations
 
 ## Goals
-- House down payment goal: $80,000 target by May 2029
+- House down payment goal: ${target_amount:,} target by {target_year}-{target_month}
 
 ## Risk and Liquidity
-- Moderate-cautious risk comfort
+- {risk_comfort.replace('_', '-')} risk comfort
 - Very worried by a 20% market drop
 - May need to withdraw 20% next year
 
@@ -258,7 +283,7 @@ def build_seed() -> dict:
 - Confirm whether sustainability preferences matter
 """
 
-    return {
+    seed_payload = {
         "user": context_packet["user"],
         "contextPacket": context_packet,
         "memoryTemplate": memory_template,
@@ -267,16 +292,39 @@ def build_seed() -> dict:
         "taxLots": tax_lots,
         "transactions": transactions,
     }
+    if email:
+        seed_payload["auth"] = {"email": email}
+    return seed_payload
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", required=True)
+    parser.add_argument("--user-id", default="maya-patel-demo")
+    parser.add_argument("--name", default="Maya Patel")
+    parser.add_argument("--email")
+    parser.add_argument("--seed", type=int, default=20260501)
+    parser.add_argument("--randomize", action="store_true")
     args = parser.parse_args()
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(build_seed(), indent=2), encoding="utf-8")
+    user_id = args.user_id
+    if user_id == "maya-patel-demo" and args.email:
+        user_id = slugify(args.email.split("@")[0])
+    out.write_text(
+        json.dumps(
+            build_seed(
+                user_id=user_id,
+                name=args.name,
+                email=args.email,
+                seed=args.seed,
+                randomize=args.randomize,
+            ),
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     print(f"Wrote {out}")
 
 
