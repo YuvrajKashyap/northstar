@@ -98,3 +98,67 @@ export interface DemoSeed {
     type: string;
   }>;
 }
+
+export interface PlaidLinkResult {
+  ok: boolean;
+  userId: string;
+  institution: string;
+  imported: {
+    accounts: number;
+    holdings: number;
+    taxLots: number;
+    transactions: number;
+  };
+  accounts: DemoSeed['accounts'];
+  holdings: Holding[];
+}
+
+export interface OnboardingAnswers {
+  userId: string;
+  goal: string;
+  targetAmount: number;
+  targetDate: string;
+  withdrawalNeed: string;
+  drawdownFeeling: string;
+  taxableAccount: boolean;
+  communicationStyle: string;
+  values: string;
+}
+
+export interface MemoryDiffItem {
+  kind: 'added' | 'updated' | 'created' | 'set';
+  label: string;
+  value: string;
+}
+
+export interface OnboardingCommitResult {
+  ok: boolean;
+  userId: string;
+  memoryMarkdown: string;
+  contextPacket: ContextPacket;
+  diff: MemoryDiffItem[];
+  trace: AgentTraceEvent[];
+}
+
+export interface MemoryGraphNode {
+  id: string;
+  label: string;
+  kind: 'person' | 'goal' | 'risk' | 'account' | 'tax' | 'values' | 'cash_flow' | 'communication';
+  value: string;
+  source: string;
+  usedBy: string[];
+}
+
+export interface MemoryGraphEdge {
+  from: string;
+  to: string;
+  label: string;
+}
+
+export interface MemoryGraph {
+  userId: string;
+  nodes: MemoryGraphNode[];
+  edges: MemoryGraphEdge[];
+  memoryMarkdown: string;
+  contextPacket: ContextPacket;
+}

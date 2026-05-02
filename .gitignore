@@ -6,4 +6,5 @@ dist
 .env.*
 !.env.example
 backend/src/data/traces
+backend/src/data/mirrors
 backend/src/data/*.local.json

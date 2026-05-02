@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { createTraceEvent, appendTraceEvent } from '../agents/trace-store.js';
 import { runCalmVestTool, type CalmVestToolName } from '../agents/calmvest-tools.js';
 import { readDemoSeed } from './demo.js';
+import { supabase } from '../lib/supabase.js';
 
 export const agentRouter = Router();
 
@@ -52,6 +53,16 @@ agentRouter.post('/scenario/stream', async (_req, res) => {
     );
 
     const execution = runCalmVestTool(step.tool, step.args, seed);
+    if (step.tool === 'create_trust_receipt') {
+      await supabase.from('trust_receipts').insert({
+        user_id: seed.user.id,
+        run_id: runId,
+        title: 'Balanced protection plan',
+        content: execution.result,
+        approval_status: 'approval_required',
+      });
+    }
+
     await writeTrace(
       res,
       createTraceEvent(runId, 'tool_result', step.agent, `${step.tool} complete`, {
@@ -71,6 +82,16 @@ agentRouter.post('/scenario/stream', async (_req, res) => {
       await writeTrace(
         res,
         createTraceEvent(runId, 'handoff', 'Tax Agent', 'Returned findings to Rebalance Agent'),
+      );
+    }
+
+    if (step.tool === 'create_trust_receipt') {
+      await writeTrace(
+        res,
+        createTraceEvent(runId, 'receipt_created', 'Communication Agent', 'Trust receipt drafted', {
+          userId: seed.user.id,
+          visibleToUser: true,
+        }),
       );
     }
   }
