@@ -3,3 +3,5 @@
 > tsx watch src/index.ts
 
 CalmVest API listening on http://localhost:8787
+3:46:20 AM [tsx] change in ./src\lib\local-mirror.ts Rerunning...
+cCalmVest API listening on http://localhost:8787

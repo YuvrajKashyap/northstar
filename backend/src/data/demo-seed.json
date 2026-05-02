@@ -46,7 +46,7 @@
       "explain_costs": true
     }
   },
-  "memoryTemplate": "# CalmVest Memory: Maya Patel\n\n## Identity\n- Beginner investor\n- Prefers plain-English explanations\n\n## Goals\n- House down payment goal: $80,000 target by May 2029\n\n## Risk and Liquidity\n- Moderate-cautious risk comfort\n- Very worried by a 20% market drop\n- May need to withdraw 20% next year\n\n## Tax and Constraints\n- Taxable brokerage accounts\n- No automatic trading\n- Explain cost, tax, confidence, and approval status for recommendations\n\n## Open Questions\n- Confirm income stability\n- Confirm exact house purchase timing\n- Confirm whether sustainability preferences matter\n",
+  "memoryTemplate": "# Northstar Memory: Maya Patel\n\n## Identity\n- Beginner investor\n- Prefers plain-English explanations\n\n## Goals\n- House down payment goal: $80,000 target by 2029-05\n\n## Risk and Liquidity\n- moderate-cautious risk comfort\n- Very worried by a 20% market drop\n- May need to withdraw 20% next year\n\n## Tax and Constraints\n- Taxable brokerage accounts\n- No automatic trading\n- Explain cost, tax, confidence, and approval status for recommendations\n\n## Open Questions\n- Confirm income stability\n- Confirm exact house purchase timing\n- Confirm whether sustainability preferences matter\n",
   "accounts": [
     {
       "id": "acct-chase-checking",
@@ -75,7 +75,7 @@
     {
       "id": "acct-taxable-brokerage",
       "institution": "Fidelity",
-      "name": "Individual Brokerage",
+      "name": "Maya Taxable Brokerage",
       "type": "brokerage",
       "taxable": true,
       "balance": 33378.38
