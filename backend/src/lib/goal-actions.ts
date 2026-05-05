@@ -1,5 +1,7 @@
 import type { ContextPacket } from '@calmvest/shared';
 
+export type GoalActionKind = 'added' | 'updated' | 'removed';
+
 export function parseGoalDescription(description: string): ContextPacket['goals'][number] {
   const clean = description.replace(/\s+/g, ' ').trim();
   return {
@@ -11,8 +13,21 @@ export function parseGoalDescription(description: string): ContextPacket['goals'
 }
 
 export function applyGoalInstruction(goals: ContextPacket['goals'], description: string) {
+  const removal = isRemovalInstruction(description);
   const parsed = parseGoalDescription(description);
-  const targetIndex = findGoalToUpdate(goals, description, parsed);
+  const targetIndex = findGoalToUpdate(goals, description, parsed, removal);
+
+  if (removal) {
+    if (targetIndex < 0) {
+      throw new Error('I could not find a matching saved goal to remove.');
+    }
+    const goal = goals[targetIndex];
+    return {
+      kind: 'removed' as const,
+      goal,
+      goals: goals.filter((_, index) => index !== targetIndex),
+    };
+  }
 
   if (targetIndex < 0) {
     return { kind: 'added' as const, goal: parsed, goals: [...goals, parsed] };
@@ -37,10 +52,12 @@ function findGoalToUpdate(
   goals: ContextPacket['goals'],
   description: string,
   parsed: ContextPacket['goals'][number],
+  allowSingleGoalFallback = false,
 ) {
   if (!goals.length) return -1;
   const cleanDescription = normalizeGoalText(description);
   const parsedTokens = goalTokens(parsed.type);
+  const createInstruction = /\b(add|create|track|save for|saving for)\b/i.test(description);
   const explicitUpdate = /\b(update|change|set|make|target date|timeline|deadline|by|actually do know|should be|want it to be)\b/i.test(description);
 
   let best = { index: -1, score: 0 };
@@ -52,7 +69,14 @@ function findGoalToUpdate(
   });
 
   if (best.score >= 3) return best.index;
-  return explicitUpdate && goals.length === 1 ? 0 : -1;
+  if (allowSingleGoalFallback && goals.length === 1 && !parsedTokens.length) return 0;
+  if (allowSingleGoalFallback) return -1;
+  return ((explicitUpdate && !createInstruction) || allowSingleGoalFallback) && goals.length === 1 ? 0 : -1;
+}
+
+function isRemovalInstruction(description: string) {
+  return /\b(remove|delete|drop|cancel|stop tracking|stop showing|archive)\b/i.test(description)
+    && /\b(goal|target|fund|purchase|home|house|emergency|retirement|travel|wedding|car|education|college|business|startup|porsche|911)\b/i.test(description);
 }
 
 function inferGoalType(description: string) {

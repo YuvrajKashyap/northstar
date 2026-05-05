@@ -4,7 +4,7 @@ import { readDemoSeed } from './demo.js';
 import { supabase } from '../lib/supabase.js';
 import { buildMemoryGraph } from '../lib/memory-builder.js';
 import { mirrorMemory } from '../lib/local-mirror.js';
-import { applyGoalInstruction, parseGoalDescription } from '../lib/goal-actions.js';
+import { applyGoalInstruction, parseGoalDescription, type GoalActionKind } from '../lib/goal-actions.js';
 import type {
   ContextPacket,
   GoalMemoryUpdateResponse,
@@ -189,7 +189,16 @@ memoryRouter.post('/goals/apply', async (req, res, next) => {
       (contextRow?.packet as ContextPacket | undefined) ?? emptyContextPacket(userId),
       seed.user.id,
     );
-    const action = applyGoalInstruction(existingContext.goals, description);
+    let action: ReturnType<typeof applyGoalInstruction>;
+    try {
+      action = applyGoalInstruction(existingContext.goals, description);
+    } catch (caught) {
+      if (caught instanceof Error && caught.message.includes('matching saved goal')) {
+        res.status(404).json({ ok: false, message: caught.message });
+        return;
+      }
+      throw caught;
+    }
     const contextPacket: ContextPacket = {
       ...existingContext,
       goals: action.goals,
@@ -218,7 +227,7 @@ memoryRouter.post('/goals/apply', async (req, res, next) => {
 
     await mirrorMemory(userId, memoryMarkdown, contextPacket);
 
-    const response: GoalMemoryUpdateResponse & { action: 'added' | 'updated' } = {
+    const response: GoalMemoryUpdateResponse & { action: GoalActionKind } = {
       ok: true,
       userId,
       goal: action.goal,
@@ -300,13 +309,13 @@ function appendGoalActionToMemory(
   memoryMarkdown: string,
   goal: ContextPacket['goals'][number],
   description: string,
-  kind: 'added' | 'updated',
+  kind: GoalActionKind,
 ) {
   const target = goal.target_amount > 0 ? `$${goal.target_amount.toLocaleString()}` : 'target amount TBD';
   const date = goal.target_date && goal.target_date !== 'unknown' ? goal.target_date : 'timeline TBD';
-  const verb = kind === 'updated' ? 'Updated' : 'Added';
+  const verb = kind === 'updated' ? 'Updated' : kind === 'removed' ? 'Removed' : 'Added';
   const line = `- ${verb} ${goal.type}: ${target} by ${date} (${goal.priority}). User description: ${description.trim()}`;
   const updateBlock = `\n\n## Goal Updates\n${line}\n`;
   if (!memoryMarkdown.includes('## Goal Updates')) return `${memoryMarkdown.trim()}${updateBlock}`;
-  return memoryMarkdown.replace(/(## Goal Updates\n)/, `$1${line}\n`);
+  return memoryMarkdown.replace(/(## Goal Updates\n)/, (heading) => `${heading}${line}\n`);
 }

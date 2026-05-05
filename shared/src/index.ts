@@ -295,6 +295,7 @@ export interface GoalMemoryUpdateResponse {
   ok: true;
   userId: string;
   goal: ContextPacket['goals'][number];
+  action?: 'added' | 'updated' | 'removed';
   memoryMarkdown: string;
   contextPacket: ContextPacket;
   graph: MemoryGraph;
