@@ -171,6 +171,12 @@ export interface Holding {
 }
 
 export interface DemoSeed {
+  provenance: {
+    kind: 'synthetic';
+    generator: string;
+    asOf: string;
+    seed: number;
+  };
   user: ContextPacket['user'];
   contextPacket: ContextPacket;
   memoryTemplate: string;
@@ -307,6 +313,7 @@ export interface AuthUserSession {
   email: string;
   name: string;
   accessToken?: string;
+  requiresEmailConfirmation?: boolean;
 }
 
 export interface AuthRegisterRequest {
@@ -326,6 +333,6 @@ export interface AuthRecoverRequest {
 
 export interface AuthRecoverResponse {
   ok: true;
-  found: boolean;
+  requested: true;
   message: string;
 }

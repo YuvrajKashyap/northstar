@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">Northstar system architecture</title>
+  <desc id="desc">The React browser sends a Supabase user token to an Express API. Authentication middleware creates a request-scoped client, Postgres row-level security protects user data, and the North runtime streams typed events from memory, portfolio, research, and deterministic scenario tools.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#f8f4eb"/>
+      <stop offset="1" stop-color="#eee8dc"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#17382f" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0 0L12 6L0 12Z" fill="#56746a"/>
+    </marker>
+    <style>
+      .eyebrow{font:600 18px Inter,Segoe UI,sans-serif;letter-spacing:2.5px;fill:#60766f}
+      .title{font:600 40px Georgia,serif;fill:#17382f}
+      .node-title{font:700 23px Inter,Segoe UI,sans-serif;fill:#17382f}
+      .node-copy{font:400 17px Inter,Segoe UI,sans-serif;fill:#61716c}
+      .label{font:600 15px Inter,Segoe UI,sans-serif;fill:#56746a}
+      .small{font:500 15px Inter,Segoe UI,sans-serif;fill:#6c7c76}
+      .card{fill:#fffdfa;stroke:#cdd5cd;stroke-width:2;filter:url(#shadow)}
+      .accent{fill:#264d40}
+      .line{fill:none;stroke:#56746a;stroke-width:3;marker-end:url(#arrow)}
+      .dash{fill:none;stroke:#89a097;stroke-width:3;stroke-dasharray:10 10;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="820" rx="28" fill="url(#bg)"/>
+  <text x="88" y="82" class="eyebrow">NORTHSTAR · REQUEST AND DATA BOUNDARIES</text>
+  <text x="88" y="133" class="title">One signed-in identity, carried through every private layer.</text>
+
+  <rect x="84" y="236" width="286" height="180" rx="24" class="card"/>
+  <rect x="84" y="236" width="12" height="180" rx="6" class="accent"/>
+  <text x="124" y="292" class="node-title">React browser</text>
+  <text x="124" y="329" class="node-copy">Vite interface</text>
+  <text x="124" y="360" class="node-copy">JSON + SSE client</text>
+  <text x="124" y="391" class="small">publishable key only</text>
+
+  <rect x="476" y="202" width="330" height="248" rx="24" class="card"/>
+  <text x="516" y="258" class="node-title">Express API</text>
+  <text x="516" y="296" class="node-copy">Bearer token verification</text>
+  <text x="516" y="327" class="node-copy">Cross-user ID rejection</text>
+  <text x="516" y="358" class="node-copy">Zod validation + Helmet</text>
+  <rect x="516" y="382" width="250" height="38" rx="19" fill="#e3ece7"/>
+  <text x="641" y="407" text-anchor="middle" class="label">request-scoped Supabase client</text>
+
+  <rect x="918" y="202" width="304" height="248" rx="24" class="card"/>
+  <text x="958" y="258" class="node-title">North runtime</text>
+  <text x="958" y="296" class="node-copy">Memory-first context</text>
+  <text x="958" y="327" class="node-copy">Optional model path</text>
+  <text x="958" y="358" class="node-copy">Deterministic fallback</text>
+  <text x="958" y="398" class="small">typed trace events</text>
+
+  <rect x="1322" y="236" width="194" height="180" rx="24" class="card"/>
+  <text x="1360" y="292" class="node-title">Tools</text>
+  <text x="1360" y="329" class="node-copy">Memory</text>
+  <text x="1360" y="360" class="node-copy">Portfolio</text>
+  <text x="1360" y="391" class="node-copy">Scenario</text>
+
+  <path d="M370 326H462" class="line"/>
+  <text x="416" y="306" text-anchor="middle" class="label">user JWT</text>
+  <path d="M806 326H904" class="line"/>
+  <text x="855" y="306" text-anchor="middle" class="label">validated request</text>
+  <path d="M1222 326H1308" class="line"/>
+
+  <rect x="318" y="566" width="382" height="164" rx="24" class="card"/>
+  <text x="358" y="622" class="node-title">Supabase</text>
+  <text x="358" y="659" class="node-copy">Auth · Postgres · owner-scoped RLS</text>
+  <text x="358" y="696" class="small">auth.uid() must match each row owner</text>
+
+  <rect x="866" y="566" width="318" height="164" rx="24" class="card"/>
+  <text x="906" y="622" class="node-title">Trace evidence</text>
+  <text x="906" y="659" class="node-copy">SSE to the user</text>
+  <text x="906" y="690" class="node-copy">JSONL + scoped DB event</text>
+
+  <rect x="1262" y="566" width="254" height="164" rx="24" fill="#f6f1e8" stroke="#9caaa4" stroke-width="2"/>
+  <text x="1302" y="622" class="node-title">Optional APIs</text>
+  <text x="1302" y="659" class="node-copy">Model · search</text>
+  <text x="1302" y="690" class="node-copy">financial datasets</text>
+
+  <path d="M574 450V552" class="line"/>
+  <path d="M1016 450V552" class="line"/>
+  <path d="M1388 416V552" class="dash"/>
+  <path d="M918 386C812 494 735 548 700 610" class="line"/>
+  <text x="776" y="535" class="label">JWT-scoped queries</text>
+
+  <rect x="84" y="770" width="1432" height="2" fill="#c8d1cb"/>
+  <text x="84" y="801" class="small">Public: landing, auth, health, synthetic fixture · Private: onboarding, memory, agent, plans, approvals, receipts</text>
+</svg>

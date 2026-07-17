@@ -1,21 +1,22 @@
-import { useCallback, useEffect, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { useCalmVestWorkspace } from './hooks/useCalmVestWorkspace'
-import { DashboardPage } from './pages/DashboardPage'
-import { GoalsPage } from './pages/GoalsPage'
-import { HomePage } from './pages/HomePage'
-import { InsightsPage } from './pages/InsightsPage'
 import { LandingPage } from './pages/LandingPage'
 import { MarketingPage } from './pages/MarketingPage'
-import { MemoryPage } from './pages/MemoryPage'
-import { PlansPage } from './pages/PlansPage'
-import { ProfilePage } from './pages/ProfilePage'
-import { ScenarioCanvasPage } from './pages/ScenarioCanvasPage'
 import { SignInPage } from './pages/SignInPage'
-import { WealthWorkspacePage } from './pages/WealthWorkspacePage'
-import { WorkspaceFeaturePage } from './pages/WorkspaceFeaturePage'
 import { getMemoryStatus } from './lib/wealthApi'
 import type { Screen } from './types/screens'
 import './styles/index.css'
+
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then((module) => ({ default: module.DashboardPage })))
+const GoalsPage = lazy(() => import('./pages/GoalsPage').then((module) => ({ default: module.GoalsPage })))
+const HomePage = lazy(() => import('./pages/HomePage').then((module) => ({ default: module.HomePage })))
+const InsightsPage = lazy(() => import('./pages/InsightsPage').then((module) => ({ default: module.InsightsPage })))
+const MemoryPage = lazy(() => import('./pages/MemoryPage').then((module) => ({ default: module.MemoryPage })))
+const PlansPage = lazy(() => import('./pages/PlansPage').then((module) => ({ default: module.PlansPage })))
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then((module) => ({ default: module.ProfilePage })))
+const ScenarioCanvasPage = lazy(() => import('./pages/ScenarioCanvasPage').then((module) => ({ default: module.ScenarioCanvasPage })))
+const WealthWorkspacePage = lazy(() => import('./pages/WealthWorkspacePage').then((module) => ({ default: module.WealthWorkspacePage })))
+const WorkspaceFeaturePage = lazy(() => import('./pages/WorkspaceFeaturePage').then((module) => ({ default: module.WorkspaceFeaturePage })))
 
 const screenRoutes = {
   landing: '/landing',
@@ -58,6 +59,9 @@ function App() {
   const [hash, setHash] = useState(() => window.location.hash)
   const [path, setPath] = useState(() => window.location.pathname)
   const [authMode, setAuthMode] = useState<'register' | 'login'>('register')
+  const hasStoredSession = Boolean(
+    localStorage.getItem('northstar.activeUserId') && localStorage.getItem('northstar.accessToken'),
+  )
 
   const navigateTo = useCallback((nextScreen: Screen) => {
     const nextPath = screenRoutes[nextScreen] ?? '/'
@@ -97,8 +101,12 @@ function App() {
   useEffect(() => {
     if (!memoryGatedScreens.has(screen)) return
 
-    const userId = localStorage.getItem('northstar.activeUserId')
-    if (!userId) return
+    if (!hasStoredSession) {
+      window.history.replaceState({}, '', '/login')
+      window.dispatchEvent(new PopStateEvent('popstate'))
+      return
+    }
+    const userId = localStorage.getItem('northstar.activeUserId') as string
 
     let cancelled = false
     void getMemoryStatus(userId)
@@ -113,21 +121,25 @@ function App() {
     return () => {
       cancelled = true
     }
-  }, [navigateTo, screen])
+  }, [hasStoredSession, navigateTo, screen])
 
   function openAuth(mode: 'register' | 'login') {
     setAuthMode(mode)
     navigateTo('signin')
   }
 
-  if (
+  const isWorkspacePath =
     path === '/onboarding' ||
     path === '/workspace' ||
     path.startsWith('/workspace/') ||
     hash === '#workspace' ||
     hash.startsWith('#workspace/')
-  ) {
-    return <WealthWorkspacePage />
+  if ((isWorkspacePath || memoryGatedScreens.has(screen)) && !hasStoredSession) {
+    return <SignInPage setScreen={navigateTo} initialMode="login" />
+  }
+
+  if (isWorkspacePath) {
+    return <Suspense fallback={<AppLoading />}><WealthWorkspacePage /></Suspense>
   }
 
   if (path === '/login' || path === '/auth') {
@@ -135,26 +147,32 @@ function App() {
   }
 
   return (
-    <main className="calmvest-root">
-      {error ? <div className="error-toast">{error}</div> : null}
-      {screen === 'landing' ? <LandingPage setScreen={navigateTo} openAuth={openAuth} graph={screenProps.graph} /> : null}
-      {screen === 'how-it-works' ? <MarketingPage page="how-it-works" setScreen={navigateTo} openAuth={openAuth} /> : null}
-      {screen === 'beginners' ? <MarketingPage page="beginners" setScreen={navigateTo} openAuth={openAuth} /> : null}
-      {screen === 'agents' ? <MarketingPage page="agents" setScreen={navigateTo} openAuth={openAuth} /> : null}
-      {screen === 'safety' ? <MarketingPage page="safety" setScreen={navigateTo} openAuth={openAuth} /> : null}
-      {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={navigateTo} openAuth={openAuth} /> : null}
-      {screen === 'signin' ? <SignInPage setScreen={navigateTo} initialMode={authMode} /> : null}
-      {screen === 'profile' ? <ProfilePage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'memory' ? <MemoryPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'goals' ? <GoalsPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'agent-runs' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="agent-runs" /> : null}
-      {screen === 'plans' ? <PlansPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'insights' ? <InsightsPage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'dashboard' ? <HomePage {...screenProps} setScreen={navigateTo} /> : null}
-      {screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
-    </main>
+    <Suspense fallback={<AppLoading />}>
+      <main className="calmvest-root">
+        {error ? <div className="error-toast">{error}</div> : null}
+        {screen === 'landing' ? <LandingPage setScreen={navigateTo} openAuth={openAuth} graph={screenProps.graph} /> : null}
+        {screen === 'how-it-works' ? <MarketingPage page="how-it-works" setScreen={navigateTo} openAuth={openAuth} /> : null}
+        {screen === 'beginners' ? <MarketingPage page="beginners" setScreen={navigateTo} openAuth={openAuth} /> : null}
+        {screen === 'agents' ? <MarketingPage page="agents" setScreen={navigateTo} openAuth={openAuth} /> : null}
+        {screen === 'safety' ? <MarketingPage page="safety" setScreen={navigateTo} openAuth={openAuth} /> : null}
+        {screen === 'pricing' ? <MarketingPage page="pricing" setScreen={navigateTo} openAuth={openAuth} /> : null}
+        {screen === 'signin' ? <SignInPage setScreen={navigateTo} initialMode={authMode} /> : null}
+        {screen === 'profile' ? <ProfilePage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'memory' ? <MemoryPage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'goals' ? <GoalsPage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'agent-runs' ? <WorkspaceFeaturePage {...screenProps} setScreen={navigateTo} page="agent-runs" /> : null}
+        {screen === 'plans' ? <PlansPage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'scenarios' ? <ScenarioCanvasPage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'insights' ? <InsightsPage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'dashboard' ? <HomePage {...screenProps} setScreen={navigateTo} /> : null}
+        {screen === 'north' ? <DashboardPage {...screenProps} setScreen={navigateTo} /> : null}
+      </main>
+    </Suspense>
   )
+}
+
+function AppLoading() {
+  return <div className="app-loading" role="status">Loading Northstar…</div>
 }
 
 export default App

@@ -7,6 +7,7 @@ import { buildComprehensiveMemoryFromOnboarding } from '../lib/memory-builder.js
 import { mirrorMemory } from '../lib/local-mirror.js';
 import { supabase } from '../lib/supabase.js';
 import { createTraceEvent, appendTraceEvent } from '../agents/trace-store.js';
+import { requireOwnedUserId } from '../middleware/auth.js';
 
 export const onboardingRouter = Router();
 
@@ -28,7 +29,8 @@ onboardingRouter.post('/run/stream', commitOnboardingHandler);
 
 async function commitOnboardingHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const answers = onboardingSchema.parse(req.body) as OnboardingAnswers;
+    const parsed = onboardingSchema.parse(req.body) as OnboardingAnswers;
+    const answers = { ...parsed, userId: requireOwnedUserId(req, parsed.userId) };
     const seed = await readOnboardingSeed(answers.userId);
     const { memoryMarkdown, contextPacket, diff, toolCalls, source } =
       await buildComprehensiveMemoryFromOnboarding(answers, seed);

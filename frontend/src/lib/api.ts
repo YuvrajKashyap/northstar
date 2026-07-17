@@ -6,6 +6,7 @@ import type {
   PlansResponse,
   RawMemoryDocument,
 } from '@calmvest/shared'
+import { sessionHeaders } from './auth'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
 
@@ -16,8 +17,8 @@ function apiUrl(path: string) {
 export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     const response = await fetch(apiUrl(path), {
-      headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
       ...init,
+      headers: sessionHeaders(init?.headers),
     })
     if (!response.ok) throw new Error(await response.text())
     return response.json() as Promise<T>
@@ -39,7 +40,7 @@ export async function postJson<T>(path: string, body?: unknown): Promise<T> {
 export async function streamAgentRun(request: AgentRunRequest, onEvent: (event: AgentTraceEvent) => void) {
   const response = await fetch(apiUrl('/api/agent/run/stream'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: sessionHeaders(),
     body: JSON.stringify(request),
   })
   await readSseTrace(response, onEvent)
@@ -48,7 +49,7 @@ export async function streamAgentRun(request: AgentRunRequest, onEvent: (event: 
 export async function streamScenarioTrace(userId: string, onEvent: (event: AgentTraceEvent) => void) {
   const response = await fetch(apiUrl('/api/agent/scenario/stream'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: sessionHeaders(),
     body: JSON.stringify({ userId }),
   })
   await readSseTrace(response, onEvent)

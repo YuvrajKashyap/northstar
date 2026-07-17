@@ -1,16 +1,12 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import {
   CheckCircle,
-  CheckSquare,
   EnvelopeSimple,
   Eye,
   EyeSlash,
   Lock,
-  Square,
   User,
 } from '@phosphor-icons/react'
-import appleLogo from '../assets/apple-logo.svg'
-import googleLogo from '../assets/google-g-logo.svg'
 import northstarLogo from '../assets/northstar-logo.svg'
 import { postJson } from '../lib/api'
 import { getMemoryStatus } from '../lib/wealthApi'
@@ -76,7 +72,6 @@ export function SignInPage({
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [remember, setRemember] = useState(true)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ kind: 'error' | 'success'; text: string } | null>(null)
   const [showRecover, setShowRecover] = useState(false)
@@ -131,6 +126,13 @@ export function SignInPage({
       const session = submittedMode === 'register'
         ? await postJson<AuthUserSession>('/api/auth/register', { name, email, password })
         : await postJson<AuthUserSession>('/api/auth/login', { email, password })
+      if (session.requiresEmailConfirmation) {
+        setMode('login')
+        setPassword('')
+        setConfirmPassword('')
+        setMessage({ kind: 'success', text: 'Check your email to confirm the account, then log in.' })
+        return
+      }
       await activateSession(session, submittedMode)
     } catch (caught) {
       const text = readableError(caught)
@@ -148,7 +150,7 @@ export function SignInPage({
     setMessage(null)
     try {
       const result = await postJson<AuthRecoverResponse>('/api/auth/recover', { email })
-      setMessage({ kind: result.found ? 'success' : 'error', text: result.message })
+      setMessage({ kind: result.requested ? 'success' : 'error', text: result.message })
     } catch (caught) {
       setMessage({ kind: 'error', text: readableError(caught) })
     } finally {
@@ -234,10 +236,6 @@ export function SignInPage({
             </div>
           ) : (
             <div className="auth-login-options">
-              <button className="auth-remember" type="button" onClick={() => setRemember((current) => !current)}>
-                {remember ? <CheckSquare size={17} weight="fill" /> : <Square size={17} />}
-                Remember me
-              </button>
               <button className="auth-forgot" type="button" onClick={() => setShowRecover((current) => !current)}>Forgot password?</button>
             </div>
           )}
@@ -259,19 +257,8 @@ export function SignInPage({
           </button>
         </form>
 
-        <div className="auth-divider">
-          <span>or continue with</span>
-        </div>
-
-        <div className="auth-socials">
-          <button type="button"><img src={googleLogo} alt="" aria-hidden="true" /> Google</button>
-          <button type="button"><img src={appleLogo} alt="" aria-hidden="true" /> Apple</button>
-        </div>
-
         <p className="auth-terms">
-          {isRegister ? 'By creating an account, you agree to our' : 'By continuing, you agree to our'}
-          <br />
-          <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.
+          Hackathon prototype · synthetic account data only
         </p>
       </section>
     </div>

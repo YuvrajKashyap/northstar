@@ -184,18 +184,18 @@ function ScenarioCanvasCard({ scenario }: { scenario: ScenarioSummary }) {
       <div className="demo-card-kicker">Scenario Canvas</div>
       <h3>Markets -20%, cash need 20%</h3>
       <div className="scenario-metrics">
-        <Metric label="Portfolio" value={money(stress?.startingValue) || '$60,688'} />
-        <Metric label="Stressed" value={money(stress?.stressedValue) || '$47,094'} />
-        <Metric label="Gap" value={money(stress?.liquidityGap) || '$9,988'} />
-        <Metric label="Delay" value={`${numberOr(stress?.goalDelayMonths, 11)} mo`} />
+        <Metric label="Portfolio" value={money(stress?.startingValue) || '—'} />
+        <Metric label="Stressed" value={money(stress?.shockedValue) || '—'} />
+        <Metric label="Gap" value={money(stress?.liquidityGap) || '—'} />
+        <Metric label="Delay" value={months(stress?.goalDelayMonths)} />
       </div>
       <div className="scenario-path">
         <span>Recommended path</span>
-        <strong>{String(recommended?.name ?? 'Balanced protection')}</strong>
+        <strong>{String(recommended?.name ?? 'Run the scenario to compare paths')}</strong>
         <p>
-          Stress loss {pct(recommended?.stressLossPct) || '-14.8%'} · liquidity{' '}
-          {pctFromRatio(recommended?.liquidityCoverage) || '100%'} · concentration{' '}
-          {pctFromRatio(recommended?.top3Concentration) || '29%'}
+          Stress loss {pct(recommended?.stressLossPct) || '—'} · liquidity{' '}
+          {pctFromRatio(recommended?.liquidityCoverage) || '—'} · concentration{' '}
+          {pctFromRatio(recommended?.top3Concentration) || '—'}
         </p>
       </div>
     </article>
@@ -211,20 +211,20 @@ function TrustReceiptCard({ scenario }: { scenario: ScenarioSummary }) {
         <ShieldCheck size={17} weight="duotone" />
         Trust receipt
       </div>
-      <h3>Human control: {String(receipt?.humanControl ?? 'approval_required').replace(/_/g, ' ')}</h3>
+      <h3>Human control: {String(receipt?.humanControl ?? 'waiting_for_trace').replace(/_/g, ' ')}</h3>
       <div className="receipt-grid">
         <span>Why</span>
-        <p>{String(receipt?.why ?? 'Your memory may include near-term cash needs and drawdown concerns.')}</p>
+        <p>{String(receipt?.why ?? 'Run the scenario to create a receipt from the checked-in fixture.')}</p>
         <span>Cost</span>
-        <p>{String(receipt?.cost ?? 'low')}</p>
+        <p>{String(receipt?.cost ?? 'not modeled')}</p>
         <span>Tax</span>
-        <p>{String(receipt?.taxImpact ?? 'medium')}</p>
+        <p>{String(receipt?.taxImpact ?? 'not modeled')}</p>
       </div>
       <div className="confidence-row">
         {([
-          ['Liquidity', confidence?.liquidityMath ?? 'high'],
-          ['Market', confidence?.marketShockAssumptions ?? 'medium'],
-          ['Forecast', confidence?.returnForecast ?? 'low'],
+          ['Liquidity', confidence?.liquidityMath ?? 'pending'],
+          ['Market', confidence?.marketShockAssumptions ?? 'pending'],
+          ['Forecast', confidence?.returnForecast ?? 'pending'],
         ] as Array<[string, unknown]>).map(([label, value]) => (
           <span key={label}>
             <CheckCircle size={14} weight="fill" />
@@ -259,6 +259,6 @@ function pctFromRatio(value: unknown) {
   return typeof value === 'number' ? `${Math.round(value * 100)}%` : ''
 }
 
-function numberOr(value: unknown, fallback: number) {
-  return typeof value === 'number' ? value : fallback
+function months(value: unknown) {
+  return typeof value === 'number' ? `${value} mo` : '—'
 }

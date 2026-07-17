@@ -1,5 +1,5 @@
 {
-  "name": "calmvest-agent-os",
+  "name": "northstar-agent-os",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,12 +12,21 @@
     "dev": "concurrently -n frontend,backend -c cyan,magenta \"npm run dev -w frontend\" \"npm run dev -w backend\"",
     "build": "npm run build -w shared && npm run build -w backend && npm run build -w frontend",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w backend && npm run typecheck -w frontend",
-    "seed:demo": "python scripts/generate_demo_seed.py --out backend/src/data/demo-seed.json",
+    "lint": "npm run lint -w frontend",
+    "test": "npm run test -w backend",
+    "verify": "npm run seed:check && npm run lint && npm run typecheck && npm run test && npm run build",
+    "seed:demo": "python scripts/generate_demo_seed.py --out backend/src/data/demo-seed.json --as-of 2026-05-02",
+    "seed:check": "python scripts/generate_demo_seed.py --out backend/src/data/demo-seed.json --as-of 2026-05-02 --check",
+    "scenario:report": "npm run scenario:report -w backend",
     "supabase:init": "npx supabase init",
-    "supabase:link": "npx supabase link --project-ref pvwekqquowgmdmknthes",
+    "supabase:link": "npx supabase link",
     "supabase:push": "npx supabase db push"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "esbuild": "^0.28.1"
+  },
+  "overrides": {
+    "esbuild": "$esbuild"
   }
 }

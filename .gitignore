@@ -13,6 +13,6 @@ backend/src/data/generated-auth
 backend-dev.log
 .codex-run
 .codex-frontend-*.log
-
-.chrome-auth-shot
-.codex-run
+.codex-*
+.chrome-*
+supabase/.temp/

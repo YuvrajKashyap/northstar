@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase.js';
 import { buildMemoryGraph } from '../lib/memory-builder.js';
 import { mirrorMemory } from '../lib/local-mirror.js';
 import { applyGoalInstruction, parseGoalDescription, type GoalActionKind } from '../lib/goal-actions.js';
+import { requireOwnedUserId } from '../middleware/auth.js';
 import type {
   ContextPacket,
   GoalMemoryUpdateResponse,
@@ -21,8 +22,8 @@ const goalUpdateSchema = z.object({
 
 memoryRouter.get('/status', async (req, res, next) => {
   try {
-    const seed = await readDemoSeed();
-    const userId = typeof req.query.userId === 'string' ? req.query.userId : seed.user.id;
+    const requestedUserId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
+    const userId = requireOwnedUserId(req, requestedUserId);
 
     const [{ data: contextRow, error: contextError }, { data: memoryRow, error: memoryError }] =
       await Promise.all([
@@ -48,7 +49,8 @@ memoryRouter.get('/status', async (req, res, next) => {
 memoryRouter.get('/graph', async (req, res, next) => {
   try {
     const seed = await readDemoSeed();
-    const userId = typeof req.query.userId === 'string' ? req.query.userId : seed.user.id;
+    const requestedUserId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
+    const userId = requireOwnedUserId(req, requestedUserId);
 
     const { data: contextRow } = await supabase
       .from('context_packets')
@@ -78,7 +80,8 @@ memoryRouter.get('/graph', async (req, res, next) => {
 memoryRouter.get('/raw', async (req, res, next) => {
   try {
     const seed = await readDemoSeed();
-    const userId = typeof req.query.userId === 'string' ? req.query.userId : seed.user.id;
+    const requestedUserId = typeof req.query.userId === 'string' ? req.query.userId : undefined;
+    const userId = requireOwnedUserId(req, requestedUserId);
 
     const [{ data: contextRow }, { data: memoryRow }] = await Promise.all([
       supabase
@@ -114,7 +117,9 @@ memoryRouter.get('/raw', async (req, res, next) => {
 memoryRouter.post('/goals', async (req, res, next) => {
   try {
     const seed = await readDemoSeed();
-    const { userId, description } = goalUpdateSchema.parse(req.body);
+    const parsed = goalUpdateSchema.parse(req.body);
+    const userId = requireOwnedUserId(req, parsed.userId);
+    const { description } = parsed;
 
     const [{ data: contextRow, error: contextError }, { data: memoryRow, error: memoryError }] =
       await Promise.all([
@@ -174,7 +179,9 @@ memoryRouter.post('/goals', async (req, res, next) => {
 memoryRouter.post('/goals/apply', async (req, res, next) => {
   try {
     const seed = await readDemoSeed();
-    const { userId, description } = goalUpdateSchema.parse(req.body);
+    const parsed = goalUpdateSchema.parse(req.body);
+    const userId = requireOwnedUserId(req, parsed.userId);
+    const { description } = parsed;
 
     const [{ data: contextRow, error: contextError }, { data: memoryRow, error: memoryError }] =
       await Promise.all([

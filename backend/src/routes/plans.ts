@@ -14,6 +14,7 @@ import type {
   PlanStepCategory,
   PlanStepTiming,
 } from '@calmvest/shared';
+import { requireOwnedUserId } from '../middleware/auth.js';
 
 export const plansRouter = Router();
 
@@ -32,7 +33,8 @@ const approvalSchema = z.object({
 
 plansRouter.get('/', async (req, res, next) => {
   try {
-    const { userId } = userQuerySchema.parse(req.query);
+    const parsed = userQuerySchema.parse(req.query);
+    const userId = requireOwnedUserId(req, parsed.userId);
     const plans = await loadPlans(userId);
     const response: PlansResponse = { ok: true, userId, plans };
     res.json(response);
@@ -43,7 +45,8 @@ plansRouter.get('/', async (req, res, next) => {
 
 plansRouter.post('/generate', async (req, res, next) => {
   try {
-    const { userId } = generateSchema.parse(req.body);
+    const parsed = generateSchema.parse(req.body);
+    const userId = requireOwnedUserId(req, parsed.userId);
     const plan = await generatePlan(userId);
     const response: PlanGenerateResponse = { ok: true, userId, plan };
     res.status(201).json(response);
@@ -56,7 +59,9 @@ plansRouter.post('/:planId/steps/:stepId/approval', async (req, res, next) => {
   try {
     const planId = z.string().uuid().parse(req.params.planId);
     const stepId = z.string().uuid().parse(req.params.stepId);
-    const { userId, approvalStatus } = approvalSchema.parse(req.body);
+    const parsed = approvalSchema.parse(req.body);
+    const userId = requireOwnedUserId(req, parsed.userId);
+    const { approvalStatus } = parsed;
 
     const { error } = await supabase
       .from('plan_steps')

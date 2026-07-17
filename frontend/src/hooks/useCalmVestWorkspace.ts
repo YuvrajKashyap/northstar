@@ -220,16 +220,22 @@ export function useCalmVestWorkspace() {
 
   useEffect(() => {
     const context = gsap.context(() => {
-      gsap.fromTo(
-        '.screen-enter',
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' },
-      )
-      gsap.fromTo(
-        '.stagger-in',
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.045, ease: 'power2.out' },
-      )
+      const screens = gsap.utils.toArray<HTMLElement>('.screen-enter')
+      const staggered = gsap.utils.toArray<HTMLElement>('.stagger-in')
+      if (screens.length) {
+        gsap.fromTo(
+          screens,
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' },
+        )
+      }
+      if (staggered.length) {
+        gsap.fromTo(
+          staggered,
+          { opacity: 0, y: 10 },
+          { opacity: 1, y: 0, duration: 0.45, stagger: 0.045, ease: 'power2.out' },
+        )
+      }
     })
     return () => context.revert()
   }, [screen, graph, plaid])

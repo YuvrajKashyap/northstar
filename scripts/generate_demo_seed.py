@@ -3,6 +3,7 @@ import argparse
 import json
 import random
 import re
+import sys
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -26,6 +27,7 @@ def build_seed(
     email: str | None = None,
     seed: int = 20260501,
     randomize: bool = False,
+    as_of: date = date(2026, 5, 2),
 ) -> dict:
     rng = random.Random(seed)
 
@@ -220,7 +222,7 @@ def build_seed(
         },
     ]
 
-    today = date.today()
+    today = as_of
     tax_lots = []
     for index, holding in enumerate(holdings):
         if holding["assetClass"] == "cash":
@@ -310,6 +312,12 @@ def build_seed(
 """
 
     seed_payload = {
+        "provenance": {
+            "kind": "synthetic",
+            "generator": "scripts/generate_demo_seed.py",
+            "asOf": str(as_of),
+            "seed": seed,
+        },
         "user": context_packet["user"],
         "contextPacket": context_packet,
         "memoryTemplate": memory_template,
@@ -331,6 +339,8 @@ def main() -> None:
     parser.add_argument("--email")
     parser.add_argument("--seed", type=int, default=20260501)
     parser.add_argument("--randomize", action="store_true")
+    parser.add_argument("--as-of", type=date.fromisoformat, default=date(2026, 5, 2))
+    parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
 
     out = Path(args.out)
@@ -338,19 +348,25 @@ def main() -> None:
     user_id = args.user_id
     if user_id == "maya-patel-demo" and args.email:
         user_id = slugify(args.email.split("@")[0])
-    out.write_text(
-        json.dumps(
-            build_seed(
-                user_id=user_id,
-                name=args.name,
-                email=args.email,
-                seed=args.seed,
-                randomize=args.randomize,
-            ),
-            indent=2,
+    rendered = json.dumps(
+        build_seed(
+            user_id=user_id,
+            name=args.name,
+            email=args.email,
+            seed=args.seed,
+            randomize=args.randomize,
+            as_of=args.as_of,
         ),
-        encoding="utf-8",
+        indent=2,
     )
+    if args.check:
+        if not out.exists() or out.read_text(encoding="utf-8") != rendered:
+            print(f"{out} is stale; run npm run seed:demo", file=sys.stderr)
+            raise SystemExit(1)
+        print(f"Verified {out}")
+        return
+
+    out.write_text(rendered, encoding="utf-8")
     print(f"Wrote {out}")
 
 

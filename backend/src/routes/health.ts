@@ -1,17 +1,21 @@
 import { Router } from 'express';
-import { supabase } from '../lib/supabase.js';
 import { config } from '../config.js';
 
 export const healthRouter = Router();
 
 healthRouter.get('/', async (_req, res) => {
   const hasOpenRouterKey = Boolean(config.OPENROUTER_API_KEY);
-  const { error } = await supabase.from('demo_users').select('id').limit(1);
+  const supabaseHealth = await fetch(`${config.SUPABASE_URL}/auth/v1/health`, {
+    headers: { apikey: config.SUPABASE_PUBLISHABLE_KEY },
+    signal: AbortSignal.timeout(3_000),
+  })
+    .then((response) => ({ connected: response.ok, status: response.status }))
+    .catch(() => ({ connected: false }));
 
   res.json({
     ok: true,
-    service: 'calmvest-api',
-    supabase: error ? { connected: false, message: error.message } : { connected: true },
+    service: 'northstar-api',
+    supabase: supabaseHealth,
     openrouter: { configured: hasOpenRouterKey },
   });
 });

@@ -270,3 +270,12 @@ kbd {
   gap: 2.1rem;
   justify-content: center;
 }
+:where(.app-loading) {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  background: #f4f0e7;
+  color: #18372d;
+  font: 600 0.875rem/1.4 system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}

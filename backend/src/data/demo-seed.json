@@ -1,4 +1,10 @@
 {
+  "provenance": {
+    "kind": "synthetic",
+    "generator": "scripts/generate_demo_seed.py",
+    "asOf": "2026-05-02",
+    "seed": 20260501
+  },
   "user": {
     "id": "maya-patel-demo",
     "name": "Maya Patel",
@@ -59,7 +65,7 @@
     {
       "id": "maya-patel-demo-acct-bankofamerica-savings",
       "institution": "Bank of America",
-      "name": "Advantage Savings",
+      "name": "Maya's Advantage Savings",
       "type": "savings",
       "taxable": false,
       "balance": 12840.12
@@ -67,7 +73,7 @@
     {
       "id": "maya-patel-demo-acct-capitalone-hysa",
       "institution": "Capital One",
-      "name": "Performance Savings",
+      "name": "Maya's Performance Savings",
       "type": "savings",
       "taxable": false,
       "balance": 6840.55
@@ -75,7 +81,7 @@
     {
       "id": "maya-patel-demo-acct-amex-card",
       "institution": "American Express",
-      "name": "Blue Cash Preferred",
+      "name": "Maya's Blue Cash Preferred",
       "type": "credit",
       "taxable": false,
       "balance": -742.66
@@ -91,7 +97,7 @@
     {
       "id": "maya-patel-demo-acct-schwab-brokerage",
       "institution": "Charles Schwab",
-      "name": "Schwab One Brokerage",
+      "name": "Maya's Schwab One Brokerage",
       "type": "brokerage",
       "taxable": true,
       "balance": 13351.35
@@ -99,7 +105,7 @@
     {
       "id": "maya-patel-demo-acct-robinhood-brokerage",
       "institution": "Robinhood",
-      "name": "Investing Account",
+      "name": "Maya's Investing Account",
       "type": "brokerage",
       "taxable": true,
       "balance": 7282.56
@@ -107,7 +113,7 @@
     {
       "id": "maya-patel-demo-acct-etrade-brokerage",
       "institution": "E*TRADE",
-      "name": "Core Brokerage",
+      "name": "Maya's Core Brokerage",
       "type": "brokerage",
       "taxable": true,
       "balance": 6068.8
@@ -115,7 +121,7 @@
     {
       "id": "maya-patel-demo-acct-mutual-fund",
       "institution": "Vanguard",
-      "name": "Vanguard Mutual Fund Account",
+      "name": "Maya's Vanguard Mutual Fund Account",
       "type": "mutual_fund",
       "taxable": true,
       "balance": 3823.34
@@ -123,7 +129,7 @@
     {
       "id": "maya-patel-demo-acct-fidelity-mutual-fund",
       "institution": "Fidelity",
-      "name": "Fidelity Mutual Fund Account",
+      "name": "Maya's Fidelity Mutual Fund Account",
       "type": "mutual_fund",
       "taxable": true,
       "balance": 5810.28
@@ -131,7 +137,7 @@
     {
       "id": "maya-patel-demo-acct-trowe-mutual-fund",
       "institution": "T. Rowe Price",
-      "name": "T. Rowe Price Growth Fund",
+      "name": "Maya's T. Rowe Price Growth Fund",
       "type": "mutual_fund",
       "taxable": true,
       "balance": 4440.92
@@ -139,7 +145,7 @@
     {
       "id": "maya-patel-demo-acct-blackrock-mutual-fund",
       "institution": "BlackRock",
-      "name": "BlackRock Allocation Fund",
+      "name": "Maya's BlackRock Allocation Fund",
       "type": "mutual_fund",
       "taxable": true,
       "balance": 3950.18
@@ -147,7 +153,7 @@
     {
       "id": "maya-patel-demo-acct-cash",
       "institution": "Fidelity",
-      "name": "Brokerage Sweep Cash",
+      "name": "Maya's Brokerage Sweep Cash",
       "type": "cash",
       "taxable": true,
       "balance": 2150

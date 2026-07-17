@@ -3,8 +3,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Router } from 'express';
 import type { DemoSeed, PlaidLinkResult } from '@calmvest/shared';
-import { persistDemoSeed } from '../lib/demo-persistence.js';
 import { supabase } from '../lib/supabase.js';
+import { HttpError } from '../http/errors.js';
+import { requireAuth, requireOwnedUserId } from '../middleware/auth.js';
 
 export const demoRouter = Router();
 
@@ -24,35 +25,16 @@ demoRouter.get('/seed', async (_req, res, next) => {
   }
 });
 
-demoRouter.post('/simulate-plaid-link', async (req, res, next) => {
+demoRouter.post('/simulate-plaid-link', requireAuth, async (req, res, next) => {
   try {
     const requestedUserId = typeof req.body?.userId === 'string' ? req.body.userId : undefined;
-    if (requestedUserId && requestedUserId !== 'maya-patel-demo') {
-      const existing = await readPersistedUserSeed(requestedUserId);
-      if (existing) {
-        res.json(existing);
-        return;
-      }
+    const userId = requireOwnedUserId(req, requestedUserId);
+    const existing = await readPersistedUserSeed(userId);
+    if (existing) {
+      res.json(existing);
+      return;
     }
-
-    const seed = await readDemoSeed();
-    await persistDemoSeed(seed);
-
-    const result: PlaidLinkResult = {
-      ok: true,
-      userId: seed.user.id,
-      institution: 'Connected financial institutions',
-      imported: {
-        accounts: seed.accounts.length,
-        holdings: seed.holdings.length,
-        taxLots: seed.taxLots.length,
-        transactions: seed.transactions.length,
-      },
-      accounts: seed.accounts,
-      holdings: seed.holdings,
-      transactions: seed.transactions,
-    };
-    res.json(result);
+    throw new HttpError(404, 'No synthetic account fixture exists for this user. Sign in again to reprovision it.', 'FIXTURE_NOT_FOUND');
   } catch (error) {
     next(error);
   }
@@ -143,11 +125,13 @@ async function readPersistedUserSeed(userId: string): Promise<PlaidLinkResult | 
   };
 }
 
-demoRouter.post('/seed/supabase', async (_req, res, next) => {
+demoRouter.post('/seed/supabase', requireAuth, async (_req, _res, next) => {
   try {
-    const seed = await readDemoSeed();
-    await persistDemoSeed(seed);
-    res.json({ ok: true, userId: seed.user.id });
+    throw new HttpError(
+      410,
+      'The public database seeding endpoint was retired. Use the checked-in deterministic generator and an authenticated provisioning flow.',
+      'PUBLIC_SEED_RETIRED',
+    );
   } catch (error) {
     next(error);
   }

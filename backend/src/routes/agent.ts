@@ -7,6 +7,7 @@ import { appendTraceEvent, createTraceEvent } from '../agents/trace-store.js';
 import { runCalmVestTool, type CalmVestToolName } from '../agents/calmvest-tools.js';
 import { supabase } from '../lib/supabase.js';
 import { readDemoSeed } from './demo.js';
+import { requireOwnedUserId } from '../middleware/auth.js';
 
 export const agentRouter = Router();
 
@@ -18,7 +19,8 @@ const runSchema = z.object({
 
 agentRouter.post('/run/stream', async (req, res, next) => {
   try {
-    const request = runSchema.parse(req.body);
+    const parsed = runSchema.parse(req.body);
+    const request = { ...parsed, userId: requireOwnedUserId(req, parsed.userId) };
     await streamToResponse(res, request);
   } catch (error) {
     next(error);
@@ -27,8 +29,8 @@ agentRouter.post('/run/stream', async (req, res, next) => {
 
 agentRouter.post('/scenario/stream', async (req, res, next) => {
   try {
-    const seed = await readDemoSeed();
-    const userId = typeof req.body?.userId === 'string' && req.body.userId.trim() ? req.body.userId.trim() : seed.user.id;
+    const requestedUserId = typeof req.body?.userId === 'string' && req.body.userId.trim() ? req.body.userId.trim() : undefined;
+    const userId = requireOwnedUserId(req, requestedUserId);
     await streamDemoScenarioToResponse(res, userId);
   } catch (error) {
     next(error);
@@ -85,8 +87,9 @@ async function streamDemoScenarioToResponse(
       prompt: scenarioArgs.userPrompt,
       source: 'deterministic-demo-run',
     }),
-    trace(runId, 'memory_loaded', 'North', 'Loaded memory graph and portfolio snapshot', {
+    trace(runId, 'memory_loaded', 'North', 'Loaded checked-in synthetic portfolio fixture', {
       userId,
+      fixtureUserId: seed.user.id,
       memoryNodes: ['Goals', 'Risk Comfort', 'Accounts', 'Tax Profile', 'Cash Flow'],
       portfolioValue: seed.contextPacket.accounts_summary.portfolio_value,
     }),
@@ -131,17 +134,34 @@ async function streamDemoScenarioToResponse(
       approvalStatus: 'approval_required',
     }),
   );
+  const comparedPaths = Array.isArray(paths.result.paths)
+    ? paths.result.paths as Array<Record<string, unknown>>
+    : [];
+  const baseline = comparedPaths[0];
+  const recommended = comparedPaths.find((path) => path.name === paths.result.recommendation) ?? comparedPaths[1];
+  const finalAnswer = baseline && recommended
+    ? `${String(paths.result.recommendation)} is the deterministic default path: modeled stress loss changes from ${formatPercent(baseline.stressLossPct)} to ${formatPercent(recommended.stressLossPct)}, top-three concentration from ${formatRatio(baseline.top3Concentration)} to ${formatRatio(recommended.top3Concentration)}, and liquidity coverage to ${formatRatio(recommended.liquidityCoverage)}. This is a synthetic scenario, and approval is required before any action.`
+    : 'The deterministic scenario completed. Review the assumptions and approve any real-world action separately.';
   await emitScenarioEvent(
     res,
     trace(runId, 'run_completed', 'North', 'Scenario complete', {
       userId,
-      finalAnswer:
-        'Balanced protection is the default path: stress loss improves from -22.4% to -14.8%, top-3 concentration falls from 48% to 29%, and liquidity coverage reaches 100%. Approval is required before any action.',
+      finalAnswer,
     }),
   );
 
   writeSse(res, 'done', { runId });
   res.end();
+}
+
+function formatPercent(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? `${number.toFixed(1)}%` : 'unknown';
+}
+
+function formatRatio(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? `${Math.round(number * 100)}%` : 'unknown';
 }
 
 async function emitTool(

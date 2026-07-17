@@ -6,6 +6,7 @@ import type {
   OnboardingCommitResult,
   PlaidLinkResult,
 } from '@calmvest/shared'
+import { sessionHeaders } from './auth'
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/+$/, '')
 
@@ -17,8 +18,8 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response
   try {
     response = await fetch(apiUrl(path), {
-      headers: { 'Content-Type': 'application/json', ...(init?.headers ?? {}) },
       ...init,
+      headers: sessionHeaders(init?.headers),
     })
   } catch (error) {
     if (error instanceof TypeError) {
@@ -60,7 +61,7 @@ export function getMemoryStatus(userId: string) {
 export async function streamScenarioTrace(userId: string, onEvent: (event: AgentTraceEvent) => void) {
   const response = await fetch(apiUrl('/api/agent/scenario/stream'), {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: sessionHeaders(),
     body: JSON.stringify({ userId }),
   })
   if (!response.ok) {
